@@ -22,6 +22,7 @@ jobs:
         GH_RELEASE_GITHUB_API_TOKEN: ${{ secrets.GH_PAT }}
         NPM_TOKEN: ${{ secrets.CHOKO_NPM}}
         SEED_PHRASE: ${{ secrets.SEED_PHRASE }}
+        ORG_NAME: 'CHOKO_WALLET'
       run: |
         yarn install --immutable | grep -v 'YN0013'
         yarn ${{ matrix.step }}
