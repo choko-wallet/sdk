@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
-
 import { u8aToHex } from '@skyekiwi/util';
 
 import { LockedPrivateKey, UserAccount } from '.';

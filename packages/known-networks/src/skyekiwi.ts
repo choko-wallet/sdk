@@ -3,9 +3,9 @@
 
 import type { HexString } from '@choko-wallet/core/types';
 
-import { INetwork } from '@choko-wallet/core';
-
 import { hexToU8a } from '@skyekiwi/util';
+
+import { INetwork } from '@choko-wallet/core';
 
 export class SkyeKiwiNetwork implements INetwork {
   providers: Record<string, string>;

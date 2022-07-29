@@ -2962,9 +2962,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@skyekiwi/dev@npm:^0.4.3":
-  version: 0.4.3
-  resolution: "@skyekiwi/dev@npm:0.4.3"
+"@skyekiwi/dev@npm:^0.4.5":
+  version: 0.4.5
+  resolution: "@skyekiwi/dev@npm:0.4.5"
   dependencies:
     "@babel/cli": ^7.14.8
     "@babel/core": ^7.15.0
@@ -3051,7 +3051,7 @@ __metadata:
     skyekiwi-exec-rollup: scripts/skyekiwi-exec-rollup.cjs
     skyekiwi-exec-tsc: scripts/skyekiwi-exec-tsc.cjs
     skyekiwi-exec-webpack: scripts/skyekiwi-exec-webpack.cjs
-  checksum: a1dc7bdea8341cc562d4b6224331579f9b6f42f4a4f5a956417225bf5f1f5d9acf51d985f4817d391ac6520d1ccccd03a13d7ae1c37e28824f9fce48d17836c9
+  checksum: b8377232321b7431c8824d58f4ac9ff6033f426846b88a200c32b21a2ba783371208a985827c5285f7aec80daa90c36343fa34eb32f3772e26eed7b5a0bc4235
   languageName: node
   linkType: hard
 
@@ -10194,7 +10194,7 @@ resolve@^2.0.0-next.3:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@babel/core": ^7.15.0
-    "@skyekiwi/dev": ^0.4.3
+    "@skyekiwi/dev": ^0.4.5
     "@types/jest": ^27.0.1
     "@types/node": ^16.11.11
     dotenv: ^10.0.0
