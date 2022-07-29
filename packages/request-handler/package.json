@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/request-handler",
-  "version": "0.1.1",
+  "version": "0.1.2-0",
   "type": "module",
   "description": "wallet request handlers",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.1",
+    "@choko-wallet/core": "0.1.2-0",
     "@skyekiwi/util": "0.8.4-0"
   }
 }
