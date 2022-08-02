@@ -5,8 +5,7 @@ import { ILockedPrivateKey, IUserAccount, IUserAccountInfo, LockedPrivateKey, Us
 import { Cipher } from './cipher';
 import { IDappDescriptor } from './dapp';
 import { INetwork, KnownNetworks, Network } from './network';
-import { IPayload, IRequest, IRequestError, IRequestHandlerDescriptor, IResponse,
-  RequestHandler, RequestHandlers } from './requestHandler';
+import { IPayload, IRequest, IRequestError, IRequestHandlerDescriptor, IResponse, RequestHandlers } from './requestHandler';
 import { ITransaction, ITransactionOutcome } from './transaction';
 
 export type {
@@ -15,7 +14,7 @@ export type {
   INetwork, KnownNetworks,
   ITransaction, ITransactionOutcome,
   IRequestError, IPayload, IRequestHandlerDescriptor, IRequest, IResponse,
-  RequestHandlers, RequestHandler
+  RequestHandlers
 };
 export {
   LockedPrivateKey, UserAccount,

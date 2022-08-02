@@ -42,10 +42,25 @@ export class Network implements INetwork {
   color?: Color;
   logo?: Image;
 
-  constructor (config: INetwork) {
+  constructor (config: {
+    info: string,
+    providers: Record<string, string>,
+    text: string,
+
+    homepage?: string,
+    isChild?: boolean,
+    isDevelopment?: boolean,
+    isDisabled?: boolean,
+    isUnreachable?: boolean,
+    paraId?: number,
+    summary?: string,
+    color?: Color,
+    logo?: Image,
+  }) {
     this.providers = config.providers;
     this.info = config.info;
     this.text = config.text;
+
     this.homepage = config.homepage;
     this.isChild = config.isChild;
     this.isDevelopment = config.isDevelopment;

@@ -2,19 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { HexString, Version } from './types';
-import { IDappDescriptor, IUserAccount } from '.';
+import { IDappDescriptor, UserAccount } from '.';
 
-export declare type RequestHandler = (r: IRequest) => IResponse;
 export declare type RequestHandlers = Record<HexString, IRequestHandlerDescriptor>;
 
 export interface IRequestHandlerDescriptor {
   description: string;
-  encodedRemotePayload?: Uint8Array;
   name: string;
-
-  requestSchema: IRequest;
-  responseSchema: IResponse;
-  requestHandler: RequestHandler;
 
   userApprovalRequired: boolean; // do we send the request to wallet approval?
 
@@ -23,7 +17,7 @@ export interface IRequestHandlerDescriptor {
 
 export interface IRequest {
   dappOrigin: IDappDescriptor;
-  userOrigin: IUserAccount;
+  userOrigin: UserAccount;
 
   type: HexString;
 
@@ -39,7 +33,7 @@ export interface IRequest {
 
 export interface IResponse {
   dappOrigin: IDappDescriptor;
-  userOrigin: IUserAccount;
+  userOrigin: UserAccount;
 
   type: HexString;
 

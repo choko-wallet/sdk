@@ -1479,6 +1479,8 @@ __metadata:
   resolution: "@choko-wallet/request-handler@workspace:packages/request-handler"
   dependencies:
     "@choko-wallet/core": 0.1.5
+    "@polkadot/keyring": ^10.1.2
+    "@polkadot/util-crypto": ^10.1.2
     "@skyekiwi/util": 0.8.4-1
   languageName: unknown
   linkType: soft
@@ -2496,7 +2498,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/keyring@npm:^10.1.1":
+"@polkadot/keyring@npm:^10.1.1, @polkadot/keyring@npm:^10.1.2":
   version: 10.1.2
   resolution: "@polkadot/keyring@npm:10.1.2"
   dependencies:
@@ -2643,7 +2645,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util-crypto@npm:10.1.2, @polkadot/util-crypto@npm:^10.1.1":
+"@polkadot/util-crypto@npm:10.1.2, @polkadot/util-crypto@npm:^10.1.1, @polkadot/util-crypto@npm:^10.1.2":
   version: 10.1.2
   resolution: "@polkadot/util-crypto@npm:10.1.2"
   dependencies:
