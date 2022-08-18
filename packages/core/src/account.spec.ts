@@ -71,12 +71,12 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     expect(userAccount2.hasEncryptedPrivateKeyExported).toEqual(false);
     expect(userAccount2.keyType).toEqual('sr25519');
     expect(userAccount2.localKeyEncryptionStrategy).toEqual(0);
+    expect(userAccount2.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn');
 
     userAccount2.unlock(privateKey);
     await userAccount2.init();
 
     expect(userAccount2.isLocked).toEqual(false);
-    expect(userAccount2.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn');
     expect(userAccount2.publicKey).toEqual(userAccount.publicKey);
   });
 

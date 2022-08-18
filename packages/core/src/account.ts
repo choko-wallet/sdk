@@ -1,7 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import Keyring from '@polkadot/keyring';
+import Keyring, { encodeAddress } from '@polkadot/keyring';
 import { cryptoWaitReady, mnemonicToMiniSecret, mnemonicValidate } from '@polkadot/util-crypto';
 import { SymmetricEncryption } from '@skyekiwi/crypto';
 
@@ -270,6 +270,7 @@ export class UserAccount implements IUserAccount {
     });
 
     userAccount.publicKey = publicKey;
+    userAccount.address = encodeAddress(publicKey);
 
     return userAccount;
   }
