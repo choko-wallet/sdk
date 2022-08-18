@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { HexString, Version } from './types';
-import { IDappDescriptor, UserAccount } from '.';
+import { IDappDescriptor, RequestError, UserAccount } from '.';
 
 export declare type RequestHandlers = Record<HexString, IRequestHandlerDescriptor>;
 
@@ -39,7 +39,7 @@ export interface IResponse {
 
   isSuccessful: boolean;
 
-  error?: IRequestError;
+  error?: RequestError;
   payload?: IPayload;
 
   version: Version;
@@ -52,8 +52,4 @@ export interface IResponse {
 export interface IPayload {
   build: () => Uint8Array;
   // static parse: (data: Uint8Array) => IPayload;
-}
-
-export interface IRequestError {
-  reason: Uint8Array;
 }

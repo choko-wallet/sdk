@@ -4,8 +4,9 @@
 import { ILockedPrivateKey, IUserAccount, IUserAccountInfo, LockedPrivateKey, UserAccount } from './account';
 import { Cipher } from './cipher';
 import { IDappDescriptor } from './dapp';
+import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
 import { INetwork, KnownNetworks, Network } from './network';
-import { IPayload, IRequest, IRequestError, IRequestHandlerDescriptor, IResponse, RequestHandlers } from './requestHandler';
+import { IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestHandlers } from './requestHandler';
 import { ITransaction, ITransactionOutcome } from './transaction';
 
 export type {
@@ -13,13 +14,16 @@ export type {
   IDappDescriptor,
   INetwork, KnownNetworks,
   ITransaction, ITransactionOutcome,
-  IRequestError, IPayload, IRequestHandlerDescriptor, IRequest, IResponse,
+  IPayload, IRequestHandlerDescriptor, IRequest, IResponse,
   RequestHandlers
 };
+
 export {
   LockedPrivateKey, UserAccount,
 
   Cipher,
 
-  Network
+  Network,
+
+  RequestError, RequestErrorSerializedLength, mapRequestErrorToString, serializeRequestError, deserializeRequestError
 };

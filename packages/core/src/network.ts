@@ -72,11 +72,19 @@ export class Network implements INetwork {
     this.logo = config.logo;
   }
 
+  public static serializedLength (): number {
+    return 8;
+  }
+
   public serialize (): Uint8Array {
     return Util.xxHash(this.info);
   }
 
   public static deserialize (data: Uint8Array): INetwork {
+    if (data.length !== Network.serializedLength()) {
+      throw new Error('Invalid network length');
+    }
+
     const hash = u8aToHex(data);
 
     if (hash in knownNetworks) {

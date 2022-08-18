@@ -1,18 +1,17 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import Keyring from '@polkadot/keyring';
 import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
 
 import { RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { SignMessageDescriptor, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload } from './signMessage';
+import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload } from './connectDapp';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
-describe('@choko-wallet/request-handler - signMessage', function () {
+describe('@choko-wallet/request-handler - connectDapp', function () {
   const account = new UserAccount({
     hasEncryptedPrivateKeyExported: false,
     keyType: 'sr25519',
@@ -26,23 +25,20 @@ describe('@choko-wallet/request-handler - signMessage', function () {
   });
 
   it('request serde', async () => {
-    const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();
 
-    const request = new SignMessageRequest({
+    const request = new ConnectDappRequest({
       dappOrigin: dapp,
-      payload: new SignMessageRequestPayload({ message: msg }),
+      payload: new ConnectDappRequestPayload({}),
       userOrigin: account
     });
 
     const serialized = request.serialize();
+    const deserialized = ConnectDappRequest.deserialize(serialized);
 
-    const deserialized = SignMessageRequest.deserialize(serialized);
-
-    expect(deserialized.payload.message).toEqual(msg);
+    expect(deserialized.payload).toEqual(new ConnectDappRequestPayload({}));
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
   });
@@ -52,19 +48,19 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     await account.init();
     account.lock();
 
-    const response = new SignMessageResponse({
+    const response = new ConnectDappResponse({
       dappOrigin: dapp,
-      payload: new SignMessageResponsePayload({
-        keyType: 'sr25519', signature: new Uint8Array(64)
+      payload: new ConnectDappResponsePayload({
+        userAccount: account
       }),
       userOrigin: account
     });
 
     const serialized = response.serialize();
-    const deserialized = SignMessageResponse.deserialize(serialized);
+    const deserialized = ConnectDappResponse.deserialize(serialized);
 
-    expect(deserialized.payload).toEqual(new SignMessageResponsePayload({
-      keyType: 'sr25519', signature: new Uint8Array(64)
+    expect(deserialized.payload).toEqual(new ConnectDappResponsePayload({
+      userAccount: account
     }));
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
@@ -72,48 +68,32 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
-  it('e2e - polkadot', async () => {
-    const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-
-    const account = new UserAccount({
-      hasEncryptedPrivateKeyExported: false,
-      keyType: 'sr25519',
-      localKeyEncryptionStrategy: 0
-    });
-
+  it('e2e', async () => {
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();
 
-    const request = new SignMessageRequest({
-      dappOrigin: new DappDescriptor({
-        activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
-        displayName: 'Jest Testing',
-        infoName: 'test',
-        version: 0
-      }),
-      payload: new SignMessageRequestPayload({
-        message: msg
-      }),
+    const request = new ConnectDappRequest({
+      dappOrigin: dapp,
+      payload: new ConnectDappRequestPayload({}),
       userOrigin: account
     });
 
     expect(request.validatePayload()).toBe(true);
 
-    const signMessasge = new SignMessageDescriptor();
+    const connectDapp = new ConnectDappDescriptor();
 
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
 
-    const response = await signMessasge.requestHandler(request, account);
+    const response = await connectDapp.requestHandler(request, account);
 
-    // validate against raw sign
-    const kr = (new Keyring({
-      type: account.keyType
-    })).addFromUri(SEED);
+    account.lock();
 
-    const res = kr.verify(msg, response.payload.signature, kr.publicKey);
-
-    expect(res).toBe(true);
+    expect(response.dappOrigin).toEqual(dapp);
+    expect(response.isSuccessful).toEqual(true);
+    expect(response.payload.userAccount.serialize()).toEqual(account.serialize());
+    expect(response.userOrigin).toEqual(account);
+    expect(response.error).toEqual(RequestError.NoError);
   });
 });

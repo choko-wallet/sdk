@@ -53,6 +53,13 @@ export class DappDescriptor implements IDappDescriptor {
     this.version = config.version;
   }
 
+  public static serializedLength (): number {
+    return 68 + // displayNae
+      68 + // infoName
+      Network.serializedLength() + // network
+      2; // version ( pad(repeat) to 2 bytes )
+  }
+
   public serialize (): Uint8Array {
     const name = stringToU8a(this.infoName);
     const nameContainer = new Uint8Array(68);
@@ -66,17 +73,18 @@ export class DappDescriptor implements IDappDescriptor {
     displayNameContainer.set(padSize(displayName.length), 0);
     displayNameContainer.set(displayName, 4);
 
-    const res = new Uint8Array(68 + 68 + 16 + 1);
+    const res = new Uint8Array(DappDescriptor.serializedLength());
 
     res.set(nameContainer, 0);
-    res.set(this.activeNetwork.serialize(), 68);
-    res.set([this.version], 68 + 16);
+    res.set(displayNameContainer, 68);
+    res.set(this.activeNetwork.serialize(), 68 + 68);
+    res.set([this.version, this.version], 68 + 68 + Network.serializedLength());
 
     return res;
   }
 
   public static deserialize (data: Uint8Array): DappDescriptor {
-    if (data.length !== 68 + 68 + 16 + 1) {
+    if (data.length !== DappDescriptor.serializedLength()) {
       throw new Error('invalid data length - DappDescriptor.deserialize');
     }
 
@@ -85,11 +93,11 @@ export class DappDescriptor implements IDappDescriptor {
     const nameStr = u8aToString(name);
 
     const displayNameLength = unpadSize(data.slice(68, 72));
-    const displayName = data.slice(4, 4 + displayNameLength);
+    const displayName = data.slice(4 + 68, 4 + 68 + displayNameLength);
     const displayNameStr = u8aToString(displayName);
 
-    const activeNetwork = data.slice(68, 68 + 16);
-    const version = data.slice(68 + 16, 68 + 16 + 1)[0];
+    const activeNetwork = data.slice(68 + 68, 68 + 68 + 8);
+    const version = data.slice(68 + 68 + 8, 68 + 68 + 8 + 1)[0];
 
     const descriptor = new DappDescriptor({
       activeNetwork: Network.deserialize(activeNetwork),

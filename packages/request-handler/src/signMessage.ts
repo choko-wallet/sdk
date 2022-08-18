@@ -1,68 +1,130 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IDappDescriptor } from '@choko-wallet/core';
-import type { HexString, Version } from '@choko-wallet/core/types';
+import type { HexString, KeypairType, Version } from '@choko-wallet/core/types';
 
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { stringToU8a, u8aToHex } from '@skyekiwi/util';
+import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 
-import { IPayload, IRequest, IRequestError, IRequestHandlerDescriptor, IResponse, UserAccount } from '@choko-wallet/core';
+import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
-import { xxHash } from '@choko-wallet/core/util';
+import { keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from '@choko-wallet/core/util';
 
-export class SignMessageError implements IRequestError {
-  reason: Uint8Array;
-
-  constructor (config: {
-    reason: Uint8Array
-  }) {
-    this.reason = config.reason;
-  }
-}
+export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
 
 export class SignMessageRequestPayload implements IPayload {
   public readonly message: Uint8Array;
+  public readonly version: Version;
 
   constructor (config: {
     message: Uint8Array,
+    version?: Version
   }) {
     const { message } = config;
 
+    if (message.length >= 512) {
+      throw new Error('message too long');
+    }
+
     this.message = message;
+    this.version = config.version || CURRENT_VERSION;
+  }
+
+  public static serializedLength (): number {
+    return 512 + 4 + 2;
   }
 
   public build (): Uint8Array {
-    return this.message;
+    const res = new Uint8Array(SignMessageRequestPayload.serializedLength());
+
+    res.set(padSize(this.message.length), 0);
+    res.set(this.message, 4);
+    res.set([this.version, this.version], 4 + 512);
+
+    return res;
   }
 
   public static parse (data: Uint8Array): SignMessageRequestPayload {
+    if (data.length !== SignMessageRequestPayload.serializedLength()) {
+      throw new Error('invalid length');
+    }
+
+    const msgLength = unpadSize(data.slice(0, 4));
+    const msg = data.slice(4, 4 + msgLength);
+
     return new SignMessageRequestPayload({
-      message: data
+      message: msg,
+      version: data[4 + 512]
     });
   }
 }
 
 export class SignMessageResponsePayload implements IPayload {
-  public readonly singature: Uint8Array;
+  public readonly signature: Uint8Array;
+  public readonly keyType: KeypairType;
+  public readonly version: Version;
 
   constructor (config: {
-    singature: Uint8Array,
+    signature: Uint8Array,
+    keyType: KeypairType
+    version?: Version
   }) {
-    const { singature } = config;
+    const { keyType, signature } = config;
 
-    this.singature = singature;
+    this.signature = signature;
+    this.keyType = keyType;
+    this.version = config.version || CURRENT_VERSION;
+  }
+
+  public static serializedLength (): number {
+    return 1 + // keytype
+      65 + // sig = pad a zero byte for sr25519 & ed25519
+      2; // version
   }
 
   public build (): Uint8Array {
-    return this.singature;
+    const res = new Uint8Array(SignMessageResponsePayload.serializedLength());
+
+    res.set([keypairTypeStringToNumber(this.keyType)], 0);
+
+    if (this.keyType === 'sr25519' || this.keyType === 'ed25519') {
+      if (this.signature.length !== 64) {
+        throw new Error('invalid length');
+      }
+
+      res.set([0], 1);
+      res.set(this.signature, 2);
+    } else {
+      if (this.signature.length !== 65) {
+        throw new Error('invalid length');
+      }
+
+      res.set(this.signature, 1);
+    }
+
+    res.set([this.version, this.version], 1 + 65);
+
+    return res;
   }
 
   public static parse (data: Uint8Array): SignMessageResponsePayload {
+    if (data.length !== SignMessageResponsePayload.serializedLength()) {
+      throw new Error('invalid length');
+    }
+
+    const keyType = keypairTypeNumberToString(data[0]);
+    let signature = data.slice(1, 1 + 65);
+
+    if (keyType === 'sr25519' || keyType === 'ed25519') {
+      signature = signature.slice(1);
+    }
+
+    const version = data[1 + 65];
+
     return new SignMessageResponsePayload({
-      singature: data
+      keyType, signature, version
     });
   }
 }
@@ -82,6 +144,8 @@ export class SignMessageRequest implements IRequest {
     dappOrigin: IDappDescriptor,
     payload: SignMessageRequestPayload,
     userOrigin: UserAccount,
+
+    version?: Version,
   }) {
     const { dappOrigin, payload, userOrigin } = config;
 
@@ -93,10 +157,10 @@ export class SignMessageRequest implements IRequest {
     this.userOrigin = userOrigin;
 
     this.payload = payload;
-    this.type = u8aToHex(xxHash('signMessage'));
+    this.type = signMessageHash;
     this.isRemote = false;
 
-    this.version = CURRENT_VERSION;
+    this.version = config.version || CURRENT_VERSION;
   }
 
   public validatePayload (): boolean {
@@ -109,29 +173,46 @@ export class SignMessageRequest implements IRequest {
     }
   }
 
-  public serialize (): Uint8Array {
-    const length = (68 + 68 + 16 + 1) + // DappOrigin
-      (36) + // UserAccount
-      (this.payload.build().length); // Payload
+  public static serializedLength (): number {
+    return DappDescriptor.serializedLength() + // version
+      UserAccount.serializedLength() + // type
+      SignMessageRequestPayload.serializedLength() +
+      2; // version
+  }
 
-    const res = new Uint8Array(length);
+  public serialize (): Uint8Array {
+    const res = new Uint8Array(SignMessageRequest.serializedLength());
 
     res.set(this.dappOrigin.serialize(), 0);
-    res.set(this.userOrigin.serialize(), 68);
-    res.set(this.payload.build(), 68 + 36);
+    res.set(this.userOrigin.serialize(), DappDescriptor.serializedLength());
+    res.set(this.payload.build(), DappDescriptor.serializedLength() + UserAccount.serializedLength());
+    res.set([this.version, this.version],
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() + SignMessageRequestPayload.serializedLength()
+    );
 
     return res;
   }
 
   public static deserialize (data: Uint8Array): SignMessageRequest {
-    const dappOrigin = DappDescriptor.deserialize(data.slice(0, 68));
-    const userOrigin = UserAccount.deserialize(data.slice(68, 68 + 36));
-    const payload = SignMessageRequestPayload.parse(data.slice(68 + 36 + 16 + 1 + 1));
+    if (data.length !== SignMessageRequest.serializedLength()) {
+      throw new Error('invalid length');
+    }
+
+    const dappOrigin = DappDescriptor.deserialize(data.slice(0, DappDescriptor.serializedLength()));
+    const userOrigin = UserAccount.deserialize(data.slice(DappDescriptor.serializedLength(),
+      DappDescriptor.serializedLength() + UserAccount.serializedLength()
+    ));
+    const payload = SignMessageRequestPayload.parse(data.slice(
+      DappDescriptor.serializedLength() + UserAccount.serializedLength(),
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() + SignMessageRequestPayload.serializedLength()
+    ));
+    const version = data[DappDescriptor.serializedLength() + UserAccount.serializedLength() + SignMessageRequestPayload.serializedLength()];
 
     return new SignMessageRequest({
       dappOrigin: dappOrigin,
       payload: payload,
-      userOrigin: userOrigin
+      userOrigin: userOrigin,
+      version: version
     });
   }
 }
@@ -144,7 +225,7 @@ export class SignMessageResponse implements IResponse {
 
   isSuccessful: boolean;
 
-  error?: SignMessageError;
+  error?: RequestError;
   payload: SignMessageResponsePayload;
 
   version: Version;
@@ -153,21 +234,22 @@ export class SignMessageResponse implements IResponse {
     dappOrigin: IDappDescriptor,
     userOrigin: UserAccount,
 
-    isSuccessful: boolean,
-
     payload: SignMessageResponsePayload,
-    error?: SignMessageError,
+    error?: RequestError,
+    version?: Version,
   }) {
-    const { dappOrigin, error, isSuccessful, payload, userOrigin } = config;
+    const { dappOrigin, error, payload, userOrigin } = config;
 
     this.dappOrigin = dappOrigin;
     this.userOrigin = userOrigin;
-    this.isSuccessful = isSuccessful;
     this.payload = payload;
-    this.type = u8aToHex(xxHash('signMessage'));
+    this.type = signMessageHash;
     this.version = CURRENT_VERSION;
 
-    if (error) {
+    if (!error) {
+      this.isSuccessful = true;
+      this.error = RequestError.NoError;
+    } else {
       this.isSuccessful = false;
       this.error = error;
     }
@@ -183,41 +265,57 @@ export class SignMessageResponse implements IResponse {
     }
   }
 
-  public serialize (): Uint8Array {
-    const length = (68 + 68 + 16 + 1) + // DappOrigin
-      (36) + // UserAccount
-      (1) + // isSuccessful
-      (this.payload.build().length) + // Payload
-      (this.error.reason.length); // Error
+  public static serializedLength (): number {
+    return DappDescriptor.serializedLength() +
+      UserAccount.serializedLength() +
+      SignMessageResponsePayload.serializedLength() +
+      RequestErrorSerializedLength +
+      2; // version
+  }
 
-    const res = new Uint8Array(length);
+  public serialize (): Uint8Array {
+    const res = new Uint8Array(SignMessageResponse.serializedLength());
 
     res.set(this.dappOrigin.serialize(), 0);
-    res.set(this.userOrigin.serialize(), 68);
-    res.set([this.isSuccessful ? 1 : 0, this.isSuccessful ? 1 : 0], 68 + 36);
-    res.set(this.payload.build(), 68 + 36 + 1);
-    res.set(this.error.reason, 68 + 36 + 1 + this.payload.build().length);
+    res.set(this.userOrigin.serialize(), DappDescriptor.serializedLength());
+    res.set(this.payload.build(), DappDescriptor.serializedLength() + UserAccount.serializedLength());
+    res.set(serializeRequestError(this.error),
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() +
+      SignMessageResponsePayload.serializedLength());
+    res.set([this.version, this.version],
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() +
+      SignMessageResponsePayload.serializedLength() + RequestErrorSerializedLength);
 
     return res;
   }
 
   public static deserialize (data: Uint8Array): SignMessageResponse {
-    const dappOrigin = DappDescriptor.deserialize(data.slice(0, 68));
-    const userOrigin = UserAccount.deserialize(data.slice(68, 68 + 36));
+    if (data.length !== SignMessageResponse.serializedLength()) {
+      throw new Error('invalid length');
+    }
 
-    const isSuccessful = data[68 + 36] === 1;
+    const dappOrigin = DappDescriptor.deserialize(data.slice(0, DappDescriptor.serializedLength()));
+    const userOrigin = UserAccount.deserialize(data.slice(DappDescriptor.serializedLength(),
+      DappDescriptor.serializedLength() + UserAccount.serializedLength()
+    ));
 
-    const payload = SignMessageResponsePayload.parse(data.slice(68 + 36 + 1 + 1));
-    const error = new SignMessageError({
-      reason: data.slice(68 + 36 + 1 + 1 + payload.build().length)
-    });
+    const payload = SignMessageResponsePayload.parse(data.slice(
+      DappDescriptor.serializedLength() + UserAccount.serializedLength(),
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() + SignMessageResponsePayload.serializedLength()
+    ));
+    const error = deserializeRequestError(data.slice(
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() + SignMessageResponsePayload.serializedLength(),
+      DappDescriptor.serializedLength() + UserAccount.serializedLength() + SignMessageResponsePayload.serializedLength() + RequestErrorSerializedLength
+    ));
+    const version = data[DappDescriptor.serializedLength() + UserAccount.serializedLength() +
+      SignMessageResponsePayload.serializedLength() + RequestErrorSerializedLength];
 
     return new SignMessageResponse({
       dappOrigin: dappOrigin,
       error: error,
-      isSuccessful: isSuccessful,
       payload: payload,
-      userOrigin: userOrigin
+      userOrigin: userOrigin,
+      version: version
     });
   }
 }
@@ -242,12 +340,10 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
   public async requestHandler (request: SignMessageRequest, account: UserAccount): Promise<SignMessageResponse> {
     await cryptoWaitReady();
 
-    let err: SignMessageError;
+    let err = RequestError.NoError;
 
     if (account.isLocked) {
-      err = new SignMessageError({
-        reason: stringToU8a('Account is locked')
-      });
+      err = RequestError.AccountLocked;
     }
 
     const kr = (new Keyring({
@@ -257,16 +353,13 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
     const response = new SignMessageResponse({
       dappOrigin: request.dappOrigin,
       error: err,
-      isSuccessful: false,
       payload: new SignMessageResponsePayload({
-        singature: kr.sign(request.payload.message)
+        keyType: account.keyType,
+        signature: kr.sign(request.payload.message)
       }),
       userOrigin: request.userOrigin
-
     });
 
     return response;
   }
 }
-
-export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));

@@ -225,19 +225,21 @@ export class UserAccount implements IUserAccount {
 
   // Account Serde & Account Index
 
+  public static serializedLength (): number {
+    return 32 + // publicKey len
+      1 + // keyType
+      1 + // localKeyEncryptionStrategy
+      1 + // hasEncryptedPrivateKeyExported
+      1; // version
+  }
+
   // account serialize does not include private key info
   public serialize (): Uint8Array {
-    if (!this.address || !this.publicKey) {
+    if (!this.publicKey) {
       throw new Error('account is not initialized - UserAccount.serialize');
     }
 
-    const res = new Uint8Array(
-      32 + // publicKey len
-        1 + // keyType
-        1 + // localKeyEncryptionStrategy
-        1 + // hasEncryptedPrivateKeyExported
-        1 // version
-    );
+    const res = new Uint8Array(UserAccount.serializedLength());
 
     res.set(this.publicKey, 0);
     res.set([Util.keypairTypeStringToNumber(this.keyType)], 32);
@@ -249,7 +251,7 @@ export class UserAccount implements IUserAccount {
   }
 
   public static deserialize (data: Uint8Array): UserAccount {
-    if (data.length !== 36) {
+    if (data.length !== UserAccount.serializedLength()) {
       throw new Error('invalid data length - UserAccount.deserialize');
     }
 
@@ -313,18 +315,20 @@ export class LockedPrivateKey implements ILockedPrivateKey {
     this.version = config.version ? config.version : CURRENT_VERSION;
   }
 
+  public static serializedLength (): number {
+    return 32 + 16 + 24 + // encryptedPrivateKey len
+        1 + // keyType
+        1 + // localKeyEncryptionStrategy
+        1 + // hasEncryptedPrivateKeyExported
+        1; // version
+  }
+
   public serialize (): Uint8Array {
     if (!this.encryptedPrivateKey) {
       throw new Error('invalid key - LockedPrivateKey.serialize');
     }
 
-    const res = new Uint8Array(
-      32 + 16 + 24 + // encryptedPrivateKey len
-        1 + // keyType
-        1 + // localKeyEncryptionStrategy
-        1 + // hasEncryptedPrivateKeyExported
-        1 // version
-    );
+    const res = new Uint8Array(LockedPrivateKey.serializedLength());
 
     res.set(this.encryptedPrivateKey, 0);
     res.set([Util.keypairTypeStringToNumber(this.keyType)], 72);
@@ -336,7 +340,7 @@ export class LockedPrivateKey implements ILockedPrivateKey {
   }
 
   public static deserialize (data: Uint8Array): LockedPrivateKey {
-    if (data.length !== 76) {
+    if (data.length !== LockedPrivateKey.serializedLength()) {
       throw new Error('invalid data length - LockedPrivateKey.deserialize');
     }
 
