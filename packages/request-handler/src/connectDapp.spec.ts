@@ -24,7 +24,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     version: 0
   });
 
-  it('request serde', async () => {
+  it('request serde - connectDapp', async () => {
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();
@@ -43,7 +43,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     expect(deserialized.userOrigin).toEqual(account);
   });
 
-  it('response serde', async () => {
+  it('response serde - connectDapp', async () => {
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();
@@ -68,7 +68,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
-  it('e2e', async () => {
+  it('e2e - connectDapp', async () => {
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();

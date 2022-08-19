@@ -7,13 +7,11 @@ import { IDappDescriptor } from './dapp';
 import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
 import { INetwork, KnownNetworks, Network } from './network';
 import { IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestHandlers } from './requestHandler';
-import { ITransaction, ITransactionOutcome } from './transaction';
 
 export type {
   ILockedPrivateKey, IUserAccountInfo, IUserAccount,
   IDappDescriptor,
   INetwork, KnownNetworks,
-  ITransaction, ITransactionOutcome,
   IPayload, IRequestHandlerDescriptor, IRequest, IResponse,
   RequestHandlers
 };

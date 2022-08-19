@@ -13,6 +13,7 @@ export interface INetwork {
   providers: Record<string, string>;
   info: string;
   text: string;
+  defaultProvider: string;
 
   homepage?: string;
   isChild?: boolean;
@@ -29,6 +30,7 @@ export interface INetwork {
 
 export class Network implements INetwork {
   providers: Record<string, string>;
+  defaultProvider: string;
   info: string;
   text: string;
 
@@ -45,6 +47,7 @@ export class Network implements INetwork {
   constructor (config: {
     info: string,
     providers: Record<string, string>,
+    defaultProvider: string,
     text: string,
 
     homepage?: string,
@@ -58,6 +61,7 @@ export class Network implements INetwork {
     logo?: Image,
   }) {
     this.providers = config.providers;
+    this.defaultProvider = config.defaultProvider;
     this.info = config.info;
     this.text = config.text;
 

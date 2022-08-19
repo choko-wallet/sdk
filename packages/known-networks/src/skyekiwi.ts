@@ -9,6 +9,7 @@ import { INetwork } from '@choko-wallet/core';
 
 export class SkyeKiwiNetwork implements INetwork {
   providers: Record<string, string>;
+  defaultProvider: string;
   info: string;
   text: string;
   homepage?: string;
@@ -29,6 +30,7 @@ export class SkyeKiwiNetwork implements INetwork {
     this.providers = {
       SkyeKiwi: 'wss://staging.rpc.skye.kiwi'
     };
+    this.defaultProvider = 'wss://staging.rpc.skye.kiwi';
   }
 
   public serialize (): Uint8Array {

@@ -1,18 +1,30 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import Keyring from '@polkadot/keyring';
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
+import { hexToU8a } from '@skyekiwi/util';
 
 import { RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { SignMessageDescriptor, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload } from './signMessage';
+import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload, SignTxResponse, SignTxResponsePayload } from './signTx';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
+const provider = new WsProvider('wss://staging.rpc.skye.kiwi');
 
-describe('@choko-wallet/request-handler - signMessage', function () {
+const getEncodedTx = async (): Promise<Uint8Array> => {
+  const api = await ApiPromise.create({ provider: provider });
+  const tx = api.tx.balances.transfer(
+    '5CQ5PxbmUkAzRnLPUkU65fZtkypqpx8MrKnAfXkSy9eiSeoM',
+    1
+  );
+
+  return hexToU8a(tx.toHex().substring(2));
+};
+
+describe('@choko-wallet/request-handler - signTx', function () {
   const account = new UserAccount({
     hasEncryptedPrivateKeyExported: false,
     keyType: 'sr25519',
@@ -25,56 +37,54 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     version: 0
   });
 
-  it('request serde - signMessage', async () => {
-    const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-
+  afterAll(() => {
+    // Note: not using await here.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    provider.disconnect();
+  });
+  it('request serde - signTx', async () => {
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();
 
-    const request = new SignMessageRequest({
+    const encoded = await getEncodedTx();
+    const request = new SignTxRequest({
       dappOrigin: dapp,
-      payload: new SignMessageRequestPayload({ message: msg }),
+      payload: new SignTxRequestPayload({ encoded }),
       userOrigin: account
     });
 
     const serialized = request.serialize();
 
-    const deserialized = SignMessageRequest.deserialize(serialized);
+    const deserialized = SignTxRequest.deserialize(serialized);
 
-    expect(deserialized.payload.message).toEqual(msg);
+    expect(deserialized.payload.encoded).toEqual(encoded);
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
   });
 
-  it('response serde - signMessage', async () => {
+  it('response serde - signTx', async () => {
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
     account.lock();
 
-    const response = new SignMessageResponse({
+    const response = new SignTxResponse({
       dappOrigin: dapp,
-      payload: new SignMessageResponsePayload({
-        keyType: 'sr25519', signature: new Uint8Array(64)
-      }),
+      payload: new SignTxResponsePayload({ txHash: new Uint8Array(32) }),
       userOrigin: account
     });
 
     const serialized = response.serialize();
-    const deserialized = SignMessageResponse.deserialize(serialized);
+    const deserialized = SignTxResponse.deserialize(serialized);
 
-    expect(deserialized.payload).toEqual(new SignMessageResponsePayload({
-      keyType: 'sr25519', signature: new Uint8Array(64)
-    }));
+    expect(deserialized.payload).toEqual(new SignTxResponsePayload({ txHash: new Uint8Array(32) }));
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
     expect(deserialized.isSuccessful).toEqual(true);
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
-  it('e2e - signMessage - polkadot', async () => {
-    const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-
+  it('e2e - signTx - Polkadot', async () => {
     const account = new UserAccount({
       hasEncryptedPrivateKeyExported: false,
       keyType: 'sr25519',
@@ -85,35 +95,30 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     await account.init();
     account.lock();
 
-    const request = new SignMessageRequest({
+    const request = new SignTxRequest({
       dappOrigin: new DappDescriptor({
         activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
         displayName: 'Jest Testing',
         infoName: 'test',
         version: 0
       }),
-      payload: new SignMessageRequestPayload({
-        message: msg
+      payload: new SignTxRequestPayload({
+        encoded: await getEncodedTx()
       }),
       userOrigin: account
     });
 
     expect(request.validatePayload()).toBe(true);
 
-    const signMessasge = new SignMessageDescriptor();
+    const signTx = new SignTxDescriptor();
 
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
 
-    const response = await signMessasge.requestHandler(request, account);
+    const response = await signTx.requestHandler(request, account);
 
-    // validate against raw sign
-    const kr = (new Keyring({
-      type: account.keyType
-    })).addFromUri(SEED);
+    // console.log(response);
 
-    const res = kr.verify(msg, response.payload.signature, kr.publicKey);
-
-    expect(res).toBe(true);
+    expect(response.isSuccessful).toBe(true);
   });
 });

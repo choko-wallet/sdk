@@ -3,8 +3,18 @@
 
 import type { RequestHandlers } from '@choko-wallet/core';
 
-import { SignMessageDescriptor, signMessageHash } from './signMessage';
+import { ConnectDappDescriptor, connectDappHash, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload } from './connectDapp';
+import { SignMessageDescriptor, signMessageHash, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload } from './signMessage';
+import { SignTxDescriptor, signTxHash, SignTxRequest, SignTxRequestPayload, SignTxResponse, SignTxResponsePayload } from './signTx';
 
 export const requestHandlers: RequestHandlers = {
-  [signMessageHash]: new SignMessageDescriptor()
+  [connectDappHash]: new ConnectDappDescriptor(),
+  [signMessageHash]: new SignMessageDescriptor(),
+  [signTxHash]: new SignTxDescriptor()
+};
+
+export {
+  ConnectDappDescriptor, connectDappHash, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload,
+  SignMessageDescriptor, signMessageHash, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload,
+  SignTxDescriptor, signTxHash, SignTxRequest, SignTxRequestPayload, SignTxResponse, SignTxResponsePayload
 };
