@@ -7,7 +7,7 @@ import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { DappDescriptor } from './dapp';
 
-describe('DappDescriptor - @choko-wallet/core/account', function () {
+describe('DappDescriptor - @choko-wallet/core/dapp', function () {
   it('DappDescriptor - serde', () => {
     const dapp = new DappDescriptor({
       activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi

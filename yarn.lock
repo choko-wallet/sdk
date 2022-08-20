@@ -1462,6 +1462,8 @@ __metadata:
     "@polkadot/util-crypto": ^10.1.1
     "@skyekiwi/crypto": 0.8.4-1
     "@skyekiwi/util": 0.8.4-1
+    "@types/pako": ^2.0.0
+    pako: ^2.0.4
   languageName: unknown
   linkType: soft
 
@@ -3331,6 +3333,13 @@ __metadata:
   version: 16.11.46
   resolution: "@types/node@npm:16.11.46"
   checksum: 9fff6b70fc8a47019c28f080ead5484bd4620fad1d25bfa3c55ebe444a1adbb7e339db5fcc33227d8a272232039221a31bf0b026c1b77410c49760976fa4cce1
+  languageName: node
+  linkType: hard
+
+"@types/pako@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@types/pako@npm:2.0.0"
+  checksum: 50240a036b5e6acabbf36ac4dca93ec9e619241f0404da8d401cdb427bec3029833324b8a04c4b1ae2ecbc33422fdec31dbf9f43653d9d07cafb82ace78dfccd
   languageName: node
   linkType: hard
 
@@ -9231,6 +9240,13 @@ __metadata:
     registry-url: ^5.0.0
     semver: ^6.2.0
   checksum: cc9f890d3667d7610e6184decf543278b87f657d1ace0deb4a9c9155feca738ef88f660c82200763d3348010f4e42e9c7adc91e96ab0f86a770955995b5351e2
+  languageName: node
+  linkType: hard
+
+"pako@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "pako@npm:2.0.4"
+  checksum: 82b9b0b99dd830c9103856a6dbd10f0cb2c8c32b9768184727ea381a99666de9a47a069d2e6efe6acf09336f363956b50835c196ef9311b34b7274d420eb0d88
   languageName: node
   linkType: hard
 

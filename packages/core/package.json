@@ -23,6 +23,10 @@
     "@choko-wallet/known-networks": "0.1.6-4",
     "@polkadot/util-crypto": "^10.1.1",
     "@skyekiwi/crypto": "0.8.4-1",
-    "@skyekiwi/util": "0.8.4-1"
+    "@skyekiwi/util": "0.8.4-1",
+    "pako": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/pako": "^2.0.0"
   }
 }

@@ -3,7 +3,7 @@
 
 import { deserializeRequestError, RequestError, serializeRequestError } from './error';
 
-describe('error - @choko-wallet/core/account', function () {
+describe('error - @choko-wallet/core/error', function () {
   it('RequestError - serde', () => {
     [
       RequestError.NoError,
