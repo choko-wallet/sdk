@@ -18,7 +18,7 @@ module.exports = Object.assign({}, config, {
     '<rootDir>/packages/request-handler/build',
     '<rootDir>/packages/sdk/build'
   ],
-  testEnvironment: 'jsdom',
+  // testEnvironment: 'jsdom',
   testTimeout: 3_000_000,
   transformIgnorePatterns: [
     '/node_modules/(?!@polkadot|@skyekiwi|@babel/runtime/helpers/esm/)'
