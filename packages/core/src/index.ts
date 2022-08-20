@@ -6,14 +6,13 @@ import { Cipher } from './cipher';
 import { IDappDescriptor } from './dapp';
 import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
 import { INetwork, KnownNetworks, Network } from './network';
-import { IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestHandlers } from './requestHandler';
+import { IPayload, IRequest, IRequestHandlerDescriptor, IResponse } from './requestHandler';
 
 export type {
   ILockedPrivateKey, IUserAccountInfo, IUserAccount,
   IDappDescriptor,
   INetwork, KnownNetworks,
-  IPayload, IRequestHandlerDescriptor, IRequest, IResponse,
-  RequestHandlers
+  IPayload, IRequestHandlerDescriptor, IRequest, IResponse
 };
 
 export {

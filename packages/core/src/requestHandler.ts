@@ -4,8 +4,6 @@
 import { HexString, Version } from './types';
 import { IDappDescriptor, RequestError, UserAccount } from '.';
 
-export declare type RequestHandlers = Record<HexString, IRequestHandlerDescriptor>;
-
 export interface IRequestHandlerDescriptor {
   description: string;
   name: string;
