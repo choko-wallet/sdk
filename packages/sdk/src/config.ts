@@ -78,10 +78,10 @@ export const configSDK = (config: SDKConfig): [DappDescriptor, UserAccount] => {
   return [dappDescriptor, account];
 };
 
-export const configSDKAndStore = (config: SDKConfig): void => {
+export const configSDKAndStore = (config: SDKConfig, act?: UserAccount): void => {
   const [dappDescriptor, account] = configSDK(config);
 
-  storeUserAccount(account);
+  storeUserAccount(act || account);
   storeDappDescriptor(dappDescriptor);
   storeCallBackUrl(config.callbackUrlBase);
 };
