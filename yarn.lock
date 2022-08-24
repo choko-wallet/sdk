@@ -1454,11 +1454,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@choko-wallet/core@0.1.6-7, @choko-wallet/core@workspace:packages/core":
+"@choko-wallet/core@0.1.6-8, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
   dependencies:
-    "@choko-wallet/known-networks": 0.1.6-7
+    "@choko-wallet/known-networks": 0.1.6-8
     "@polkadot/util-crypto": ^10.1.1
     "@skyekiwi/crypto": 0.8.4-1
     "@skyekiwi/util": 0.8.4-1
@@ -1467,11 +1467,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/known-networks@0.1.6-7, @choko-wallet/known-networks@workspace:packages/known-networks":
+"@choko-wallet/known-networks@0.1.6-8, @choko-wallet/known-networks@workspace:packages/known-networks":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/known-networks@workspace:packages/known-networks"
   dependencies:
-    "@choko-wallet/core": 0.1.6-7
+    "@choko-wallet/core": 0.1.6-8
     "@skyekiwi/util": 0.8.4-1
   languageName: unknown
   linkType: soft
@@ -1480,7 +1480,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/request-handler@workspace:packages/request-handler"
   dependencies:
-    "@choko-wallet/core": 0.1.6-7
+    "@choko-wallet/core": 0.1.6-8
     "@polkadot/keyring": ^10.1.2
     "@polkadot/util-crypto": ^10.1.2
     "@skyekiwi/util": 0.8.4-1
@@ -1491,7 +1491,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/sdk@workspace:packages/sdk"
   dependencies:
-    "@choko-wallet/core": 0.1.6-7
+    "@choko-wallet/core": 0.1.6-8
   languageName: unknown
   linkType: soft
 
