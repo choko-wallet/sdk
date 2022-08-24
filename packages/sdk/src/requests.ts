@@ -58,7 +58,7 @@ export const buildConnectDappUrl = (): string => {
   return `${WALLET_REQEUST_BASE_URL}?` +
     'requestType=connectDapp' + '&' +
     `payload=${u8aToHex(buildConnectDappRequest())}` + '&' +
-    `callbackUrl=${callbackUrlBase}/callback`;
+    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
 export const buildSignMessageUrl = (message: Uint8Array): string => {
@@ -67,7 +67,7 @@ export const buildSignMessageUrl = (message: Uint8Array): string => {
   return `${WALLET_REQEUST_BASE_URL}?` +
     'requestType=signMessage' + '&' +
     `payload=${u8aToHex(buildSignMessageRequest(message))}` + '&' +
-    `callbackUrl=${callbackUrlBase}/callback`;
+    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
 export const buildSignTxUrl = (encoded: Uint8Array): string => {
@@ -78,5 +78,5 @@ export const buildSignTxUrl = (encoded: Uint8Array): string => {
   return `${WALLET_REQEUST_BASE_URL}?` +
     'requestType=signTx' + '&' +
     `payload=${u8aToHex(buildSignTxRequest(encoded))}` + '&' +
-    `callbackUrl=${callbackUrlBase}/callback`;
+    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
