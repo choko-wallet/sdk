@@ -32,7 +32,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     expect(userAccount.isLocked).toEqual(false);
     // expect(userAccount.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn'); // - sr25519
     // expect(userAccount.address).toEqual('5EM4ibUfzYuUZk2udLZGZi2fcUWTVkN32GhyxA2PFcWRUa5J'); // - ed25519
-    // expect(userAccount.address).toEqual('0x6cE9942368F9505a6D4A4433BDb3623683a64d8d'); // - ethereum
+    expect(userAccount.address).toEqual('0x6cE9942368F9505a6D4A4433BDb3623683a64d8d'); // - ethereum
 
 
     userAccount.lock();
