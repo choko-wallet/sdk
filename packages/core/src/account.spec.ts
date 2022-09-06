@@ -14,7 +14,9 @@ describe('UserAccount - @choko-wallet/core/account', function () {
   it('UserAccount - constructor, init, lock/unlock', async () => {
     const userAccount = new UserAccount({
       hasEncryptedPrivateKeyExported: false,
-      keyType: 'sr25519', // sr25519
+      // keyType: 'sr25519', // sr25519
+      // keyType: 'ed25519', // ed25519
+      keyType: 'ethereum', // ethereum
       localKeyEncryptionStrategy: 0 // password-v0
     });
 
@@ -28,7 +30,10 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     await userAccount.init();
 
     expect(userAccount.isLocked).toEqual(false);
-    expect(userAccount.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn');
+    // expect(userAccount.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn'); // - sr25519
+    // expect(userAccount.address).toEqual('5EM4ibUfzYuUZk2udLZGZi2fcUWTVkN32GhyxA2PFcWRUa5J'); // - ed25519
+    // expect(userAccount.address).toEqual('0x6cE9942368F9505a6D4A4433BDb3623683a64d8d'); // - ethereum
+
 
     userAccount.lock();
     expect(userAccount.isLocked).toEqual(true);
@@ -38,7 +43,9 @@ describe('UserAccount - @choko-wallet/core/account', function () {
   it('UserAccount - from seed', async () => {
     const userAccount = UserAccount.seedToUserAccount(SEED, {
       hasEncryptedPrivateKeyExported: false,
-      keyType: 'sr25519', // sr25519
+      // keyType: 'sr25519', // sr25519
+      // keyType: 'ed25519', // ed25519
+      keyType: 'ethereum', // ethereum
       localKeyEncryptionStrategy: 0 // password-v0
     });
 
@@ -48,13 +55,17 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
     await userAccount.init();
 
-    expect(userAccount.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn');
+    // expect(userAccount.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn'); // - sr25519
+    // expect(userAccount.address).toEqual('5EM4ibUfzYuUZk2udLZGZi2fcUWTVkN32GhyxA2PFcWRUa5J'); // - ed25519
+    expect(userAccount.address).toEqual('0x6cE9942368F9505a6D4A4433BDb3623683a64d8d'); // - ethereum
   });
 
   it('UserAccount - serde', async () => {
     const userAccount = UserAccount.seedToUserAccount(SEED, {
       hasEncryptedPrivateKeyExported: false,
-      keyType: 'sr25519', // sr25519
+      // keyType: 'sr25519', // sr25519
+      // keyType: 'ed25519', // ed25519
+      keyType: 'ethereum', // ethereum
       localKeyEncryptionStrategy: 0 // password-v0
     });
 
@@ -62,16 +73,23 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
     const data = userAccount.serialize();
 
-    expect(u8aToHex(data)).toEqual('463c4dd84fdc93ee6f8fcaf479476246f8b8df4454b2827ae3d89f4eaf779a2b00000000');
+    // expect(u8aToHex(data)).toEqual('463c4dd84fdc93ee6f8fcaf479476246f8b8df4454b2827ae3d89f4eaf779a2b00000000'); // - sr25519
+    // expect(u8aToHex(data)).toEqual('64f29df9dfeaee764a7d07394f6cac44a79cfe4599db44b44435c8f2e8e87cfd01000000'); // - ed25519
+    expect(u8aToHex(data)).toEqual('02e3fc235f0f2a03e290abca0b3eaffbfea18a0163f84eb1e61d5197a081611c03000000'); // - ethereum
 
     const userAccount2 = UserAccount.deserialize(data);
 
     expect(userAccount2.isLocked).toEqual(true);
 
     expect(userAccount2.hasEncryptedPrivateKeyExported).toEqual(false);
-    expect(userAccount2.keyType).toEqual('sr25519');
+    // expect(userAccount2.keyType).toEqual('sr25519');
+    // expect(userAccount2.keyType).toEqual('ed25519');
+    expect(userAccount2.keyType).toEqual('ethereum');
+
     expect(userAccount2.localKeyEncryptionStrategy).toEqual(0);
-    expect(userAccount2.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn');
+    // expect(userAccount2.address).toEqual('5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn'); // - sr25519
+    // expect(userAccount2.address).toEqual('5EM4ibUfzYuUZk2udLZGZi2fcUWTVkN32GhyxA2PFcWRUa5J'); // - ed25519
+    expect(userAccount.address).toEqual('0x6cE9942368F9505a6D4A4433BDb3623683a64d8d'); // - ethereum
 
     userAccount2.unlock(privateKey);
     await userAccount2.init();
@@ -83,7 +101,9 @@ describe('UserAccount - @choko-wallet/core/account', function () {
   it('LockedPrivateKey - serde', () => {
     const userAccount = UserAccount.seedToUserAccount(SEED, {
       hasEncryptedPrivateKeyExported: false,
-      keyType: 'sr25519', // sr25519
+      // keyType: 'sr25519', // sr25519
+      // keyType: 'ed25519', // ed25519
+      keyType: 'ethereum', // ethereum
       localKeyEncryptionStrategy: 0 // password-v0
     });
 
