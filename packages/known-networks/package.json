@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/known-networks",
-  "version": "0.1.6-9",
+  "version": "0.1.6-10",
   "type": "module",
   "description": "known network configruations",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.6-9",
+    "@choko-wallet/core": "0.1.6-10",
     "@skyekiwi/util": "0.8.4-1"
   }
 }
