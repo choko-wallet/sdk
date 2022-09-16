@@ -7,12 +7,12 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { ethers } from 'ethers';
 
 import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { xxHash } from '@choko-wallet/core/util';
-import { ethers } from 'ethers';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
@@ -328,25 +328,30 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     let txHash;
     const rawProvider = request.dappOrigin.activeNetwork.defaultProvider;
 
-    if(request.dappOrigin.activeNetwork.networkType == 'polkadot') {
+    if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
       const provider = new WsProvider(rawProvider);
       const api = await ApiPromise.create({ provider: provider });
+
       txHash = await api.tx(request.payload.encoded).signAndSend(kr);
       await provider.disconnect();
     } else {
       const provider = new ethers.providers.WebSocketProvider(rawProvider);
       const wallet = new ethers.Wallet(('0x' + u8aToHex(account.privateKey)), provider);
       const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
+
       const txResponse = await wallet.sendTransaction({
-        nonce: await provider.getTransactionCount(kr.address),
-        gasPrice: await wallet.getGasPrice(),
+        chainId: deserializedTx.chainId,
         gasLimit: 21000,
+        gasPrice: await wallet.getGasPrice(),
+        nonce: await provider.getTransactionCount(kr.address),
         to: deserializedTx.to,
-        value: deserializedTx.value,
-        chainId: deserializedTx.chainId
+        value: deserializedTx.value
       });
+
       const txHashWithHex = await txResponse.wait();
-      txHash = hexToU8a(txHashWithHex.transactionHash);
+
+      console.log(txHashWithHex);
+      txHash = hexToU8a(txHashWithHex.transactionHash.substring(2));
     }
 
     const response = new SignTxResponse({
