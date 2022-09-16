@@ -10,6 +10,7 @@ import { INetwork } from '@choko-wallet/core';
 export class SkyeKiwiNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
+  networkType: string;
   info: string;
   text: string;
   homepage?: string;
@@ -26,6 +27,7 @@ export class SkyeKiwiNetwork implements INetwork {
     this.info = 'skyekiwi';
     this.text = 'SkyeKiwi Network';
     this.homepage = 'https://skye.kiwi';
+    this.networkType = 'polkadot';
 
     this.providers = {
       SkyeKiwi: 'wss://staging.rpc.skye.kiwi'

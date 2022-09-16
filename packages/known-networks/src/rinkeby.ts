@@ -13,6 +13,7 @@ import { xxHash } from '@choko-wallet/core/util';
 export class RinkebyNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
+  networkType: string;
   info: string;
   text: string;
   homepage?: string;
@@ -29,11 +30,12 @@ export class RinkebyNetwork implements INetwork {
     this.info = 'rinkeby';
     this.text = 'Rinkeby Network';
     this.homepage = 'https://rinkeby.etherscan.io/';
+    this.networkType = 'ethereum';
 
     this.providers = {
-      Rinkeby: 'wss://main-light.eth.linkpool.io/ws'
+      Rinkeby: 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2'
     };
-    this.defaultProvider = 'wss://main-light.eth.linkpool.io/ws';
+    this.defaultProvider = 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2';
   }
 
   public serialize (): Uint8Array {

@@ -80,9 +80,9 @@ describe('UserAccount - @choko-wallet/core/account', function () {
       });
   
       await userAccount.init();
-  
+
+      // console.log("userAccount: ", userAccount);
       const data = userAccount.serialize();
-  
       expect(u8aToHex(data)).toEqual(type.searializedAccount);
   
       const userAccount2 = UserAccount.deserialize(data);
@@ -97,6 +97,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
   
       userAccount2.unlock(privateKey);
       await userAccount2.init();
+      // console.log("userAccount2: ", userAccount2);
   
       expect(userAccount2.isLocked).toEqual(false);
       expect(userAccount2.publicKey).toEqual(userAccount.publicKey);

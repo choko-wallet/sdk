@@ -13,6 +13,7 @@ import { xxHash } from '@choko-wallet/core/util';
 export class PolkadotNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
+  networkType: string;
   info: string;
   text: string;
   homepage?: string;
@@ -29,6 +30,7 @@ export class PolkadotNetwork implements INetwork {
     this.info = 'polkadot';
     this.text = 'Polkadot Network';
     this.homepage = 'https://polkadot.network';
+    this.networkType = 'polkadot';
 
     this.providers = {
       Parity: 'wss://rpc.polkadot.io',

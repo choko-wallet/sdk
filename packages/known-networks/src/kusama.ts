@@ -13,6 +13,7 @@ import { xxHash } from '@choko-wallet/core/util';
 export class KusamaNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
+  networkType: string;
   info: string;
   text: string;
   homepage?: string;
@@ -29,6 +30,7 @@ export class KusamaNetwork implements INetwork {
     this.info = 'kusama';
     this.text = 'Kusama Network';
     this.homepage = 'https://polkadot.network';
+    this.networkType = 'polkadot';
 
     this.providers = {
       Parity: 'wss://kusama-rpc.polkadot.io',
