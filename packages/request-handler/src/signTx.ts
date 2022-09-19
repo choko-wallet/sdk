@@ -352,6 +352,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
 
       console.log(txHashWithHex);
       txHash = hexToU8a(txHashWithHex.transactionHash.substring(2));
+      provider.websocket.close();
     }
 
     const response = new SignTxResponse({
