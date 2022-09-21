@@ -10,7 +10,7 @@ import { xxHash } from '@choko-wallet/core/util';
 
 /* eslint-disable sort-keys */
 
-export class PolkadotNetwork implements INetwork {
+export class RinkebyNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
   networkType: string;
@@ -27,25 +27,21 @@ export class PolkadotNetwork implements INetwork {
   logo?: Uint8Array;
 
   constructor () {
-    this.info = 'polkadot';
-    this.text = 'Polkadot Network';
-    this.homepage = 'https://polkadot.network';
-    this.networkType = 'polkadot';
+    this.info = 'rinkeby';
+    this.text = 'Rinkeby Network';
+    this.homepage = 'https://rinkeby.etherscan.io/';
+    this.networkType = 'ethereum';
 
     this.providers = {
-      Parity: 'wss://rpc.polkadot.io',
-      OnFinality: 'wss://polkadot.api.onfinality.io/public-ws',
-      Dwellir: 'wss://polkadot-rpc.dwellir.com',
-      Pinknode: 'wss://public-rpc.pinknode.io/polkadot',
-      RadiumBlock: 'wss://polkadot.public.curie.radiumblock.io/ws'
+      Rinkeby: 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2'
     };
-    this.defaultProvider = 'wss://rpc.polkadot.io';
+    this.defaultProvider = 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2';
   }
 
   public serialize (): Uint8Array {
     // return Util.xxHash(this.info);
-    return hexToU8a(PolkadotNetworkHash);
+    return hexToU8a(RinkebyNetworkHash);
   }
 }
 
-export const PolkadotNetworkHash: HexString = u8aToHex(xxHash('polkadot'));
+export const RinkebyNetworkHash: HexString = u8aToHex(xxHash('rinkeby'));

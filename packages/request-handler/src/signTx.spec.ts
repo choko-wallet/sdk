@@ -21,6 +21,7 @@ const getEncodedTx = async (): Promise<Uint8Array> => {
     1
   );
 
+  // console.log("raw tx: ", tx);
   return hexToU8a(tx.toHex().substring(2));
 };
 
@@ -57,6 +58,9 @@ describe('@choko-wallet/request-handler - signTx', function () {
     const serialized = request.serialize();
 
     const deserialized = SignTxRequest.deserialize(serialized);
+
+    // console.log("account: ", account);
+    // console.log("deserailized.userOrigin: ", deserialized.userOrigin);
 
     expect(deserialized.payload.encoded).toEqual(encoded);
     expect(deserialized.dappOrigin).toEqual(dapp);

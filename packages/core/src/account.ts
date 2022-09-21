@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Keyring, { encodeAddress } from '@polkadot/keyring';
-import { cryptoWaitReady, mnemonicToMiniSecret, mnemonicValidate } from '@polkadot/util-crypto';
+import { cryptoWaitReady, ethereumEncode, mnemonicToMiniSecret, mnemonicValidate } from '@polkadot/util-crypto';
 import { SymmetricEncryption } from '@skyekiwi/crypto';
 
 import { CURRENT_VERSION, KeypairType, Version } from './types';
@@ -230,7 +230,7 @@ export class UserAccount implements IUserAccount {
   // Account Serde & Account Index
 
   public static serializedLength (): number {
-    return 32 + // publicKey len
+    return 33 + // publicKey len
       1 + // keyType
       1 + // localKeyEncryptionStrategy
       1 + // hasEncryptedPrivateKeyExported
@@ -246,10 +246,10 @@ export class UserAccount implements IUserAccount {
     const res = new Uint8Array(UserAccount.serializedLength());
 
     res.set(this.publicKey, 0);
-    res.set([Util.keypairTypeStringToNumber(this.keyType)], 32);
-    res.set([this.localKeyEncryptionStrategy], 33);
-    res.set([this.hasEncryptedPrivateKeyExported ? 1 : 0], 34);
-    res.set([this.version], 35);
+    res.set([Util.keypairTypeStringToNumber(this.keyType)], 33);
+    res.set([this.localKeyEncryptionStrategy], 34);
+    res.set([this.hasEncryptedPrivateKeyExported ? 1 : 0], 35);
+    res.set([this.version], 36);
 
     return res;
   }
@@ -259,11 +259,13 @@ export class UserAccount implements IUserAccount {
       throw new Error('invalid data length - UserAccount.deserialize');
     }
 
-    const publicKey = data.slice(0, 32);
-    const keyType = Util.keypairTypeNumberToString(data[32]);
-    const localKeyEncryptionStrategy = data[33];
-    const hasEncryptedPrivateKeyExported = data[34] === 1;
-    const version = data[35];
+    const keyType = Util.keypairTypeNumberToString(data[33]);
+    const publicKey = (['ecdsa', 'ethereum'].includes(keyType)) ? data.slice(0, 33) : data.slice(0, 32);
+    const address = (['ecdsa', 'ethereum'].includes(keyType)) ? ethereumEncode(publicKey) : encodeAddress(publicKey);
+
+    const localKeyEncryptionStrategy = data[34];
+    const hasEncryptedPrivateKeyExported = data[35] === 1;
+    const version = data[36];
 
     const userAccount = new UserAccount({
       hasEncryptedPrivateKeyExported: hasEncryptedPrivateKeyExported,
@@ -276,7 +278,7 @@ export class UserAccount implements IUserAccount {
     });
 
     userAccount.publicKey = publicKey;
-    userAccount.address = encodeAddress(publicKey);
+    userAccount.address = address;
 
     return userAccount;
   }

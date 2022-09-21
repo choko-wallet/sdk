@@ -5,6 +5,7 @@ import { KnownNetworks } from '@choko-wallet/core';
 
 import { KusamaNetwork, KusamaNetworkHash } from './kusama';
 import { PolkadotNetwork, PolkadotNetworkHash } from './polkadot';
+import { RinkebyNetwork, RinkebyNetworkHash } from './rinkeby';
 import { SkyeKiwiNetwork, SkyeKiwiNetworkHash } from './skyekiwi';
 
 /* eslint-disable sort-keys */
@@ -12,5 +13,6 @@ import { SkyeKiwiNetwork, SkyeKiwiNetworkHash } from './skyekiwi';
 export const knownNetworks: KnownNetworks = {
   [SkyeKiwiNetworkHash]: new SkyeKiwiNetwork(),
   [PolkadotNetworkHash]: new PolkadotNetwork(),
-  [KusamaNetworkHash]: new KusamaNetwork()
+  [KusamaNetworkHash]: new KusamaNetwork(),
+  [RinkebyNetworkHash]: new RinkebyNetwork()
 };

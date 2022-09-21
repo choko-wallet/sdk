@@ -14,6 +14,7 @@ export interface INetwork {
   info: string;
   text: string;
   defaultProvider: string;
+  networkType: string;
 
   homepage?: string;
   isChild?: boolean;
@@ -31,6 +32,7 @@ export interface INetwork {
 export class Network implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
+  networkType: string;
   info: string;
   text: string;
 
@@ -48,6 +50,7 @@ export class Network implements INetwork {
     info: string,
     providers: Record<string, string>,
     defaultProvider: string,
+    networkType: string,
     text: string,
 
     homepage?: string,
@@ -74,6 +77,7 @@ export class Network implements INetwork {
     this.summary = config.summary;
     this.color = config.color;
     this.logo = config.logo;
+    this.networkType = config.networkType;
   }
 
   public static serializedLength (): number {
