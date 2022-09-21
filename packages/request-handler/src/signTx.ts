@@ -322,7 +322,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     }
 
     const kr = (new Keyring({
-      type: account.keyType
+      type: account.option.keyType
     })).addFromUri('0x' + u8aToHex(account.privateKey));
 
     let txHash;

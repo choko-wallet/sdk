@@ -7,8 +7,7 @@ import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 
-import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
-import { DappDescriptor } from '@choko-wallet/core/dapp';
+import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from '@choko-wallet/core/util';
 
@@ -130,7 +129,7 @@ export class SignMessageResponsePayload implements IPayload {
 }
 
 export class SignMessageRequest implements IRequest {
-  dappOrigin: IDappDescriptor;
+  dappOrigin: DappDescriptor;
   userOrigin: UserAccount;
 
   type: HexString;
@@ -141,7 +140,7 @@ export class SignMessageRequest implements IRequest {
   version: Version;
 
   constructor (config: {
-    dappOrigin: IDappDescriptor,
+    dappOrigin: DappDescriptor,
     payload: SignMessageRequestPayload,
     userOrigin: UserAccount,
 
@@ -218,7 +217,7 @@ export class SignMessageRequest implements IRequest {
 }
 
 export class SignMessageResponse implements IResponse {
-  dappOrigin: IDappDescriptor;
+  dappOrigin: DappDescriptor;
   userOrigin: UserAccount;
 
   type: HexString;
@@ -231,7 +230,7 @@ export class SignMessageResponse implements IResponse {
   version: Version;
 
   constructor (config: {
-    dappOrigin: IDappDescriptor,
+    dappOrigin: DappDescriptor,
     userOrigin: UserAccount,
 
     payload: SignMessageResponsePayload,
@@ -347,14 +346,14 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
     }
 
     const kr = (new Keyring({
-      type: account.keyType
+      type: account.option.keyType
     })).addFromUri('0x' + u8aToHex(account.privateKey));
 
     const response = new SignMessageResponse({
       dappOrigin: request.dappOrigin,
       error: err,
       payload: new SignMessageResponsePayload({
-        keyType: account.keyType,
+        keyType: account.option.keyType,
         signature: kr.sign(request.payload.message)
       }),
       userOrigin: request.userOrigin

@@ -4,7 +4,7 @@
 import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { UserAccount } from '@choko-wallet/core';
+import { AccountOption, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
@@ -27,11 +27,11 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
       version: 0
     });
 
-    const account = new UserAccount({
+    const account = new UserAccount(new AccountOption({
       hasEncryptedPrivateKeyExported: false,
       keyType: 'ethereum',
       localKeyEncryptionStrategy: 0
-    });
+    }));
     const mnemonicWallet = ethers.Wallet.fromMnemonic(seed);
 
     expect((mnemonicWallet.privateKey).slice(2)).toEqual(privateKey);

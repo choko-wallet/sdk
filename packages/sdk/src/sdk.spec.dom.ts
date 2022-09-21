@@ -16,7 +16,7 @@ const provider = new WsProvider('wss://staging.rpc.skye.kiwi');
 describe('@choko-wallet/sdk - request', function () {
   it('e2e', () => {
     configSDKAndStore({
-      accountCreationOption: {
+      accountOption: {
         hasEncryptedPrivateKeyExported: false,
         keyType: 'sr25519',
         localKeyEncryptionStrategy: 0
@@ -39,7 +39,7 @@ describe('@choko-wallet/sdk - request', function () {
 
   it('e2e - signTx', async () => {
     configSDKAndStore({
-      accountCreationOption: {
+      accountOption: {
         hasEncryptedPrivateKeyExported: false,
         keyType: 'sr25519',
         localKeyEncryptionStrategy: 0
@@ -73,7 +73,7 @@ describe('@choko-wallet/sdk - request', function () {
 
   it('e2e - signTx', () => {
     configSDKAndStore({
-      accountCreationOption: {
+      accountOption: {
         hasEncryptedPrivateKeyExported: false,
         keyType: 'sr25519',
         localKeyEncryptionStrategy: 0

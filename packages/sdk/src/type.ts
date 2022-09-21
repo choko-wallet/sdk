@@ -1,11 +1,12 @@
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { AccountCreationOption } from '@choko-wallet/core/account';
-import { HexString } from '@choko-wallet/core/types';
+import type { HexString } from '@choko-wallet/core/types';
+
+import { IAccountOption } from '@choko-wallet/core';
 
 export interface SDKConfig {
-  accountCreationOption: AccountCreationOption;
+  accountOption: IAccountOption;
   activeNetworkHash: HexString;
 
   callbackUrlBase: string;

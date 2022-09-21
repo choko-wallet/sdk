@@ -1,7 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/known-networks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString } from '@choko-wallet/core/types';
+import type { HexString, NetworkType } from '@choko-wallet/core/types';
 
 import { hexToU8a } from '@skyekiwi/util';
 
@@ -10,7 +10,7 @@ import { INetwork } from '@choko-wallet/core';
 export class SkyeKiwiNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
-  networkType: string;
+  networkType: NetworkType;
   info: string;
   text: string;
   homepage?: string;

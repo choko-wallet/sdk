@@ -4,6 +4,7 @@
 import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
 import { u8aToHex } from '@skyekiwi/util';
 
+import { AccountOption } from './account';
 import { KeypairType } from './types';
 import { LockedPrivateKey, UserAccount } from '.';
 
@@ -31,12 +32,14 @@ describe('UserAccount - @choko-wallet/core/account', function () {
   const privateKey = mnemonicToMiniSecret(SEED);
 
   TypeArr.map((type) => {
+    const option = new AccountOption({
+      hasEncryptedPrivateKeyExported: false,
+      keyType: type.keyType as KeypairType,
+      localKeyEncryptionStrategy: 0 // password-v0
+    });
+
     it(`UserAccount - constructor, init, lock/unlock - ${type.keyType}`, async () => {
-      const userAccount = new UserAccount({
-        hasEncryptedPrivateKeyExported: false,
-        keyType: type.keyType as KeypairType,
-        localKeyEncryptionStrategy: 0 // password-v0
-      });
+      const userAccount = new UserAccount(option);
 
       try {
         await userAccount.init();
@@ -56,11 +59,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     });
 
     it(`UserAccount - from seed - ${type.keyType}`, async () => {
-      const userAccount = UserAccount.seedToUserAccount(SEED, {
-        hasEncryptedPrivateKeyExported: false,
-        keyType: type.keyType as KeypairType,
-        localKeyEncryptionStrategy: 0 // password-v0
-      });
+      const userAccount = UserAccount.seedToUserAccount(SEED, option);
 
       expect(userAccount.isLocked).toEqual(false);
       expect(userAccount.address).toBeUndefined();
@@ -72,11 +71,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     });
 
     it(`UserAccount - serde - ${type.keyType}`, async () => {
-      const userAccount = UserAccount.seedToUserAccount(SEED, {
-        hasEncryptedPrivateKeyExported: false,
-        keyType: type.keyType as KeypairType,
-        localKeyEncryptionStrategy: 0 // password-v0
-      });
+      const userAccount = UserAccount.seedToUserAccount(SEED, option);
 
       await userAccount.init();
 
@@ -89,10 +84,10 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
       expect(userAccount2.isLocked).toEqual(true);
 
-      expect(userAccount2.hasEncryptedPrivateKeyExported).toEqual(false);
-      expect(userAccount2.keyType).toEqual(type.keyType);
+      expect(userAccount2.option.hasEncryptedPrivateKeyExported).toEqual(false);
+      expect(userAccount2.option.keyType).toEqual(type.keyType);
 
-      expect(userAccount2.localKeyEncryptionStrategy).toEqual(0);
+      expect(userAccount2.option.localKeyEncryptionStrategy).toEqual(0);
       expect(userAccount.address).toEqual(type.address);
 
       userAccount2.unlock(privateKey);
@@ -104,11 +99,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     });
 
     it(`LockedPrivateKey - serde - ${type.keyType}`, () => {
-      const userAccount = UserAccount.seedToUserAccount(SEED, {
-        hasEncryptedPrivateKeyExported: false,
-        keyType: type.keyType as KeypairType,
-        localKeyEncryptionStrategy: 0 // password-v0
-      });
+      const userAccount = UserAccount.seedToUserAccount(SEED, option);
 
       const lockedPrivateKey = userAccount.lockUserAccount(new Uint8Array(32));
 
@@ -117,10 +108,10 @@ describe('UserAccount - @choko-wallet/core/account', function () {
       const lockedPrivateKey2 = LockedPrivateKey.deserialize(data);
 
       expect(lockedPrivateKey2.encryptedPrivateKey).toEqual(lockedPrivateKey.encryptedPrivateKey);
-      expect(lockedPrivateKey2.keyType).toEqual(lockedPrivateKey.keyType);
-      expect(lockedPrivateKey2.localKeyEncryptionStrategy).toEqual(lockedPrivateKey.localKeyEncryptionStrategy);
-      expect(lockedPrivateKey2.hasEncryptedPrivateKeyExported).toEqual(lockedPrivateKey.hasEncryptedPrivateKeyExported);
-      expect(lockedPrivateKey2.version).toEqual(lockedPrivateKey.version);
+      expect(lockedPrivateKey2.option.keyType).toEqual(lockedPrivateKey.option.keyType);
+      expect(lockedPrivateKey2.option.localKeyEncryptionStrategy).toEqual(lockedPrivateKey.option.localKeyEncryptionStrategy);
+      expect(lockedPrivateKey2.option.hasEncryptedPrivateKeyExported).toEqual(lockedPrivateKey.option.hasEncryptedPrivateKeyExported);
+      expect(lockedPrivateKey2.option.version).toEqual(lockedPrivateKey.option.version);
     });
 
     return null;

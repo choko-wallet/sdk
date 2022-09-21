@@ -5,7 +5,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
 import { hexToU8a } from '@skyekiwi/util';
 
-import { RequestError, UserAccount } from '@choko-wallet/core';
+import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
@@ -26,11 +26,11 @@ const getEncodedTx = async (): Promise<Uint8Array> => {
 };
 
 describe('@choko-wallet/request-handler - signTx', function () {
-  const account = new UserAccount({
+  const account = new UserAccount(new AccountOption({
     hasEncryptedPrivateKeyExported: false,
     keyType: 'sr25519',
     localKeyEncryptionStrategy: 0
-  });
+  }));
   const dapp = new DappDescriptor({
     activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
     displayName: 'Jest Testing',
@@ -59,9 +59,6 @@ describe('@choko-wallet/request-handler - signTx', function () {
 
     const deserialized = SignTxRequest.deserialize(serialized);
 
-    // console.log("account: ", account);
-    // console.log("deserailized.userOrigin: ", deserialized.userOrigin);
-
     expect(deserialized.payload.encoded).toEqual(encoded);
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
@@ -89,11 +86,11 @@ describe('@choko-wallet/request-handler - signTx', function () {
   });
 
   it('e2e - signTx - Polkadot', async () => {
-    const account = new UserAccount({
+    const account = new UserAccount(new AccountOption({
       hasEncryptedPrivateKeyExported: false,
       keyType: 'sr25519',
       localKeyEncryptionStrategy: 0
-    });
+    }));
 
     account.unlock(mnemonicToMiniSecret(SEED));
     await account.init();
