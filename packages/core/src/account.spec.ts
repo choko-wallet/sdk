@@ -6,7 +6,7 @@ import { u8aToHex } from '@skyekiwi/util';
 
 import { AccountOption } from './account';
 import { KeypairType } from './types';
-import { LockedPrivateKey, UserAccount } from '.';
+import { UserAccount } from '.';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
@@ -98,20 +98,29 @@ describe('UserAccount - @choko-wallet/core/account', function () {
       expect(userAccount2.publicKey).toEqual(userAccount.publicKey);
     });
 
-    it(`LockedPrivateKey - serde - ${type.keyType}`, () => {
+    it(`UserAccount - serdeWithEncryptedKey - ${type.keyType}`, async () => {
       const userAccount = UserAccount.seedToUserAccount(SEED, option);
 
-      const lockedPrivateKey = userAccount.lockUserAccount(new Uint8Array(32));
+      await userAccount.init();
+      expect(userAccount.address).toEqual(type.address);
+      userAccount.encryptUserAccount(new Uint8Array(32));
 
-      const data = lockedPrivateKey.serialize();
+      const data = userAccount.serializeWithEncryptedKey();
+      const userAccount2 = UserAccount.deserializeWithEncryptedKey(data);
 
-      const lockedPrivateKey2 = LockedPrivateKey.deserialize(data);
+      expect(userAccount2.isLocked).toEqual(true);
+      expect(userAccount2.option.hasEncryptedPrivateKeyExported).toEqual(false);
+      expect(userAccount2.option.keyType).toEqual(type.keyType);
+      expect(userAccount2.option.localKeyEncryptionStrategy).toEqual(0);
 
-      expect(lockedPrivateKey2.encryptedPrivateKey).toEqual(lockedPrivateKey.encryptedPrivateKey);
-      expect(lockedPrivateKey2.option.keyType).toEqual(lockedPrivateKey.option.keyType);
-      expect(lockedPrivateKey2.option.localKeyEncryptionStrategy).toEqual(lockedPrivateKey.option.localKeyEncryptionStrategy);
-      expect(lockedPrivateKey2.option.hasEncryptedPrivateKeyExported).toEqual(lockedPrivateKey.option.hasEncryptedPrivateKeyExported);
-      expect(lockedPrivateKey2.option.version).toEqual(lockedPrivateKey.option.version);
+      expect(userAccount2.address).toEqual(type.address);
+      userAccount2.decryptUserAccount(new Uint8Array(32));
+
+      await userAccount2.init();
+      // console.log("userAccount2: ", userAccount2);
+
+      expect(userAccount2.isLocked).toEqual(false);
+      expect(userAccount2.publicKey).toEqual(userAccount.publicKey);
     });
 
     return null;

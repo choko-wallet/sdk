@@ -23,13 +23,8 @@ export interface IAccountOption {
 
 export class AccountOption implements IAccountOption {
   keyType: KeypairType;
-  localKeyEncryptionStrategy: number; // 1='password-v0' | 2='webauthn';
+  localKeyEncryptionStrategy: number;
   hasEncryptedPrivateKeyExported: boolean;
-  // whether the user had exported the private key to email
-  // set to be true when
-  //      1. the account is imported from unencrypted private key link
-  //      2. the account has click the link to export private key via link to email
-
   version?: Version;
 
   constructor (option: IAccountOption) {
@@ -84,11 +79,6 @@ export class AccountOption implements IAccountOption {
   }
 }
 
-export interface ILockedPrivateKey {
-  encryptedPrivateKey: Uint8Array; // fixed size = 32 bytes + 24 bytes nonce + 16 bytes overhead
-  option: AccountOption;
-}
-
 export interface AccountBalance {
   freeBalance: string;
   lockedBalance: string;
@@ -118,6 +108,7 @@ export interface IUserAccount {
 
 export class UserAccount implements IUserAccount {
   privateKey?: Uint8Array;
+  encryptedPrivateKey?: Uint8Array; // len = 72
 
   option: AccountOption;
 
@@ -163,20 +154,6 @@ export class UserAccount implements IUserAccount {
     this.publicKey = kr.publicKey;
   }
 
-  public async signMessage (message: Uint8Array): Promise<Uint8Array> {
-    if (this.isLocked) {
-      throw new Error('account is locked - UserAccount.signMessage');
-    }
-
-    await cryptoWaitReady();
-
-    const kr = (new Keyring({
-      type: this.option.keyType
-    })).addFromSeed(this.privateKey);
-
-    return kr.sign(message);
-  }
-
   public static privateKeyToUserAccount (privateKey: Uint8Array, option: AccountOption): UserAccount {
     if (privateKey.length !== 32) {
       // sanity check
@@ -200,7 +177,7 @@ export class UserAccount implements IUserAccount {
     return UserAccount.privateKeyToUserAccount(privateKey, option);
   }
 
-  public lockUserAccount (passwordHash: Uint8Array): LockedPrivateKey {
+  public encryptUserAccount (passwordHash: Uint8Array): void {
     if (this.isLocked) {
       throw new Error('account has been locked locked - UserAccount.lockUserAccount');
     }
@@ -217,37 +194,28 @@ export class UserAccount implements IUserAccount {
     }
 
     this.lock();
-
-    return new LockedPrivateKey({
-      encryptedPrivateKey: encryptedPrivateKey,
-      option: this.option
-    });
+    this.encryptedPrivateKey = encryptedPrivateKey;
   }
 
-  public static unlockUserAccount (lockedPrivateKey: LockedPrivateKey, passwordHash: Uint8Array): UserAccount {
-    if (lockedPrivateKey.encryptedPrivateKey.length !== 32 + 16 + 24) {
-      throw new Error('invalid encrypted private key length - UserAccount.unlockUserAccount');
+  public decryptUserAccount (passwordHash: Uint8Array): void {
+    if (this.encryptedPrivateKey && this.encryptedPrivateKey.length !== 32 + 16 + 24) {
+      throw new Error('invalid encrypted private key length - UserAccount.decryptUserAccount');
     }
 
     if (passwordHash.length !== 32) {
-      throw new Error('invalid password hash length - UserAccount.unlockUserAccount');
+      throw new Error('invalid password hash length - UserAccount.decryptUserAccount');
     }
 
-    const privateKey = SymmetricEncryption.decrypt(passwordHash, lockedPrivateKey.encryptedPrivateKey);
+    const privateKey = SymmetricEncryption.decrypt(passwordHash, this.encryptedPrivateKey);
 
     if (privateKey.length !== 32) {
-      throw new Error('invalid private key length - UserAccount.unlockUserAccount');
+      throw new Error('invalid private key length - UserAccount.decryptUserAccount');
     }
 
-    const userAccount = new UserAccount(lockedPrivateKey.option);
-
-    userAccount.unlock(privateKey);
-
-    return userAccount;
+    this.unlock(privateKey);
   }
 
   // Account Serde & Account Index
-
   public static serializedLength (): number {
     return 33 + // publicKey len
       +AccountOption.serializedLength();
@@ -283,61 +251,34 @@ export class UserAccount implements IUserAccount {
 
     return userAccount;
   }
-}
 
-export class LockedPrivateKey implements ILockedPrivateKey {
-  encryptedPrivateKey: Uint8Array; // fixed size = 32 bytes + 24 bytes nonce + 16 bytes overhead
-  option: AccountOption;
-
-  constructor (config: {
-    encryptedPrivateKey: Uint8Array,
-    option: AccountOption,
-  }) {
-    const { encryptedPrivateKey, option } = config;
-
-    if (encryptedPrivateKey.length !== 32 + 16 + 24) {
-      throw new Error('invalid encrypted private key length - LockedPrivateKey.constructor');
-    }
-
-    if (!option.validate()) {
-      throw new Error('invalid UserAccount option - LockedPrivateKey.constructor');
-    }
-
-    this.encryptedPrivateKey = encryptedPrivateKey;
-    this.option = option;
+  public static serializedLengthWithEncryptedKey (): number {
+    return UserAccount.serializedLength() + 72;
   }
 
-  public static serializedLength (): number {
-    return 32 + 16 + 24 + // encryptedPrivateKey len
-      +AccountOption.serializedLength();
-  }
-
-  public serialize (): Uint8Array {
-    if (!this.encryptedPrivateKey) {
-      throw new Error('invalid key - LockedPrivateKey.serialize');
+  // account serialize does not include private key info
+  public serializeWithEncryptedKey (): Uint8Array {
+    if (!this.encryptedPrivateKey || this.encryptedPrivateKey.length !== 72) {
+      throw new Error('invalid encryptedPrivateKey - UserAccount.serializeWithEncryptedKey');
     }
 
-    const res = new Uint8Array(LockedPrivateKey.serializedLength());
+    const res = new Uint8Array(UserAccount.serializedLengthWithEncryptedKey());
 
-    res.set(this.encryptedPrivateKey, 0);
-    res.set(this.option.serialize(), 72);
+    res.set(this.serialize(), 0);
+    res.set(this.encryptedPrivateKey, UserAccount.serializedLength());
 
     return res;
   }
 
-  public static deserialize (data: Uint8Array): LockedPrivateKey {
-    if (data.length !== LockedPrivateKey.serializedLength()) {
-      throw new Error('invalid data length - LockedPrivateKey.deserialize');
+  public static deserializeWithEncryptedKey (data: Uint8Array): UserAccount {
+    if (data.length !== UserAccount.serializedLengthWithEncryptedKey()) {
+      throw new Error('invalid data length - UserAccount.deserializeWithEncryptedKey');
     }
 
-    const encryptedPrivateKey = data.slice(0, 32 + 16 + 24);
-    const option = AccountOption.deserialize(data.slice(72, 72 + AccountOption.serializedLength()));
+    const userAccount = UserAccount.deserialize(data.slice(0, UserAccount.serializedLength()));
 
-    const lockedPrivateKey = new LockedPrivateKey({
-      encryptedPrivateKey: encryptedPrivateKey,
-      option: option
-    });
+    userAccount.encryptedPrivateKey = data.slice(UserAccount.serializedLength(), UserAccount.serializedLength() + 72);
 
-    return lockedPrivateKey;
+    return userAccount;
   }
 }
