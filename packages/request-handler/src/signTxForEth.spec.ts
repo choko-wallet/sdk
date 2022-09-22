@@ -10,32 +10,33 @@ import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from './signTx';
+import SampleABI from './abi.json';
 
 const privateKey = '6e00e2fb6feb95393f29e0ceeabebc4f7b2d692b4912663546755b9b8f87b938';
 const seed = 'acoustic hover lyrics object execute unfold father give wing hen remain ship';
+const contractAddress = '0x46c0D3681a7eE593D59d80d9cFdF5e54Db5BDB79';
 
 describe('@choko-wallet/request-handler-eth - signTx', function () {
+  const dapp = new DappDescriptor({
+    activeNetwork: knownNetworks[u8aToHex(xxHash('rinkeby'))],
+    displayName: 'Jest Testing',
+    infoName: 'Test',
+    version: 0
+  });
+
+  const account = new UserAccount({
+    hasEncryptedPrivateKeyExported: false,
+    keyType: 'ethereum',
+    localKeyEncryptionStrategy: 0
+  });
+  const mnemonicWallet = ethers.Wallet.fromMnemonic(seed);
+
   afterAll(() => {
     console.log('shutdown WebSocket connector!');
   });
 
   it('e2e - signTx - ethereum', async () => {
-    const dapp = new DappDescriptor({
-      activeNetwork: knownNetworks[u8aToHex(xxHash('rinkeby'))],
-      displayName: 'Jest Testing',
-      infoName: 'Test',
-      version: 0
-    });
-
-    const account = new UserAccount({
-      hasEncryptedPrivateKeyExported: false,
-      keyType: 'ethereum',
-      localKeyEncryptionStrategy: 0
-    });
-    const mnemonicWallet = ethers.Wallet.fromMnemonic(seed);
-
     expect((mnemonicWallet.privateKey).slice(2)).toEqual(privateKey);
-
     account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
     await account.init();
     account.lock();
@@ -61,16 +62,50 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     console.log('account: ', account);
     console.log('deserailized.userOrigin: ', deserialized.userOrigin);
 
-    // expect(deserialized.payload.encoded).toEqual(hexToU8a(serializedTx.slice(2)));
-    // expect(deserialized.dappOrigin).toEqual(dapp);
-    // expect(deserialized.userOrigin).toEqual(account);
-
     const signTx = new SignTxDescriptor();
-
     account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
     await account.init();
     const response = await signTx.requestHandler(request, account);
 
     console.log('response: ', response);
   });
+
+  it('e2e - signTx - ethereum contract call', async () => {
+    account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
+    await account.init();
+    account.lock();
+
+    const abiInterface = new ethers.utils.Interface(SampleABI);
+
+    /*
+    //  function store(uint256 num) public {
+    //      number = num;
+    //  }
+    //  call store method with 12345 parameter...
+    */
+    const data = abiInterface.encodeFunctionData("store", [12345]);
+    console.log("data: ", data);
+
+    const tx = {
+      chainId: 4,
+      to: contractAddress,
+      data: data
+    }
+
+    const serializedTx = ethers.utils.serializeTransaction(tx);
+    const request = new SignTxRequest({
+      dappOrigin: dapp,
+      payload: new SignTxRequestPayload({
+        encoded: hexToU8a(serializedTx.slice(2))
+      }),
+      userOrigin: account
+    });
+
+    const signTx = new SignTxDescriptor();
+    account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
+    await account.init();
+    const response = await signTx.requestHandler(request, account);
+
+    console.log('response: ', response);
+  })
 });
