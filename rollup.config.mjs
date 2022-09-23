@@ -5,6 +5,7 @@ import { createBundle } from '@skyekiwi/dev/config/rollup.js';
 import path from 'path';
 
 const pkgs = [
+  '@choko-wallet/abi',
   '@choko-wallet/core',
   '@choko-wallet/known-networks',
   '@choko-wallet/request-handler',

@@ -10,7 +10,7 @@ import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from './signTx';
-import SampleABI from './abi.json';
+import { encodeContractCall } from '@choko-wallet/abi';
 
 const privateKey = '6e00e2fb6feb95393f29e0ceeabebc4f7b2d692b4912663546755b9b8f87b938';
 const seed = 'acoustic hover lyrics object execute unfold father give wing hen remain ship';
@@ -59,7 +59,6 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     const serialized = request.serialize();
     const deserialized = SignTxRequest.deserialize(serialized);
 
-    console.log('account: ', account);
     console.log('deserailized.userOrigin: ', deserialized.userOrigin);
 
     const signTx = new SignTxDescriptor();
@@ -75,7 +74,9 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     await account.init();
     account.lock();
 
-    const abiInterface = new ethers.utils.Interface(SampleABI);
+    const data = encodeContractCall(
+      'test', 'store', [12345]
+    );
 
     /*
     //  function store(uint256 num) public {
@@ -83,7 +84,6 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     //  }
     //  call store method with 12345 parameter...
     */
-    const data = abiInterface.encodeFunctionData("store", [12345]);
     console.log("data: ", data);
 
     const tx = {
