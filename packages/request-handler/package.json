@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/request-handler",
-  "version": "0.1.6-9",
+  "version": "0.1.6-11",
   "type": "module",
   "description": "wallet request handlers",
   "main": "index.js",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@choko-wallet/abi": "0.1.6-9",
-    "@choko-wallet/core": "0.1.6-9",
+    "@choko-wallet/core": "0.1.6-11",
     "@polkadot/keyring": "^10.1.2",
     "@polkadot/util-crypto": "^10.1.2",
     "@skyekiwi/util": "0.8.4-1",

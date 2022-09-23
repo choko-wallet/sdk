@@ -141,16 +141,10 @@ export class UserAccount implements IUserAccount {
     return kr.sign(message);
   }
 
-  public static seedToUserAccount (seed: string, option: AccountCreationOption): UserAccount {
-    if (!mnemonicValidate(seed)) {
-      throw new Error('invalid seed - UserAccount.seedToUserAccount');
-    }
-
-    const privateKey = mnemonicToMiniSecret(seed);
-
+  public static privateKeyToUserAccount (privateKey: Uint8Array, option: AccountCreationOption): UserAccount {
     if (privateKey.length !== 32) {
       // sanity check
-      throw new Error('invalid private key length - UserAccount.seedToUserAccount');
+      throw new Error('invalid private key length - UserAccount.privateKeyToUserAccount');
     }
 
     const userAccount = new UserAccount({
@@ -164,6 +158,16 @@ export class UserAccount implements IUserAccount {
     userAccount.unlock(privateKey);
 
     return userAccount;
+  }
+
+  public static seedToUserAccount (seed: string, option: AccountCreationOption): UserAccount {
+    if (!mnemonicValidate(seed)) {
+      throw new Error('invalid seed - UserAccount.seedToUserAccount');
+    }
+
+    const privateKey = mnemonicToMiniSecret(seed);
+
+    return UserAccount.privateKeyToUserAccount(privateKey, option);
   }
 
   public lockUserAccount (passwordHash: Uint8Array): LockedPrivateKey {
