@@ -4,13 +4,13 @@
 import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
+import { encodeContractCall } from '@choko-wallet/abi';
 import { UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from './signTx';
-import { encodeContractCall } from '@choko-wallet/abi';
 
 const privateKey = '6e00e2fb6feb95393f29e0ceeabebc4f7b2d692b4912663546755b9b8f87b938';
 const seed = 'acoustic hover lyrics object execute unfold father give wing hen remain ship';
@@ -62,6 +62,7 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     console.log('deserailized.userOrigin: ', deserialized.userOrigin);
 
     const signTx = new SignTxDescriptor();
+
     account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
     await account.init();
     const response = await signTx.requestHandler(request, account);
@@ -84,13 +85,13 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     //  }
     //  call store method with 12345 parameter...
     */
-    console.log("data: ", data);
+    console.log('data: ', data);
 
     const tx = {
       chainId: 4,
-      to: contractAddress,
-      data: data
-    }
+      data: data,
+      to: contractAddress
+    };
 
     const serializedTx = ethers.utils.serializeTransaction(tx);
     const request = new SignTxRequest({
@@ -102,10 +103,11 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     });
 
     const signTx = new SignTxDescriptor();
+
     account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
     await account.init();
     const response = await signTx.requestHandler(request, account);
 
     console.log('response: ', response);
-  })
+  });
 });

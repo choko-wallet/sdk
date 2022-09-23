@@ -10,13 +10,16 @@
     "typescript": "^4.3.5"
   },
   "scripts": {
-    "build": "ORG_NAME=CHOKO_WALLET skyekiwi-dev-build-ts",
-    "build:release": "ORG_NAME=CHOKO_WALLET skyekiwi-ci-ghact-build",
+    "build": "yarn build:abi && ORG_NAME=CHOKO_WALLET skyekiwi-dev-build-ts",
+    "build:release": "yarn build:abi && ORG_NAME=CHOKO_WALLET skyekiwi-ci-ghact-build",
+
     "build:rollup": "ORG_NAME=CHOKO_WALLET skyekiwi-exec-rollup --config",
-    "lint": "ORG_NAME=CHOKO_WALLET skyekiwi-dev-run-lint",
+    "build:abi": "node ./packages/abi/src/build.cjs",
+    
+    "lint": "yarn build:abi && ORG_NAME=CHOKO_WALLET skyekiwi-dev-run-lint",
     "clean": "skyekiwi-dev-clean-build",
     "postinstall": "skyekiwi-dev-yarn-only",
-    "test": "skyekiwi-dev-run-test --coverage --runInBand"
+    "test": "yarn build:abi && skyekiwi-dev-run-test --coverage --runInBand"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
