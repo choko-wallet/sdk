@@ -3,8 +3,7 @@
 
 import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
 
-import { RequestError, UserAccount } from '@choko-wallet/core';
-import { DappDescriptor } from '@choko-wallet/core/dapp';
+import { AccountOption, DappDescriptor, RequestError, UserAccount } from '@choko-wallet/core';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload } from './connectDapp';
@@ -12,11 +11,13 @@ import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, C
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
 describe('@choko-wallet/request-handler - connectDapp', function () {
-  const account = new UserAccount({
+  const option = new AccountOption({
     hasEncryptedPrivateKeyExported: false,
     keyType: 'sr25519',
     localKeyEncryptionStrategy: 0
   });
+
+  const account = new UserAccount(option);
   const dapp = new DappDescriptor({
     activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
     displayName: 'Jest Testing',

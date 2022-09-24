@@ -4,8 +4,10 @@
 import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
+
 import { encodeContractCall } from '@choko-wallet/abi';
 import { UserAccount } from '@choko-wallet/core';
+
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
@@ -36,6 +38,20 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
   });
 
   it('e2e - signTx - ethereum', async () => {
+    const dapp = new DappDescriptor({
+      activeNetwork: knownNetworks[u8aToHex(xxHash('rinkeby'))],
+      displayName: 'Jest Testing',
+      infoName: 'Test',
+      version: 0
+    });
+
+    const account = new UserAccount(new AccountOption({
+      hasEncryptedPrivateKeyExported: false,
+      keyType: 'ethereum',
+      localKeyEncryptionStrategy: 0
+    }));
+    const mnemonicWallet = ethers.Wallet.fromMnemonic(seed);
+
     expect((mnemonicWallet.privateKey).slice(2)).toEqual(privateKey);
     account.unlock(hexToU8a((mnemonicWallet.privateKey).slice(2)));
     await account.init();

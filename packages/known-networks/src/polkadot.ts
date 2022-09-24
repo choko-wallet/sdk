@@ -1,7 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/known-networks authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString } from '@choko-wallet/core/types';
+import type { HexString, NetworkType } from '@choko-wallet/core/types';
 
 import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 
@@ -13,7 +13,7 @@ import { xxHash } from '@choko-wallet/core/util';
 export class PolkadotNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
-  networkType: string;
+  networkType: NetworkType;
   info: string;
   text: string;
   homepage?: string;

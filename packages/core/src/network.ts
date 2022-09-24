@@ -1,7 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Color, HexString, Image } from './types';
+import type { Color, HexString, Image, NetworkType } from './types';
 
 import { u8aToHex } from '@skyekiwi/util';
 
@@ -14,7 +14,7 @@ export interface INetwork {
   info: string;
   text: string;
   defaultProvider: string;
-  networkType: string;
+  networkType: NetworkType;
 
   homepage?: string;
   isChild?: boolean;
@@ -32,7 +32,7 @@ export interface INetwork {
 export class Network implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
-  networkType: string;
+  networkType: NetworkType;
   info: string;
   text: string;
 
@@ -50,7 +50,7 @@ export class Network implements INetwork {
     info: string,
     providers: Record<string, string>,
     defaultProvider: string,
-    networkType: string,
+    networkType: NetworkType,
     text: string,
 
     homepage?: string,

@@ -3,8 +3,7 @@
 
 import type { SDKConfig } from './type';
 
-import { UserAccount } from '@choko-wallet/core';
-import { DappDescriptor } from '@choko-wallet/core/dapp';
+import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
@@ -12,12 +11,8 @@ import { storeCallBackUrl, storeDappDescriptor, storeUserAccount } from '.';
 
 export const validateConfig = (config: SDKConfig): string => {
   // 1. AccountCreatioOption
-  const accountCreationOptionIsValidV0 = (): boolean => {
-    const { keyType, localKeyEncryptionStrategy } = config.accountCreationOption;
-
-    return keyType === 'sr25519' &&
-      localKeyEncryptionStrategy === 0;
-    // hasEncryptedPrivateKeyExported can be either thing
+  const accountOptionIsValidV0 = (): boolean => {
+    return new AccountOption(config.accountOption).validate();
   };
 
   const activeNetworkHashIsValidV0 = (): boolean => {
@@ -46,7 +41,7 @@ export const validateConfig = (config: SDKConfig): string => {
     return !!callbackUrlBase;
   };
 
-  return (accountCreationOptionIsValidV0() ? '' : 'Invalid AccountCreationOption') as string +
+  return (accountOptionIsValidV0() ? '' : 'Invalid AccountCreationOption') as string +
   (activeNetworkHashIsValidV0() ? '' : 'Invalid activeNetworkHash') +
   (nameIsValidV0() ? '' : 'Invalid name') +
   (versionIsValidV0() ? '' : 'Invalid version') +
@@ -69,8 +64,8 @@ export const configSDK = (config: SDKConfig): [DappDescriptor, UserAccount] => {
   });
 
   // 2. config the UserAccount
-  const { accountCreationOption } = config;
-  const account = new UserAccount(accountCreationOption);
+  const { accountOption } = config;
+  const account = new UserAccount(new AccountOption(accountOption));
 
   // 2.1 assign empty public key
   account.publicKey = new Uint8Array(32);
