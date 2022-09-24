@@ -8,6 +8,8 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@choko-wallet/abi": [ "packages/abi/src" ],
+      "@choko-wallet/abi/*": [ "packages/abi/src/*" ],
       "@choko-wallet/core": [ "packages/core/src" ],
       "@choko-wallet/core/*": [ "packages/core/src/*" ],
       "@choko-wallet/frontend": [ "packages/frontend/" ],

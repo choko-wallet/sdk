@@ -1454,6 +1454,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@choko-wallet/abi@0.1.6-9, @choko-wallet/abi@workspace:packages/abi":
+  version: 0.0.0-use.local
+  resolution: "@choko-wallet/abi@workspace:packages/abi"
+  dependencies:
+    "@choko-wallet/core": 0.1.6-9
+    ethers: ^5.7.0
+  languageName: unknown
+  linkType: soft
+  
 "@choko-wallet/core@0.1.6-11, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
@@ -1480,6 +1489,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/request-handler@workspace:packages/request-handler"
   dependencies:
+    "@choko-wallet/abi": 0.1.6-9
     "@choko-wallet/core": 0.1.6-11
     "@polkadot/keyring": ^10.1.2
     "@polkadot/util-crypto": ^10.1.2
