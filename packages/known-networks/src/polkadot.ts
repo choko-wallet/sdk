@@ -40,6 +40,7 @@ export class PolkadotNetwork implements INetwork {
       RadiumBlock: 'wss://polkadot.public.curie.radiumblock.io/ws'
     };
     this.defaultProvider = 'wss://rpc.polkadot.io';
+    this.color = '#e6007a';
   }
 
   public serialize (): Uint8Array {

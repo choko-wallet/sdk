@@ -40,6 +40,7 @@ export class KusamaNetwork implements INetwork {
       Pinknode: 'wss://public-rpc.pinknode.io/kusama'
     };
     this.defaultProvider = 'wss://kusama-rpc.polkadot.io';
+    this.color = '#000000';
   }
 
   public serialize (): Uint8Array {

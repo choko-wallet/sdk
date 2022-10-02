@@ -33,6 +33,7 @@ export class SkyeKiwiNetwork implements INetwork {
       SkyeKiwi: 'wss://staging.rpc.skye.kiwi'
     };
     this.defaultProvider = 'wss://staging.rpc.skye.kiwi';
+    this.color = '#6667ab';
   }
 
   public serialize (): Uint8Array {

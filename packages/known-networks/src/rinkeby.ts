@@ -36,6 +36,7 @@ export class RinkebyNetwork implements INetwork {
       Rinkeby: 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2'
     };
     this.defaultProvider = 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2';
+    this.color = '#627FE5';
   }
 
   public serialize (): Uint8Array {
