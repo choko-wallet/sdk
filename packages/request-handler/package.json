@@ -22,9 +22,13 @@
   "dependencies": {
     "@choko-wallet/abi": "0.1.7",
     "@choko-wallet/core": "0.1.7",
-    "@polkadot/keyring": "^10.1.2",
-    "@polkadot/util-crypto": "^10.1.2",
-    "@skyekiwi/util": "0.8.4-1",
+    "@polkadot/keyring": "^10.1.9",
+    "@polkadot/util-crypto": "^10.1.9",
+    "@skyekiwi/crypto": "0.8.4-2",
+    "@skyekiwi/util": "0.8.4-2",
     "ethers": "^5.7.0"
+  },
+  "devDependencies": {
+    "tweetnacl": "^1.0.3"
   }
 }
