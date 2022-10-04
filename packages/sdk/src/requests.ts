@@ -9,8 +9,7 @@ import { ConnectDappRequest, ConnectDappRequestPayload, SignMessageRequest, Sign
 import { getCallBackUrl, getDappDescriptor, getUserAccount } from '.';
 
 export const WALLET_REQEUST_BASE_URL = 'https://choko.app/request';
-// export const WALLET_REQEUST_BASE_URL = 'http://localhost:3000/request'
-// export const LOCAL_WALLET_REQEUST_BASE_URL = 'https://localhost:3000/request'
+export const LOCAL_WALLET_REQEUST_BASE_URL = 'https://localhost:3000/request'
 
 export const buildConnectDappRequest = (): Uint8Array => {
   const dapp = getDappDescriptor();
@@ -52,30 +51,30 @@ export const buildSignTxRequest = (encoded: Uint8Array): Uint8Array => {
   return compressParameters(request.serialize());
 };
 
-export const buildConnectDappUrl = (): string => {
+export const buildConnectDappUrl = (local?: boolean): string => {
   const callbackUrlBase = getCallBackUrl();
 
-  return `${WALLET_REQEUST_BASE_URL}?` +
+  return `${local? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
     'requestType=connectDapp' + '&' +
     `payload=${u8aToHex(buildConnectDappRequest())}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
-export const buildSignMessageUrl = (message: Uint8Array): string => {
+export const buildSignMessageUrl = (message: Uint8Array, local?: boolean): string => {
   const callbackUrlBase = getCallBackUrl();
 
-  return `${WALLET_REQEUST_BASE_URL}?` +
+  return `${local? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
     'requestType=signMessage' + '&' +
     `payload=${u8aToHex(buildSignMessageRequest(message))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
-export const buildSignTxUrl = (encoded: Uint8Array): string => {
+export const buildSignTxUrl = (encoded: Uint8Array, local?: boolean): string => {
   const callbackUrlBase = getCallBackUrl();
 
   console.log(u8aToHex(buildSignTxRequest(encoded)));
 
-  return `${WALLET_REQEUST_BASE_URL}?` +
+  return `${local? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
     'requestType=signTx' + '&' +
     `payload=${u8aToHex(buildSignTxRequest(encoded))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
