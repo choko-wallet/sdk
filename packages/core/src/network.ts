@@ -79,7 +79,7 @@ export class Network implements INetwork {
     this.logo = config.logo;
     this.networkType = config.networkType;
   }
-  
+
   /**
     * get the length of serialized bytes
     * We serialized Networks by xxHash of the info name of the Network

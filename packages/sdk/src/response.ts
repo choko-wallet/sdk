@@ -4,7 +4,7 @@
 import { hexToU8a } from '@skyekiwi/util';
 
 import { decompressParameters } from '@choko-wallet/core/util';
-import { ConnectDappResponse, SignMessageResponse, SignTxResponse, DecryptMessageResponse } from '@choko-wallet/request-handler';
+import { ConnectDappResponse, DecryptMessageResponse, SignMessageResponse, SignTxResponse } from '@choko-wallet/request-handler';
 
 export const parseConnectDappResponse = (data: string): ConnectDappResponse => {
   const response = ConnectDappResponse.deserialize(

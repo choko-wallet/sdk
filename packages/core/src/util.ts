@@ -9,7 +9,7 @@ import { KeypairType } from './types';
 /**
   * convert KeypairType from number -> KeypairType (string)
   * @param {number} keyType the number from 0 - 3 of the KeypairType
-  * @returns {KeypairType} the string format of KeypairType 
+  * @returns {KeypairType} the string format of KeypairType
 */
 export const keypairTypeNumberToString = (keyType: number): KeypairType => {
   switch (keyType) {
@@ -28,8 +28,8 @@ export const keypairTypeNumberToString = (keyType: number): KeypairType => {
 
 /**
   * convert KeypairType from KeypairType(string) -> number
-  * @param {KeypairType} keyType the string format of KeypairType 
-  * @returns {number} keyType the number from 0 - 3 of the KeypairType 
+  * @param {KeypairType} keyType the string format of KeypairType
+  * @returns {number} keyType the number from 0 - 3 of the KeypairType
 */
 export const keypairTypeStringToNumber = (keyType: KeypairType): number => {
   switch (keyType) {
@@ -52,7 +52,7 @@ export const xxHash = (data: string | Uint8Array): Uint8Array => {
 
 /**
   * comporess paramters sent via URL
-  * We tried to comporess the paramters by pako(zlib). 
+  * We tried to comporess the paramters by pako(zlib).
   * Sometimes, the params is random and compression actually increase the size of the product.
   * Therefore, we attach a flag at the beginning of the params
   * 0 = not compressed 1 = compressed with zlib
@@ -83,7 +83,7 @@ export const compressParameters = (params: Uint8Array): Uint8Array => {
 
 /**
   * decompress paramters sent via URL
-  * Test the flag at the first byte 
+  * Test the flag at the first byte
   * 0 = not compressed, return AS IS
   * 1 = decompress with zlib
   * @param {Uint8Array} params the original request parameters

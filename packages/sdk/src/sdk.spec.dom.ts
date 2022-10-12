@@ -13,8 +13,7 @@ global.TextDecoder = TextDecoder;
 
 const provider = new WsProvider('wss://staging.rpc.skye.kiwi');
 
-
-// This test needs to run inside the DOM env of Jest. Disabled by default. 
+// This test needs to run inside the DOM env of Jest. Disabled by default.
 describe('@choko-wallet/sdk - request', function () {
   it('e2e', () => {
     configSDK({

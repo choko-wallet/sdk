@@ -94,7 +94,7 @@ export class DappDescriptor implements IDappDescriptor {
   /**
     * deserialize DappDescriptor
     * @param {Uint8Array} data serialized DappDescriptor
-    * @returns {DappDescriptor} DappDescriptor object 
+    * @returns {DappDescriptor} DappDescriptor object
   */
   public static deserialize (data: Uint8Array): DappDescriptor {
     if (data.length !== DappDescriptor.serializedLength()) {
