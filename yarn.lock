@@ -1463,20 +1463,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@choko-wallet/abi@0.1.8-3, @choko-wallet/abi@workspace:packages/abi":
+"@choko-wallet/abi@0.1.8-4, @choko-wallet/abi@workspace:packages/abi":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/abi@workspace:packages/abi"
   dependencies:
-    "@choko-wallet/core": 0.1.8-3
+    "@choko-wallet/core": 0.1.8-4
     ethers: ^5.7.0
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/core@0.1.8-3, @choko-wallet/core@workspace:packages/core":
+"@choko-wallet/core@0.1.8-4, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
   dependencies:
-    "@choko-wallet/known-networks": 0.1.8-3
+    "@choko-wallet/known-networks": 0.1.8-4
     "@polkadot/util-crypto": ^10.1.10
     "@skyekiwi/crypto": 0.8.4-2
     "@skyekiwi/util": 0.8.4-2
@@ -1485,11 +1485,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/known-networks@0.1.8-3, @choko-wallet/known-networks@workspace:packages/known-networks":
+"@choko-wallet/known-networks@0.1.8-4, @choko-wallet/known-networks@workspace:packages/known-networks":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/known-networks@workspace:packages/known-networks"
   dependencies:
-    "@choko-wallet/core": 0.1.8-3
+    "@choko-wallet/core": 0.1.8-4
     "@skyekiwi/util": 0.8.4-1
   languageName: unknown
   linkType: soft
@@ -1498,8 +1498,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/request-handler@workspace:packages/request-handler"
   dependencies:
-    "@choko-wallet/abi": 0.1.8-3
-    "@choko-wallet/core": 0.1.8-3
+    "@choko-wallet/abi": 0.1.8-4
+    "@choko-wallet/core": 0.1.8-4
     "@polkadot/keyring": ^10.1.10
     "@polkadot/util-crypto": ^10.1.10
     "@skyekiwi/crypto": 0.8.4-2
@@ -1513,7 +1513,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/sdk@workspace:packages/sdk"
   dependencies:
-    "@choko-wallet/core": 0.1.8-3
+    "@choko-wallet/core": 0.1.8-4
   languageName: unknown
   linkType: soft
 
