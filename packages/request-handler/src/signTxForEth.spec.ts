@@ -13,11 +13,11 @@ import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from './signTx'
 
 const privateKey = '6e00e2fb6feb95393f29e0ceeabebc4f7b2d692b4912663546755b9b8f87b938';
 const seed = 'acoustic hover lyrics object execute unfold father give wing hen remain ship';
-const contractAddress = '0x46c0D3681a7eE593D59d80d9cFdF5e54Db5BDB79';
+const contractAddress = '0x238F47e33cD44A7701F2Bb824659D432efD17b41';
 
 describe('@choko-wallet/request-handler-eth - signTx', function () {
   const dapp = new DappDescriptor({
-    activeNetwork: knownNetworks[u8aToHex(xxHash('rinkeby'))],
+    activeNetwork: knownNetworks[u8aToHex(xxHash('goerli'))],
     displayName: 'Jest Testing',
     infoName: 'Test',
     version: 0
@@ -35,13 +35,6 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
   });
 
   it('e2e - signTx - ethereum', async () => {
-    const dapp = new DappDescriptor({
-      activeNetwork: knownNetworks[u8aToHex(xxHash('rinkeby'))],
-      displayName: 'Jest Testing',
-      infoName: 'Test',
-      version: 0
-    });
-
     const mnemonicWallet = ethers.Wallet.fromMnemonic(seed);
 
     expect((mnemonicWallet.privateKey).slice(2)).toEqual(privateKey);
@@ -50,9 +43,9 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     account.lock();
 
     const tx = {
-      chainId: 4,
+      chainId: 5,
       to: '0xE8DAC12f7A4b0a47e8e2Af2b96db6F54e2E2C9C3',
-      value: ethers.utils.parseEther('0.01')
+      value: ethers.utils.parseEther('0')
     };
 
     const serializedTx = ethers.utils.serializeTransaction(tx);
@@ -96,7 +89,7 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     console.log('data: ', data);
 
     const tx = {
-      chainId: 4,
+      chainId: 5,
       data: data,
       to: contractAddress
     };

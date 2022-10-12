@@ -3,6 +3,8 @@
 
 import { KnownNetworks } from '@choko-wallet/core';
 
+import { EthereumNetwork, EthereumNetworkHash } from './ethereum';
+import { GoerliNetwork, GoerliNetworkHash } from './goerli';
 import { KusamaNetwork, KusamaNetworkHash } from './kusama';
 import { PolkadotNetwork, PolkadotNetworkHash } from './polkadot';
 import { RinkebyNetwork, RinkebyNetworkHash } from './rinkeby';
@@ -14,5 +16,7 @@ export const knownNetworks: KnownNetworks = {
   [SkyeKiwiNetworkHash]: new SkyeKiwiNetwork(),
   [PolkadotNetworkHash]: new PolkadotNetwork(),
   [KusamaNetworkHash]: new KusamaNetwork(),
-  [RinkebyNetworkHash]: new RinkebyNetwork()
+  [RinkebyNetworkHash]: new RinkebyNetwork(),
+  [GoerliNetworkHash]: new GoerliNetwork(),
+  [EthereumNetworkHash]: new EthereumNetwork()
 };
