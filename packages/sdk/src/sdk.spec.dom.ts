@@ -6,16 +6,18 @@ import { encodeAddress } from '@polkadot/util-crypto';
 import { hexToU8a } from '@skyekiwi/util';
 import { TextDecoder, TextEncoder } from 'util';
 
-import { buildConnectDappUrl, buildSignMessageUrl, buildSignTxUrl, configSDKAndStore, getUserAccount, storeUserAccount } from '.';
+import { buildConnectDappUrl, buildSignMessageUrl, buildSignTxUrl, configSDK, getUserAccount, storeUserAccount } from '.';
 
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
 const provider = new WsProvider('wss://staging.rpc.skye.kiwi');
 
+
+// This test needs to run inside the DOM env of Jest. Disabled by default. 
 describe('@choko-wallet/sdk - request', function () {
   it('e2e', () => {
-    configSDKAndStore({
+    configSDK({
       accountOption: {
         hasEncryptedPrivateKeyExported: false,
         keyType: 'sr25519',
@@ -38,7 +40,7 @@ describe('@choko-wallet/sdk - request', function () {
   });
 
   it('e2e - signTx', async () => {
-    configSDKAndStore({
+    configSDK({
       accountOption: {
         hasEncryptedPrivateKeyExported: false,
         keyType: 'sr25519',
@@ -72,7 +74,7 @@ describe('@choko-wallet/sdk - request', function () {
   });
 
   it('e2e - signTx', () => {
-    configSDKAndStore({
+    configSDK({
       accountOption: {
         hasEncryptedPrivateKeyExported: false,
         keyType: 'sr25519',

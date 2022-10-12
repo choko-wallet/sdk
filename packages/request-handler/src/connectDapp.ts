@@ -13,6 +13,7 @@ import { xxHash } from '@choko-wallet/core/util';
 
 export const connectDappHash: HexString = u8aToHex(xxHash('connectDapp'));
 
+// ConnectDappRequestPayload contains nothing but the request version
 export class ConnectDappRequestPayload implements IPayload {
   public readonly version: Version;
 
@@ -37,6 +38,7 @@ export class ConnectDappRequestPayload implements IPayload {
   }
 }
 
+// ConnectDappResponsePayload contains a serialized UserAccount
 export class ConnectDappResponsePayload implements IPayload {
   public readonly userAccount: UserAccount;
   public readonly version: Version;
@@ -105,7 +107,7 @@ export class ConnectDappRequest implements IRequest {
 
     this.payload = payload;
     this.type = connectDappHash;
-    this.isRemote = false;
+    this.isRemote = false; // We do not need to interact with blockchain with this IRequest
 
     this.version = config.version || CURRENT_VERSION;
   }

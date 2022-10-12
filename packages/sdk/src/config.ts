@@ -9,6 +9,12 @@ import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { storeCallBackUrl, storeDappDescriptor, storeUserAccount } from '.';
 
+/**
+  * validate a SDKConfig
+  * @param {SDKConfig} config the SDKConfig to be validated
+  * @returns {string} returns messages related to the error. If empty, all good!
+*/
+// TODO: does it worth it to implements an Error system for this?
 export const validateConfig = (config: SDKConfig): string => {
   // 1. AccountCreatioOption
   const accountOptionIsValidV0 = (): boolean => {
@@ -41,14 +47,19 @@ export const validateConfig = (config: SDKConfig): string => {
     return !!callbackUrlBase;
   };
 
-  return (accountOptionIsValidV0() ? '' : 'Invalid AccountCreationOption') as string +
-  (activeNetworkHashIsValidV0() ? '' : 'Invalid activeNetworkHash') +
-  (nameIsValidV0() ? '' : 'Invalid name') +
-  (versionIsValidV0() ? '' : 'Invalid version') +
-  (callbackUrlIsValidV0() ? '' : 'Invalid callbackUrlBase');
+  return (accountOptionIsValidV0() ? '' : 'Invalid AccountCreationOption ') as string +
+  (activeNetworkHashIsValidV0() ? '' : 'Invalid activeNetworkHash ') +
+  (nameIsValidV0() ? '' : 'Invalid name ') +
+  (versionIsValidV0() ? '' : 'Invalid version ') +
+  (callbackUrlIsValidV0() ? '' : 'Invalid callbackUrlBase ');
 };
 
-export const configSDK = (config: SDKConfig): [DappDescriptor, UserAccount] => {
+/**
+  * INTERNAL config SDKConfig and generate the standard objects needed
+  * @param {SDKConfig} config the SDKConfig to be proceed
+  * @returns {[DappDescriptor, UserAccount]} return a parsed DappDescriptor and a (locked) UserAccount
+*/
+const parseSDKConfig = (config: SDKConfig): [DappDescriptor, UserAccount] => {
   const invalidReason = validateConfig(config);
 
   if (invalidReason) {
@@ -73,8 +84,14 @@ export const configSDK = (config: SDKConfig): [DappDescriptor, UserAccount] => {
   return [dappDescriptor, account];
 };
 
-export const configSDKAndStore = (config: SDKConfig, act?: UserAccount): void => {
-  const [dappDescriptor, account] = configSDK(config);
+/**
+  * Config SDK and store information locally in localStorage
+  * @param {SDKConfig} config the SDKConfig to be proceed
+  * @param {UserAccount} act (optional) UserAccount to inject
+  * @returns {void} None. Will store relevant information in localStorage
+*/
+export const configSDK = (config: SDKConfig, act?: UserAccount): void => {
+  const [dappDescriptor, account] = parseSDKConfig(config);
 
   storeUserAccount(act || account);
   storeDappDescriptor(dappDescriptor);

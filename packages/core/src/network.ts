@@ -79,7 +79,12 @@ export class Network implements INetwork {
     this.logo = config.logo;
     this.networkType = config.networkType;
   }
-
+  
+  /**
+    * get the length of serialized bytes
+    * We serialized Networks by xxHash of the info name of the Network
+    * @returns {number} size of the serialized bytes
+  */
   public static serializedLength (): number {
     return 8;
   }
@@ -88,6 +93,11 @@ export class Network implements INetwork {
     return Util.xxHash(this.info);
   }
 
+  /**
+    * deserialize Network
+    * @param {Uint8Array} data serialized Network
+    * @returns {INetwork} deserialized Network
+  */
   public static deserialize (data: Uint8Array): INetwork {
     if (data.length !== Network.serializedLength()) {
       throw new Error('Invalid network length');

@@ -15,6 +15,10 @@ const privateKey = '6e00e2fb6feb95393f29e0ceeabebc4f7b2d692b4912663546755b9b8f87
 const seed = 'acoustic hover lyrics object execute unfold father give wing hen remain ship';
 const contractAddress = '0x238F47e33cD44A7701F2Bb824659D432efD17b41';
 
+
+// This test is disabled becuase Goerli faucet is off and the account is low on balance!
+// We should enable this test again when Goerli Faucet is back to normal
+
 describe('@choko-wallet/request-handler-eth - signTx', function () {
   const dapp = new DappDescriptor({
     activeNetwork: knownNetworks[u8aToHex(xxHash('goerli'))],

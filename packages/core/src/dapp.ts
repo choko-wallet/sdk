@@ -53,13 +53,21 @@ export class DappDescriptor implements IDappDescriptor {
     this.version = config.version;
   }
 
+  /**
+    * get the length of serialized bytes
+    * @returns {number} size of the serialized bytes
+  */
   public static serializedLength (): number {
-    return 68 + // displayNae
-      68 + // infoName
+    return 68 + // displayName 4 bytes size + 64 bytes data
+      68 + // infoName 4 bytes size + 64 bytes data
       Network.serializedLength() + // network
       2; // version ( pad(repeat) to 2 bytes )
   }
 
+  /**
+   * serialize DappDescriptor
+   * @returns {Uint8Array} serialized DappDescriptor
+  */
   public serialize (): Uint8Array {
     const name = stringToU8a(this.infoName);
     const nameContainer = new Uint8Array(68);
@@ -83,6 +91,11 @@ export class DappDescriptor implements IDappDescriptor {
     return res;
   }
 
+  /**
+    * deserialize DappDescriptor
+    * @param {Uint8Array} data serialized DappDescriptor
+    * @returns {DappDescriptor} DappDescriptor object 
+  */
   public static deserialize (data: Uint8Array): DappDescriptor {
     if (data.length !== DappDescriptor.serializedLength()) {
       throw new Error('invalid data length - DappDescriptor.deserialize');

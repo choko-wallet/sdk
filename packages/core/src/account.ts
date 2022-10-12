@@ -27,26 +27,39 @@ export class AccountOption implements IAccountOption {
   hasEncryptedPrivateKeyExported: boolean;
   version?: Version;
 
-  constructor (option: IAccountOption) {
+  constructor(option: IAccountOption) {
     this.keyType = option.keyType;
     this.localKeyEncryptionStrategy = option.localKeyEncryptionStrategy;
     this.hasEncryptedPrivateKeyExported = option.hasEncryptedPrivateKeyExported;
     this.version = option.version ? option.version : CURRENT_VERSION;
   }
 
-  public validate (): boolean {
+
+
+  /**
+   * validate if the AccountOption is valid
+   * @returns {boolean} the validity of the AccountOption
+  */
+  public validate(): boolean {
     return this.keyType && (this.localKeyEncryptionStrategy > 0 || this.localKeyEncryptionStrategy < 2);
   }
 
-  public static serializedLength (): number {
+  /**
+    * get the length of serializedLength
+    * @returns {number} size of the serializedLength
+  */
+  public static serializedLength(): number {
     return 1 + // keyType
       1 + // localKeyEncryptionStrategy
       1 + // hasEncryptedPrivateKeyExported
       1; // version
   }
 
-  // account serialize does not include private key info
-  public serialize (): Uint8Array {
+  /**
+   * serialize AccountOption
+   * @returns {Uint8Array} serialized AccountOption
+ */
+  public serialize(): Uint8Array {
     const res = new Uint8Array(AccountOption.serializedLength());
 
     res.set([Util.keypairTypeStringToNumber(this.keyType)], 0);
@@ -57,7 +70,12 @@ export class AccountOption implements IAccountOption {
     return res;
   }
 
-  public static deserialize (data: Uint8Array): AccountOption {
+  /**
+    * deserialize AccountOption
+    * @param {Uint8Array} data serialized AccountOption
+    * @returns {AccountOption} AccountOption Object
+  */
+  public static deserialize(data: Uint8Array): AccountOption {
     if (data.length !== AccountOption.serializedLength()) {
       throw new Error('invalid data length - AccountOption.deserialize');
     }
@@ -116,7 +134,7 @@ export class UserAccount implements IUserAccount {
   address: string;
   publicKey: Uint8Array; // len == 32 for curve25519 family | len == 33 for secp256k1
 
-  constructor (option: AccountOption) {
+  constructor(option: AccountOption) {
     if (!option.validate()) {
       throw new Error('invalide option - UserAccount.constructor');
     }
@@ -125,12 +143,19 @@ export class UserAccount implements IUserAccount {
     this.isLocked = true;
   }
 
-  public lock (): void {
+  /**
+  * remove privateKey from account and lock the account
+  */
+  public lock(): void {
     delete this.privateKey;
     this.isLocked = true;
   }
 
-  public unlock (privateKey: Uint8Array): void {
+  /**
+  * unlock account
+  * @param {Uint8Array} privateKey a 32 bytes secretKey
+  */
+  public unlock(privateKey: Uint8Array): void {
     if (privateKey.length !== 32) {
       throw new Error('invalid private key length - UserAccount.unlock');
     }
@@ -139,7 +164,11 @@ export class UserAccount implements IUserAccount {
     this.isLocked = false;
   }
 
-  public async init (): Promise<void> {
+  /**
+    * initialize user account. Generate the publicKey and address for the account
+    * @returns {Promise<void>} None.
+  */
+  public async init(): Promise<void> {
     if (this.isLocked) {
       throw new Error('account is locked - UserAccount.init');
     }
@@ -154,7 +183,13 @@ export class UserAccount implements IUserAccount {
     this.publicKey = kr.publicKey;
   }
 
-  public static privateKeyToUserAccount (privateKey: Uint8Array, option: AccountOption): UserAccount {
+  /**
+    * use privateKey to generate account
+    * @param {Uint8Array} privateKey a 32 bytes secretKey
+    * @param {Uint8Array} option account option
+    * @returns {UserAccount} user account
+  */
+  public static privateKeyToUserAccount(privateKey: Uint8Array, option: AccountOption): UserAccount {
     if (privateKey.length !== 32) {
       // sanity check
       throw new Error('invalid private key length - UserAccount.privateKeyToUserAccount');
@@ -167,7 +202,13 @@ export class UserAccount implements IUserAccount {
     return userAccount;
   }
 
-  public static seedToUserAccount (seed: string, option: AccountOption): UserAccount {
+  /**
+    * create an UserAccount object from a mnemonic seed
+    * @param {string} seed a 12 words seed
+    * @param {AccountOption} option account option
+    * @returns {UserAccount} user account
+  */
+  public static seedToUserAccount(seed: string, option: AccountOption): UserAccount {
     if (!mnemonicValidate(seed)) {
       throw new Error('invalid seed - UserAccount.seedToUserAccount');
     }
@@ -177,7 +218,12 @@ export class UserAccount implements IUserAccount {
     return UserAccount.privateKeyToUserAccount(privateKey, option);
   }
 
-  public encryptUserAccount (passwordHash: Uint8Array): void {
+  /**
+    * encrypt the privateKey of the user and lock the account
+    * @param {Uint8Array} passwordHash password hash, always bhe 32 bytes long
+    * @returns {void} None
+  */
+  public encryptUserAccount(passwordHash: Uint8Array): void {
     if (this.isLocked) {
       throw new Error('account has been locked locked - UserAccount.lockUserAccount');
     }
@@ -197,7 +243,12 @@ export class UserAccount implements IUserAccount {
     this.encryptedPrivateKey = encryptedPrivateKey;
   }
 
-  public decryptUserAccount (passwordHash: Uint8Array): void {
+  /**
+    * Decrypt the user private key and unlock the account
+    * @param {Uint8Array} passwordHash password hash
+    * @returns {void} None
+  */
+  public decryptUserAccount(passwordHash: Uint8Array): void {
     if (this.encryptedPrivateKey && this.encryptedPrivateKey.length !== 32 + 16 + 24) {
       throw new Error('invalid encrypted private key length - UserAccount.decryptUserAccount');
     }
@@ -215,14 +266,23 @@ export class UserAccount implements IUserAccount {
     this.unlock(privateKey);
   }
 
-  // Account Serde & Account Index
-  public static serializedLength (): number {
-    return 33 + // publicKey len
-      +AccountOption.serializedLength();
+  // Account Serde
+  /**
+    * get the length of serializedLength
+    * @returns {number} size of the serializedLength
+  */
+  public static serializedLength(): number {
+    return 33 + // publicKey len 
+      //we pad all public keys to 33 bytes so that secp256k1 keys can fit as well
+      + AccountOption.serializedLength();
   }
 
   // account serialize does not include private key info
-  public serialize (): Uint8Array {
+  /**
+   * serialize user account
+   * @returns {Uint8Array} serialized user account
+  */
+  public serialize(): Uint8Array {
     if (!this.publicKey) {
       throw new Error('account is not initialized - UserAccount.serialize');
     }
@@ -235,13 +295,20 @@ export class UserAccount implements IUserAccount {
     return res;
   }
 
-  public static deserialize (data: Uint8Array): UserAccount {
+  /**
+    * deserialize user account
+    * @param {Uint8Array} data serialized user account
+    * @returns {Uint8Array} deserialized user account
+  */
+  public static deserialize(data: Uint8Array): UserAccount {
     if (data.length !== UserAccount.serializedLength()) {
       throw new Error('invalid data length - UserAccount.deserialize');
     }
 
     const option = AccountOption.deserialize(data.slice(33, 33 + AccountOption.serializedLength()));
     const publicKey = (['ecdsa', 'ethereum'].includes(option.keyType)) ? data.slice(0, 33) : data.slice(0, 32);
+    
+    // We also encode an address!
     const address = (['ecdsa', 'ethereum'].includes(option.keyType)) ? ethereumEncode(publicKey) : encodeAddress(publicKey);
 
     const userAccount = new UserAccount(option);
@@ -252,12 +319,20 @@ export class UserAccount implements IUserAccount {
     return userAccount;
   }
 
-  public static serializedLengthWithEncryptedKey (): number {
+  /**
+    * get the length of serializedLength plus the length of EncryptedKey
+    * @returns {number} size of the serializedLength plus the length of EncryptedKey
+  */
+  public static serializedLengthWithEncryptedKey(): number {
     return UserAccount.serializedLength() + 72;
   }
 
-  // account serialize does not include private key info
-  public serializeWithEncryptedKey (): Uint8Array {
+  // account serialize does not include CLEARTEXT private key info
+  /**
+   * serialize user account with EncryptedKey
+   * @returns {Uint8Array} serialized user account with EncryptedKey
+  */
+  public serializeWithEncryptedKey(): Uint8Array {
     if (!this.encryptedPrivateKey || this.encryptedPrivateKey.length !== 72) {
       throw new Error('invalid encryptedPrivateKey - UserAccount.serializeWithEncryptedKey');
     }
@@ -270,7 +345,12 @@ export class UserAccount implements IUserAccount {
     return res;
   }
 
-  public static deserializeWithEncryptedKey (data: Uint8Array): UserAccount {
+  /**
+   * deserialize user account with EncryptedKey
+   * @param {Uint8Array} data serialized user account with EncryptedKey
+   * @returns {Uint8Array} deserialized user account with EncryptedKey
+  */
+  public static deserializeWithEncryptedKey(data: Uint8Array): UserAccount {
     if (data.length !== UserAccount.serializedLengthWithEncryptedKey()) {
       throw new Error('invalid data length - UserAccount.deserializeWithEncryptedKey');
     }

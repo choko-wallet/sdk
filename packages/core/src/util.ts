@@ -6,6 +6,11 @@ import pako from 'pako';
 
 import { KeypairType } from './types';
 
+/**
+  * convert KeypairType from number -> KeypairType (string)
+  * @param {number} keyType the number from 0 - 3 of the KeypairType
+  * @returns {KeypairType} the string format of KeypairType 
+*/
 export const keypairTypeNumberToString = (keyType: number): KeypairType => {
   switch (keyType) {
     case 0:
@@ -21,6 +26,11 @@ export const keypairTypeNumberToString = (keyType: number): KeypairType => {
   }
 };
 
+/**
+  * convert KeypairType from KeypairType(string) -> number
+  * @param {KeypairType} keyType the string format of KeypairType 
+  * @returns {number} keyType the number from 0 - 3 of the KeypairType 
+*/
 export const keypairTypeStringToNumber = (keyType: KeypairType): number => {
   switch (keyType) {
     case 'sr25519':
@@ -36,25 +46,19 @@ export const keypairTypeStringToNumber = (keyType: KeypairType): number => {
   }
 };
 
-export const keypairTypeToCurveType = (keyType: KeypairType): string => {
-  switch (keyType) {
-    case 'sr25519':
-      return 'sr25519';
-    case 'ed25519':
-      return 'x25519';
-    case 'ecdsa':
-      return 'secp256k1';
-    case 'ethereum':
-      return 'secp256k1';
-    default:
-      throw new Error('unknown key type - Util.mapKeypairTypeToEncryptionCurve');
-  }
-};
-
 export const xxHash = (data: string | Uint8Array): Uint8Array => {
   return xxhashAsU8a(data);
 };
 
+/**
+  * comporess paramters sent via URL
+  * We tried to comporess the paramters by pako(zlib). 
+  * Sometimes, the params is random and compression actually increase the size of the product.
+  * Therefore, we attach a flag at the beginning of the params
+  * 0 = not compressed 1 = compressed with zlib
+  * @param {Uint8Array} params the original request parameters
+  * @returns {Uint8Array} the compressed request parameters
+*/
 export const compressParameters = (params: Uint8Array): Uint8Array => {
   const originalLength = params.length;
   const compressed = pako.deflate(params);
@@ -77,6 +81,14 @@ export const compressParameters = (params: Uint8Array): Uint8Array => {
   }
 };
 
+/**
+  * decompress paramters sent via URL
+  * Test the flag at the first byte 
+  * 0 = not compressed, return AS IS
+  * 1 = decompress with zlib
+  * @param {Uint8Array} params the original request parameters
+  * @returns {Uint8Array} the compressed request parameters
+*/
 export const decompressParameters = (params: Uint8Array): Uint8Array => {
   if (params[0] === 0) {
     return params.slice(1);

@@ -10,7 +10,7 @@ import { UserAccount } from '.';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
-const TypeArr = [
+const Tests = [
   {
     address: '5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn',
     keyType: 'sr25519',
@@ -31,7 +31,7 @@ const TypeArr = [
 describe('UserAccount - @choko-wallet/core/account', function () {
   const privateKey = mnemonicToMiniSecret(SEED);
 
-  TypeArr.map((type) => {
+  Tests.map((type) => {
     const option = new AccountOption({
       hasEncryptedPrivateKeyExported: false,
       keyType: type.keyType as KeypairType,
