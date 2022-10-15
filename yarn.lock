@@ -1472,6 +1472,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@choko-wallet/assets@workspace:packages/assets":
+  version: 0.0.0-use.local
+  resolution: "@choko-wallet/assets@workspace:packages/assets"
+  dependencies:
+    "@choko-wallet/core": 0.1.8-4
+    "@choko-wallet/known-networks": 0.1.8-4
+  languageName: unknown
+  linkType: soft
+
 "@choko-wallet/core@0.1.8-4, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
