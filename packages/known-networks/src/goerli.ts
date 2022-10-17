@@ -16,6 +16,10 @@ export class GoerliNetwork implements INetwork {
   networkType: NetworkType;
   info: string;
   text: string;
+
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -31,6 +35,9 @@ export class GoerliNetwork implements INetwork {
     this.text = 'Goerli Network';
     this.homepage = 'https://goerli.net';
     this.networkType = 'ethereum';
+
+    this.nativeTokenSymbol = 'GoerliETH';
+    this.nativeTokenDecimal = 18;
 
     this.providers = {
       Goerli: 'wss://goerli.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'

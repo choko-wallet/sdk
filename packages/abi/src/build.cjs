@@ -41,7 +41,7 @@ const abis: {[key: string]: string} = {
 `);
 
   for (const abi of abis) {
-    w.write(` '${abi.name}': '${abi.content}',`);
+    w.write(` '${abi.name}': '${abi.content}', \n`);
   }
 
   w.write(`

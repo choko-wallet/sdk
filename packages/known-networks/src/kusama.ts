@@ -16,6 +16,10 @@ export class KusamaNetwork implements INetwork {
   networkType: NetworkType;
   info: string;
   text: string;
+
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -31,6 +35,9 @@ export class KusamaNetwork implements INetwork {
     this.text = 'Kusama Network';
     this.homepage = 'https://polkadot.network';
     this.networkType = 'polkadot';
+
+    this.nativeTokenSymbol = 'KSM';
+    this.nativeTokenDecimal = 12;
 
     this.providers = {
       Parity: 'wss://kusama-rpc.polkadot.io',

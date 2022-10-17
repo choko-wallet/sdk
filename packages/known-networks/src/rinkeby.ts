@@ -16,6 +16,10 @@ export class RinkebyNetwork implements INetwork {
   networkType: NetworkType;
   info: string;
   text: string;
+
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -31,6 +35,12 @@ export class RinkebyNetwork implements INetwork {
     this.text = 'Rinkeby Network';
     this.homepage = 'https://rinkeby.etherscan.io/';
     this.networkType = 'ethereum';
+
+    this.nativeTokenSymbol = 'RinkebyETH';
+    this.nativeTokenDecimal = 18;
+
+    this.isDisabled = true;
+    this.isDevelopment = true;
 
     this.providers = {
       Rinkeby: 'wss://rinkeby.infura.io/ws/v3/dc6c26f799af4a57b0ca5f37b50558c2'

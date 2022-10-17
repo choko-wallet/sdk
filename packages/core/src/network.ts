@@ -16,6 +16,9 @@ export interface INetwork {
   defaultProvider: string;
   networkType: NetworkType;
 
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -36,6 +39,9 @@ export class Network implements INetwork {
   info: string;
   text: string;
 
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -52,6 +58,8 @@ export class Network implements INetwork {
     defaultProvider: string,
     networkType: NetworkType,
     text: string,
+    nativeTokenSymbol: string,
+    nativeTokenDecimal: number,
 
     homepage?: string,
     isChild?: boolean,
@@ -67,6 +75,8 @@ export class Network implements INetwork {
     this.defaultProvider = config.defaultProvider;
     this.info = config.info;
     this.text = config.text;
+    this.nativeTokenSymbol = config.nativeTokenSymbol;
+    this.nativeTokenDecimal = config.nativeTokenDecimal;
 
     this.homepage = config.homepage;
     this.isChild = config.isChild;

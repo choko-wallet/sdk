@@ -16,6 +16,10 @@ export class EthereumNetwork implements INetwork {
   networkType: NetworkType;
   info: string;
   text: string;
+
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -31,6 +35,8 @@ export class EthereumNetwork implements INetwork {
     this.text = 'Ethereum Network';
     this.homepage = 'https://ethereum.org/en/';
     this.networkType = 'ethereum';
+    this.nativeTokenSymbol = 'ETH';
+    this.nativeTokenDecimal = 18;
 
     this.providers = {
       Ethereum: 'wss://mainnet.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
