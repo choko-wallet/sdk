@@ -16,6 +16,10 @@ export class PolkadotNetwork implements INetwork {
   networkType: NetworkType;
   info: string;
   text: string;
+
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -31,6 +35,9 @@ export class PolkadotNetwork implements INetwork {
     this.text = 'Polkadot Network';
     this.homepage = 'https://polkadot.network';
     this.networkType = 'polkadot';
+
+    this.nativeTokenSymbol = 'DOT';
+    this.nativeTokenDecimal = 10;
 
     this.providers = {
       Parity: 'wss://rpc.polkadot.io',
