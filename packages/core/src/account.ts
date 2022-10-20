@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import Keyring, { encodeAddress } from '@polkadot/keyring';
-import { cryptoWaitReady, ethereumEncode, mnemonicToMiniSecret, mnemonicValidate } from '@polkadot/util-crypto';
-import { SymmetricEncryption } from '@skyekiwi/crypto';
+import { ethereumEncode, mnemonicToMiniSecret, mnemonicValidate } from '@polkadot/util-crypto';
+import { initWASMInterface, SymmetricEncryption } from '@skyekiwi/crypto';
 
 import { CURRENT_VERSION, KeypairType, Version } from './types';
 import * as Util from './util';
@@ -118,6 +118,7 @@ export interface IUserAccount {
   isLocked: boolean;
   address: string;
   publicKey: Uint8Array; // len == 32 for curve25519 family | len == 33 for secp256k1
+  publicKeys: Uint8Array[];
 
   serialize(): Uint8Array;
 }
@@ -130,13 +131,16 @@ export class UserAccount implements IUserAccount {
 
   isLocked: boolean;
   address: string;
+
   publicKey: Uint8Array; // len == 32 for curve25519 family | len == 33 for secp256k1
+  publicKeys: Uint8Array[];
 
   constructor (option: AccountOption) {
     if (!option.validate()) {
       throw new Error('invalide option - UserAccount.constructor');
     }
 
+    this.publicKeys = [];
     this.option = option;
     this.isLocked = true;
   }
@@ -171,14 +175,22 @@ export class UserAccount implements IUserAccount {
       throw new Error('account is locked - UserAccount.init');
     }
 
-    await cryptoWaitReady();
+    await initWASMInterface();
 
-    const kr = (new Keyring({
-      type: this.option.keyType
-    })).addFromSeed(this.privateKey);
+    this.publicKeys = [];
+    ['sr25519', 'ed25519', 'ethereum'].map((type) => {
+      const t = type as KeypairType;
+      const kr = (new Keyring({ type: t })).addFromSeed(this.privateKey);
 
-    this.address = kr.address;
-    this.publicKey = kr.publicKey;
+      this.publicKeys.push(kr.publicKey);
+
+      if (type === this.option.keyType) {
+        this.publicKey = kr.publicKey;
+        this.address = kr.address;
+      }
+
+      return null;
+    });
   }
 
   /**
@@ -270,7 +282,7 @@ export class UserAccount implements IUserAccount {
     * @returns {number} size of the serializedLength
   */
   public static serializedLength (): number {
-    return 33 + // publicKey len
+    return 32 + 32 + 33 + // length of all publicKeys len
       // we pad all public keys to 33 bytes so that secp256k1 keys can fit as well
       +AccountOption.serializedLength();
   }
@@ -287,8 +299,10 @@ export class UserAccount implements IUserAccount {
 
     const res = new Uint8Array(UserAccount.serializedLength());
 
-    res.set(this.publicKey, 0);
-    res.set(this.option.serialize(), 33);
+    res.set(this.publicKeys[0], 0); // sr25519
+    res.set(this.publicKeys[1], 32); // ed25519
+    res.set(this.publicKeys[2], 32 + 32); // secp256k1
+    res.set(this.option.serialize(), 32 + 32 + 33);
 
     return res;
   }
@@ -303,15 +317,26 @@ export class UserAccount implements IUserAccount {
       throw new Error('invalid data length - UserAccount.deserialize');
     }
 
-    const option = AccountOption.deserialize(data.slice(33, 33 + AccountOption.serializedLength()));
-    const publicKey = (['ecdsa', 'ethereum'].includes(option.keyType)) ? data.slice(0, 33) : data.slice(0, 32);
+    const publicKeys = [
+      data.slice(0, 32), // sr25519
+      data.slice(32, 32 + 32), // ed25519
+      data.slice(32 + 32, 32 + 32 + 33) // secp256k1
+    ];
+    const option = AccountOption.deserialize(data.slice(32 + 32 + 33, 32 + 32 + 33 + AccountOption.serializedLength()));
+    const typeIndex = ['sr25519', 'ed25519', 'ethereum'].indexOf(option.keyType);
+
+    if (typeIndex === -1) {
+      throw new Error('invalid KeypairType or unsupported keypair type - UserAccount.deserialize');
+    }
 
     // We also encode an address!
-    const address = (['ecdsa', 'ethereum'].includes(option.keyType)) ? ethereumEncode(publicKey) : encodeAddress(publicKey);
+    const publicKey = publicKeys[typeIndex];
+    const address = option.keyType === 'ethereum' ? ethereumEncode(publicKey) : encodeAddress(publicKey);
 
     const userAccount = new UserAccount(option);
 
     userAccount.publicKey = publicKey;
+    userAccount.publicKeys = publicKeys;
     userAccount.address = address;
 
     return userAccount;
