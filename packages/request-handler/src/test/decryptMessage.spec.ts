@@ -11,7 +11,7 @@ import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { DecryptMessageDescriptor, DecryptMessageRequest, DecryptMessageRequestPayload, DecryptMessageResponse, DecryptMessageResponsePayload } from './decryptMessage';
+import { DecryptMessageDescriptor, DecryptMessageRequest, DecryptMessageRequestPayload, DecryptMessageResponse, DecryptMessageResponsePayload } from '../decryptMessage';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 

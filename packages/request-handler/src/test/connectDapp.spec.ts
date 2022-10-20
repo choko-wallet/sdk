@@ -6,7 +6,7 @@ import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
 import { AccountOption, DappDescriptor, RequestError, UserAccount } from '@choko-wallet/core';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload } from './connectDapp';
+import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload } from '../connectDapp';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 

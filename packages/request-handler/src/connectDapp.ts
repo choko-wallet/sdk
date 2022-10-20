@@ -299,6 +299,7 @@ export class ConnectDappDescriptor implements IRequestHandlerDescriptor {
     const userAccount = new UserAccount(account.option);
 
     userAccount.publicKey = account.publicKey;
+    userAccount.publicKeys = account.publicKeys;
 
     const response = new ConnectDappResponse({
       dappOrigin: request.dappOrigin,
