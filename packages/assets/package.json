@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/assets",
-  "version": "0.1.8-4",
+  "version": "0.1.8-5",
   "type": "module",
   "description": "asset registry for choko wallet",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.8-4",
-    "@choko-wallet/known-networks": "0.1.8-4"
+    "@choko-wallet/core": "0.1.8-5",
+    "@choko-wallet/known-networks": "0.1.8-5"
   }
 }
