@@ -6,7 +6,6 @@ const config = require('@skyekiwi/dev/config/jest.cjs');
 module.exports = Object.assign({}, config, {
   moduleNameMapper: {
     '@choko-wallet/abi(.*)$': '<rootDir>/packages/abi/src/$1',
-    '@choko-wallet/assets(.*)$': '<rootDir>/packages/assets/src/$1',
     '@choko-wallet/core(.*)$': '<rootDir>/packages/core/src/$1',
     '@choko-wallet/frontend(.*)$': '<rootDir>/packages/frontend/$1',
     '@choko-wallet/known-networks(.*)$': '<rootDir>/packages/known-networks/src/$1',
@@ -15,7 +14,6 @@ module.exports = Object.assign({}, config, {
   },
   modulePathIgnorePatterns: [
     '<rootDir>/packages/abi/build',
-    '<rootDir>/packages/assets/build',
     '<rootDir>/packages/core/build',
     '<rootDir>/packages/frontend/build',
     '<rootDir>/packages/known-networks/build',
