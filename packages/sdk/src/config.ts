@@ -7,6 +7,7 @@ import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
+import { hasUserAccountStored } from './store';
 import { storeCallBackUrl, storeDappDescriptor, storeUserAccount } from '.';
 
 /**
@@ -76,12 +77,15 @@ const parseSDKConfig = (config: SDKConfig): [DappDescriptor, UserAccount] => {
 
   // 2. config the UserAccount
   const { accountOption } = config;
-  const account = new UserAccount(new AccountOption(accountOption));
+  const emptyAccount = new UserAccount(new AccountOption(accountOption));
 
   // 2.1 assign empty public key
-  account.publicKey = new Uint8Array(32);
+  emptyAccount.publicKey = new Uint8Array(32);
+  emptyAccount.publicKeys = [
+    new Uint8Array(32), new Uint8Array(32), new Uint8Array(33)
+  ];
 
-  return [dappDescriptor, account];
+  return [dappDescriptor, emptyAccount];
 };
 
 /**
@@ -90,10 +94,13 @@ const parseSDKConfig = (config: SDKConfig): [DappDescriptor, UserAccount] => {
   * @param {UserAccount} act (optional) UserAccount to inject
   * @returns {void} None. Will store relevant information in localStorage
 */
-export const configSDK = (config: SDKConfig, act?: UserAccount): void => {
-  const [dappDescriptor, account] = parseSDKConfig(config);
+export const configSDK = (config: SDKConfig): void => {
+  const [dappDescriptor, emptyAccount] = parseSDKConfig(config);
 
-  storeUserAccount(act || account);
+  if (!hasUserAccountStored()) {
+    storeUserAccount(emptyAccount);
+  }
+
   storeDappDescriptor(dappDescriptor);
   storeCallBackUrl(config.callbackUrlBase);
 };

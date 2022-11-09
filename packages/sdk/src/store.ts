@@ -17,12 +17,18 @@ export const storeUserAccount = (account: UserAccount): void => {
   );
 };
 
-export const getUserAccount = (): UserAccount => {
+export const hasUserAccountStored = (): boolean => {
   const data = localStorage.getItem('userAccount');
 
-  if (!data) {
+  return !!data;
+};
+
+export const getUserAccount = (): UserAccount => {
+  if (!hasUserAccountStored()) {
     throw new Error('no user account found - sdk/store:getUserAccount');
   }
+
+  const data = localStorage.getItem('userAccount');
 
   return UserAccount.deserialize(decompressParameters(hexToU8a(data)));
 };
