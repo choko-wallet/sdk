@@ -22,8 +22,8 @@
   "dependencies": {
     "@choko-wallet/abi": "0.1.8-7",
     "@choko-wallet/core": "0.1.8-7",
-    "@polkadot/keyring": "^10.1.10",
-    "@polkadot/util-crypto": "^10.1.10",
+    "@polkadot/keyring": "^10.1.11",
+    "@polkadot/util-crypto": "^10.1.11",
     "@skyekiwi/crypto": "1.0.2-5",
     "@skyekiwi/util": "1.0.2-5",
     "ethers": "^5.7.0"

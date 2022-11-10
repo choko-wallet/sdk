@@ -17,24 +17,3 @@ export type NetworkType = 'polkadot' | 'ethereum';
 const CURRENT_VERSION = 0;
 
 export { CURRENT_VERSION };
-
-export type TokenType = 'FungibleToken' | 'NonFungibleToken';
-
-export interface AssetInfo {
-  displayName: string;
-  infoName: string;
-  website: string;
-}
-
-export interface EthereumAsset {
-  info: AssetInfo;
-  tokenAddress: Record<HexString, Address>, // hash of the Network => token contract address
-  tokenType: TokenType;
-}
-
-export interface PolkadotAsset {
-  info: AssetInfo,
-  // TBD
-}
-
-export type Asset = [EthereumAsset, PolkadotAsset];

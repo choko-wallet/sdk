@@ -4,6 +4,15 @@
 import { HexString, Version } from './types';
 import { IDappDescriptor, RequestError, UserAccount } from '.';
 
+/**
+ * Request Handlers are the extension to the wallet core
+ *
+ * @Request payload as ingress information
+ * @Response payload as egress to the account handler
+ * @RequestHandlerDescriptor is the descriptor of the request handler
+ *  request handler logic is required to be wrapped within requestHandler<REQ, RES>
+ */
+
 export interface IRequestHandlerDescriptor {
   description: string;
   name: string;
@@ -11,6 +20,8 @@ export interface IRequestHandlerDescriptor {
   userApprovalRequired: boolean; // do we send the request to wallet approval?
 
   version: Version;
+
+  // requestHandler<REQ, RES>(request: REQ, account: UserAccount): Promise<RES>
 }
 
 export interface IRequest {

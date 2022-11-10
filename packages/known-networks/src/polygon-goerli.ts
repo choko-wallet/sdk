@@ -32,12 +32,13 @@ export class PolygonGoerliNetwork implements INetwork {
 
   constructor () {
     this.info = 'polygon-goerli';
-    this.text = 'Polygon Goerli Network';
+    this.text = 'Polygon Goerli';
     this.homepage = 'https://polygon.technology/';
     this.networkType = 'ethereum';
     this.nativeTokenSymbol = 'MATIC';
     this.nativeTokenDecimal = 18;
 
+    this.isDisabled = true;
     this.providers = {
     //   Ethereum: 'wss://mainnet.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
     };

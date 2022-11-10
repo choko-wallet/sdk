@@ -13,6 +13,19 @@ import { keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from '@c
 
 export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
 
+/**
+ * Compose a cryptographic signature for the user
+ *
+ * @Request the message to be signed
+ * @param {Uint8Array} messaage the encrypted message, MAX LENGTH: 512
+ *
+ * @Response the signature and keypairType used
+ * @param {Uint8Array} signature the signature
+ * @param {KeypairType} keyType the type of the key used for signature
+ *
+ * @requestHandler signed the message with the provided account, use the keyType in UserAccount.option
+ */
+
 export class SignMessageRequestPayload implements IPayload {
   public readonly message: Uint8Array;
   public readonly version: Version;

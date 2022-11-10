@@ -13,6 +13,16 @@ import { xxHash } from '@choko-wallet/core/util';
 
 export const connectDappHash: HexString = u8aToHex(xxHash('connectDapp'));
 
+/**
+ * ConnectDapp is the request handler to allow an Dapp to connect to the wallet
+ * Similar to "Connect Wallet" popup with regular browser extension wallet
+ *
+ * @Request None
+ * @Response A serialized LOCKED UserAccount without encryptedPrivateKey
+ * Since PR#5, the serailized UserAccount contains publicKeys on sr25519, ed25519 & secp256k1
+ * @requestHandler will lock & serialized the user account passed in.
+ */
+
 // ConnectDappRequestPayload contains nothing but the request version
 export class ConnectDappRequestPayload implements IPayload {
   public readonly version: Version;

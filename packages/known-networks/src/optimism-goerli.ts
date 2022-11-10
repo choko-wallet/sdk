@@ -37,6 +37,7 @@ export class OptimismGoerliNetwork implements INetwork {
     this.nativeTokenSymbol = 'OP';
     this.nativeTokenDecimal = 18;
 
+    this.isDisabled = true;
     this.providers = {
     //   Ethereum: 'wss://mainnet.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
     };

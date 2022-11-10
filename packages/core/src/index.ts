@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AccountOption, IAccountOption, IUserAccount, IUserAccountInfo, UserAccount } from './account';
-import { Cipher } from './cipher';
 import { DappDescriptor, IDappDescriptor } from './dapp';
 import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
 import { INetwork, KnownNetworks, Network } from './network';
@@ -17,8 +16,6 @@ export type {
 
 export {
   UserAccount, AccountOption,
-
-  Cipher,
 
   DappDescriptor,
 
