@@ -73,7 +73,7 @@ export const buildDecryptMessageRequest = (
 
 export const buildConnectDappUrl = (type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
-  const url = `${getWalletUrl(type)}/request`;
+  const url = `${getWalletUrl(type)}/request/`;
 
   return `${url}` +
     'requestType=connectDapp' + '&' +
@@ -83,7 +83,7 @@ export const buildConnectDappUrl = (type?: string): string => {
 
 export const buildSignMessageUrl = (message: Uint8Array, type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
-  const url = `${getWalletUrl(type)}/request`;
+  const url = `${getWalletUrl(type)}/request/`;
 
   return `${url}` +
     'requestType=signMessage' + '&' +
@@ -108,7 +108,7 @@ export const buildDecryptMessageUrl = (
   type?: string
 ): string => {
   const callbackUrlBase = getCallBackUrl();
-  const url = `${getWalletUrl(type)}/request`;
+  const url = `${getWalletUrl(type)}/request/`;
 
   return `${url}` +
     'requestType=decryptMessage' + '&' +
