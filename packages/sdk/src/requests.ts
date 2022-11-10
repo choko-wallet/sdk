@@ -7,10 +7,8 @@ import { KeypairType } from '@choko-wallet/core/types';
 import { compressParameters } from '@choko-wallet/core/util';
 import { ConnectDappRequest, ConnectDappRequestPayload, DecryptMessageRequest, DecryptMessageRequestPayload, SignMessageRequest, SignMessageRequestPayload, SignTxRequest, SignTxRequestPayload } from '@choko-wallet/request-handler';
 
+import getWalletUrl from './walletUrl';
 import { getCallBackUrl, getDappDescriptor, getUserAccount } from '.';
-
-export const WALLET_REQEUST_BASE_URL = 'https://choko.app/request';
-export const LOCAL_WALLET_REQEUST_BASE_URL = 'http://localhost:3000/request';
 
 export const buildConnectDappRequest = (): Uint8Array => {
   const dapp = getDappDescriptor();
@@ -73,28 +71,31 @@ export const buildDecryptMessageRequest = (
   return compressParameters(request.serialize());
 };
 
-export const buildConnectDappUrl = (local?: boolean): string => {
+export const buildConnectDappUrl = (type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
+  const url = `${getWalletUrl(type)}/request`;
 
-  return `${local ? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
+  return `${url}` +
     'requestType=connectDapp' + '&' +
     `payload=${u8aToHex(buildConnectDappRequest())}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
-export const buildSignMessageUrl = (message: Uint8Array, local?: boolean): string => {
+export const buildSignMessageUrl = (message: Uint8Array, type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
+  const url = `${getWalletUrl(type)}/request`;
 
-  return `${local ? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
+  return `${url}` +
     'requestType=signMessage' + '&' +
     `payload=${u8aToHex(buildSignMessageRequest(message))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
-export const buildSignTxUrl = (encoded: Uint8Array, local?: boolean): string => {
+export const buildSignTxUrl = (encoded: Uint8Array, type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
+  const url = `${getWalletUrl(type)}/request`;
 
-  return `${local ? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
+  return `${url}` +
     'requestType=signTx' + '&' +
     `payload=${u8aToHex(buildSignTxRequest(encoded))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
@@ -104,11 +105,12 @@ export const buildDecryptMessageUrl = (
   keyType: KeypairType,
   message: Uint8Array,
   receiptPublicKey: Uint8Array,
-  local?: boolean
+  type?: string
 ): string => {
   const callbackUrlBase = getCallBackUrl();
+  const url = `${getWalletUrl(type)}/request`;
 
-  return `${local ? LOCAL_WALLET_REQEUST_BASE_URL : WALLET_REQEUST_BASE_URL}?` +
+  return `${url}` +
     'requestType=decryptMessage' + '&' +
     `payload=${u8aToHex(buildDecryptMessageRequest(keyType, message, receiptPublicKey))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
