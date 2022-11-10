@@ -9,8 +9,7 @@ import { INetwork } from '@choko-wallet/core';
 import { xxHash } from '@choko-wallet/core/util';
 
 /* eslint-disable sort-keys */
-
-export class GoerliNetwork implements INetwork {
+export class ArbitrumNetwork implements INetwork {
   providers: Record<string, string>;
   defaultProvider: string;
   networkType: NetworkType;
@@ -31,27 +30,26 @@ export class GoerliNetwork implements INetwork {
   logo?: Uint8Array;
 
   constructor () {
-    this.info = 'goerli';
-    this.text = 'Goerli Network';
-    this.homepage = 'https://goerli.net';
+    this.info = 'arbitrum';
+    this.text = 'Arbitrum Mainnet';
+    this.homepage = 'https://arbitrum.io';
     this.networkType = 'ethereum';
-
-    this.nativeTokenSymbol = 'GoerliETH';
+    this.nativeTokenSymbol = 'ETH';
     this.nativeTokenDecimal = 18;
 
-    this.isDevelopment = true;
-
+    this.isDisabled = true;
     this.providers = {
-      Goerli: 'wss://goerli.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
+    //   Ethereum: 'wss://mainnet.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
     };
-    this.defaultProvider = 'wss://goerli.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878';
-    this.color = '#627FE5';
+    this.defaultProvider = '';
+
+    this.color = '#FF0420';
   }
 
   public serialize (): Uint8Array {
     // return Util.xxHash(this.info);
-    return hexToU8a(GoerliNetworkHash);
+    return hexToU8a(ArbitrumNetworkHash);
   }
 }
 
-export const GoerliNetworkHash: HexString = u8aToHex(xxHash('goerli'));
+export const ArbitrumNetworkHash: HexString = u8aToHex(xxHash('arbitrum'));

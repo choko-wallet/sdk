@@ -13,6 +13,21 @@ import { keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from '@c
 
 export const decryptMessageHash: HexString = u8aToHex(xxHash('decryptMessage'));
 
+/**
+ * @Experimental use with care
+ * DecryptMessage will try to decrypt a messager with the user's privateKey
+ *
+ * @Request the message to be decrypted
+ * @param {KeypairType} keyType the type of the key used to encrypt the message
+ * @param {Uint8Array} messaage the encrypted message, MAX LENGTH: 512
+ * @param {Uint8Array} receiptPublicKey the receipient's ephermeral public key. ALWAYS be a public key on Curve25519
+ *
+ * @Response a re-encrypted message sent to the receipient's public key
+ * @param {Uint8Array} message the re-encrypted message. Encrypted with ECDH on Cuve25519
+ *
+ * @requestHandler try decrypt the message and re-encrypted with ECDH on Curve25519
+ */
+
 export class DecryptMessageRequestPayload implements IPayload {
   public readonly keyType: KeypairType;
   public readonly message: Uint8Array;

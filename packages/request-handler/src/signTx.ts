@@ -16,6 +16,18 @@ import { xxHash } from '@choko-wallet/core/util';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
+/**
+ * @Experimental Limited support on Ethereum-style networks
+ *
+ * @Request the encoded transaction to be signed and sent
+ * @param {Uint8Array} encoded the encoded transaction, MAX LENGTH: 512
+ *
+ * @Response the transaction result
+ * @param {Uint8Array} txHash the transaction hash - always 32 bytes long
+ *
+ * @requestHandler sign and send the transaction to the network defaultProvider for the Dapp's activeNetwork
+ */
+
 export class SignTxRequestPayload implements IPayload {
   public readonly encoded: Uint8Array;
   public readonly version: Version;

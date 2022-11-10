@@ -9,7 +9,7 @@ import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
 import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from './signTx';
+import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from '../signTx';
 
 const privateKey = '6e00e2fb6feb95393f29e0ceeabebc4f7b2d692b4912663546755b9b8f87b938';
 const seed = 'acoustic hover lyrics object execute unfold father give wing hen remain ship';

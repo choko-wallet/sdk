@@ -16,6 +16,10 @@ export interface INetwork {
   defaultProvider: string;
   networkType: NetworkType;
 
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
+  ss58Prefix?: number;
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -36,6 +40,10 @@ export class Network implements INetwork {
   info: string;
   text: string;
 
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
+  ss58Prefix?: number;
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -46,28 +54,15 @@ export class Network implements INetwork {
   color?: Color;
   logo?: Image;
 
-  constructor (config: {
-    info: string,
-    providers: Record<string, string>,
-    defaultProvider: string,
-    networkType: NetworkType,
-    text: string,
-
-    homepage?: string,
-    isChild?: boolean,
-    isDevelopment?: boolean,
-    isDisabled?: boolean,
-    isUnreachable?: boolean,
-    paraId?: number,
-    summary?: string,
-    color?: Color,
-    logo?: Image,
-  }) {
+  constructor (config: INetwork) {
     this.providers = config.providers;
     this.defaultProvider = config.defaultProvider;
     this.info = config.info;
     this.text = config.text;
+    this.nativeTokenSymbol = config.nativeTokenSymbol;
+    this.nativeTokenDecimal = config.nativeTokenDecimal;
 
+    this.ss58Prefix = config.ss58Prefix;
     this.homepage = config.homepage;
     this.isChild = config.isChild;
     this.isDevelopment = config.isDevelopment;

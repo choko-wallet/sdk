@@ -13,6 +13,11 @@ export class SkyeKiwiNetwork implements INetwork {
   networkType: NetworkType;
   info: string;
   text: string;
+
+  nativeTokenSymbol: string;
+  nativeTokenDecimal: number;
+
+  ss58Prefix?: number;
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -29,6 +34,11 @@ export class SkyeKiwiNetwork implements INetwork {
     this.homepage = 'https://skye.kiwi';
     this.networkType = 'polkadot';
 
+    this.nativeTokenSymbol = 'SKW';
+    this.nativeTokenDecimal = 12;
+
+    this.ss58Prefix = 42;
+    this.isDevelopment = true;
     this.providers = {
       SkyeKiwi: 'wss://staging.rpc.skye.kiwi'
     };

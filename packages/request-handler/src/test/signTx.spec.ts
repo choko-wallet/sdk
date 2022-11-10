@@ -9,7 +9,7 @@ import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload, SignTxResponse, SignTxResponsePayload } from './signTx';
+import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload, SignTxResponse, SignTxResponsePayload } from '../signTx';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 const provider = new WsProvider('wss://staging.rpc.skye.kiwi');
