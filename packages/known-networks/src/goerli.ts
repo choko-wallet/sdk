@@ -19,6 +19,7 @@ export class GoerliNetwork implements INetwork {
 
   nativeTokenSymbol: string;
   nativeTokenDecimal: number;
+  chainId: number;
 
   homepage?: string;
   isChild?: boolean;
@@ -30,7 +31,7 @@ export class GoerliNetwork implements INetwork {
   color?: string;
   logo?: Uint8Array;
 
-  constructor () {
+  constructor() {
     this.info = 'goerli';
     this.text = 'Goerli Network';
     this.homepage = 'https://goerli.net';
@@ -38,6 +39,7 @@ export class GoerliNetwork implements INetwork {
 
     this.nativeTokenSymbol = 'GoerliETH';
     this.nativeTokenDecimal = 18;
+    this.chainId = 5;
 
     this.isDevelopment = true;
 
@@ -48,7 +50,7 @@ export class GoerliNetwork implements INetwork {
     this.color = '#627FE5';
   }
 
-  public serialize (): Uint8Array {
+  public serialize(): Uint8Array {
     // return Util.xxHash(this.info);
     return hexToU8a(GoerliNetworkHash);
   }
