@@ -32,7 +32,7 @@ export class PolygonMumbaiNetwork implements INetwork {
   color?: string;
   logo?: Uint8Array;
 
-  constructor() {
+  constructor () {
     this.info = 'polygon-mumbai';
     this.text = 'Polygon Mumbai';
     this.homepage = 'https://polygon.technology/';
@@ -49,7 +49,7 @@ export class PolygonMumbaiNetwork implements INetwork {
     this.color = '#8247e5';
   }
 
-  public serialize(): Uint8Array {
+  public serialize (): Uint8Array {
     // return Util.xxHash(this.info);
     return hexToU8a(PolygonMumbaiNetworkHash);
   }

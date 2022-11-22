@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { HexString } from '@choko-wallet/core/types';
+
 import { ethers } from 'ethers';
 import { Result } from 'ethers/lib/utils';
+
 import { abis } from './abi';
 
 const loadAbi = (abiName: string, abi?: string): ethers.utils.Interface => {
@@ -20,10 +22,10 @@ const loadAbi = (abiName: string, abi?: string): ethers.utils.Interface => {
 };
 
 const encodeContractCall = (
-  abiName: string,//'',
-  functionName: string,//'transfer',
-  params: any[],//[ addressToSend, (amount * Math.pow(10, 18)).toString()],
-  abi?: string//LinkTokenABI
+  abiName: string, // '',
+  functionName: string, // 'transfer',
+  params: any[], // [ addressToSend, (amount * Math.pow(10, 18)).toString()],
+  abi?: string// LinkTokenABI
 ): HexString => {
   const i = loadAbi(abiName, abi);
   const encoded = i.encodeFunctionData(
@@ -33,12 +35,11 @@ const encodeContractCall = (
   return encoded;// .slice(2);
 };
 
-
 const decodeContractCall = (
-  abiName: string,//'',
+  abiName: string, // '',
   functionName: string,
   data: HexString,
-  abi?: string//LinkTokenABI
+  abi?: string// LinkTokenABI
 ): Result => {
   const i = loadAbi(abiName, abi);
   const decoded = i.decodeFunctionData(

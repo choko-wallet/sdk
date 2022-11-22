@@ -31,7 +31,7 @@ export class EthereumNetwork implements INetwork {
   color?: string;
   logo?: Uint8Array;
 
-  constructor() {
+  constructor () {
     this.info = 'ethereum';
     this.text = 'Ethereum Network';
     this.homepage = 'https://ethereum.org/en/';
@@ -47,7 +47,7 @@ export class EthereumNetwork implements INetwork {
     this.color = '#627FE5';
   }
 
-  public serialize(): Uint8Array {
+  public serialize (): Uint8Array {
     // return Util.xxHash(this.info);
     return hexToU8a(EthereumNetworkHash);
   }
