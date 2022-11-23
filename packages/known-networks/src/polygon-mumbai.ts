@@ -20,6 +20,8 @@ export class PolygonMumbaiNetwork implements INetwork {
   nativeTokenSymbol: string;
   nativeTokenDecimal: number;
 
+  chainId: number;
+
   homepage?: string;
   isChild?: boolean;
   isDevelopment?: boolean;
@@ -37,11 +39,12 @@ export class PolygonMumbaiNetwork implements INetwork {
     this.networkType = 'ethereum';
     this.nativeTokenSymbol = 'MATIC';
     this.nativeTokenDecimal = 18;
+    this.chainId = 80001;
 
     this.providers = {
-    //   Ethereum: 'wss://mainnet.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
+      //   Ethereum: 'wss://mainnet.infura.io/ws/v3/cdc0f422bf7f40e0bd2dcded8b62e878'
     };
-    this.defaultProvider = '';
+    this.defaultProvider = 'wss://ws-matic-mumbai.chainstacklabs.com';
     this.isDevelopment = true;
     this.color = '#8247e5';
   }

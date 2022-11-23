@@ -19,6 +19,7 @@ export class GoerliNetwork implements INetwork {
 
   nativeTokenSymbol: string;
   nativeTokenDecimal: number;
+  chainId: number;
 
   homepage?: string;
   isChild?: boolean;
@@ -38,6 +39,7 @@ export class GoerliNetwork implements INetwork {
 
     this.nativeTokenSymbol = 'GoerliETH';
     this.nativeTokenDecimal = 18;
+    this.chainId = 5;
 
     this.isDevelopment = true;
 

@@ -354,7 +354,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       const txResponse = await wallet.sendTransaction({
         chainId: deserializedTx.chainId,
         data: deserializedTx.data,
-        gasLimit: 2000000,
+        gasLimit: deserializedTx.gasLimit,
         gasPrice: await wallet.getGasPrice(),
         nonce: await provider.getTransactionCount(kr.address),
         to: deserializedTx.to,
