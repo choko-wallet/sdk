@@ -1,10 +1,10 @@
 // Copyright 2021-2022 @choko-wallet/abi authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { UnsignedTransaction } from 'ethers';
 import type { HexString } from '@choko-wallet/core/types';
 
 import { ethers } from 'ethers';
-import { Result } from 'ethers/lib/utils';
 
 import { abis } from './abi';
 
@@ -36,17 +36,26 @@ const encodeContractCall = (
 };
 
 const decodeContractCall = (
-  abiName: string, // '',
-  functionName: string,
-  data: HexString,
-  abi?: string// LinkTokenABI
-): Result => {
+  abiName: string,
+  transaction: ethers.Transaction,
+  abi?: string
+): ethers.utils.TransactionDescription => {
   const i = loadAbi(abiName, abi);
-  const decoded = i.decodeFunctionData(
-    functionName, data
-  );
 
-  return decoded;
+  return i.parseTransaction({ data: transaction.data, value: transaction.value });
 };
 
-export { encodeContractCall, decodeContractCall };
+const encodeTransaction = (
+  tx: UnsignedTransaction
+): HexString => {
+  return ethers.utils.serializeTransaction(tx);
+};
+
+const decodeTransaction = (
+  data: HexString
+): ethers.Transaction => {
+  return ethers.utils.parseTransaction(data);
+};
+
+export { encodeContractCall, decodeContractCall, decodeTransaction, encodeTransaction };
+export type { UnsignedTransaction };
