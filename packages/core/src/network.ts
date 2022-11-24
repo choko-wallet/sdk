@@ -18,6 +18,7 @@ export interface INetwork {
 
   nativeTokenSymbol: string;
   nativeTokenDecimal: number;
+  chainId: number;
 
   ss58Prefix?: number;
   homepage?: string;
@@ -42,6 +43,7 @@ export class Network implements INetwork {
 
   nativeTokenSymbol: string;
   nativeTokenDecimal: number;
+  chainId: number;
 
   ss58Prefix?: number;
   homepage?: string;
@@ -54,13 +56,14 @@ export class Network implements INetwork {
   color?: Color;
   logo?: Image;
 
-  constructor (config: INetwork) {
+  constructor(config: INetwork) {
     this.providers = config.providers;
     this.defaultProvider = config.defaultProvider;
     this.info = config.info;
     this.text = config.text;
     this.nativeTokenSymbol = config.nativeTokenSymbol;
     this.nativeTokenDecimal = config.nativeTokenDecimal;
+    this.chainId = config.chainId;
 
     this.ss58Prefix = config.ss58Prefix;
     this.homepage = config.homepage;
@@ -80,11 +83,11 @@ export class Network implements INetwork {
     * We serialized Networks by xxHash of the info name of the Network
     * @returns {number} size of the serialized bytes
   */
-  public static serializedLength (): number {
+  public static serializedLength(): number {
     return 8;
   }
 
-  public serialize (): Uint8Array {
+  public serialize(): Uint8Array {
     return Util.xxHash(this.info);
   }
 
@@ -93,7 +96,7 @@ export class Network implements INetwork {
     * @param {Uint8Array} data serialized Network
     * @returns {INetwork} deserialized Network
   */
-  public static deserialize (data: Uint8Array): INetwork {
+  public static deserialize(data: Uint8Array): INetwork {
     if (data.length !== Network.serializedLength()) {
       throw new Error('Invalid network length');
     }
