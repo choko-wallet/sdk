@@ -57,5 +57,5 @@ const decodeTransaction = (
   return ethers.utils.parseTransaction(data);
 };
 
-export { encodeContractCall, decodeContractCall, decodeTransaction, encodeTransaction };
+export { encodeContractCall, decodeContractCall, decodeTransaction, encodeTransaction, loadAbi };
 export type { UnsignedTransaction };
