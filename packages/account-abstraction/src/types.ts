@@ -5,17 +5,17 @@ import type { BigNumberish } from 'ethers';
 
 export interface IMetaTransaction {
   to: string
-  value: BigNumberish
-  data: string
-  operation: number
+  value?: BigNumberish
+  data?: string
+  operation?: number
 }
 
 export interface IWalletTransaction extends IMetaTransaction {
-  targetTxGas: string | number
-  baseGas: string | number
-  gasPrice: string | number
-  gasToken: string
-  tokenGasPriceFactor: string | number
-  refundReceiver: string
-  nonce: number
+  targetTxGas?: string | number
+  baseGas?: string | number
+  gasPrice?: string | number
+  gasToken?: string
+  tokenGasPriceFactor?: string | number
+  refundReceiver?: string
+  nonce?: number
 }
