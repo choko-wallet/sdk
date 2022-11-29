@@ -4,6 +4,8 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ethers, Wallet } from 'ethers';
 
+import { encodeContractCall } from '@choko-wallet/abi';
+
 import { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, getSmartWalletAddress, sendBiconomyBundlerPayload } from './contract';
 
 const seed = 'humor cook snap sunny ticket distance leaf unusual join business obey below';
@@ -13,40 +15,40 @@ const wallet = new ethers.Wallet(
 );
 
 describe('@choko-wallet/account-abstraction/contract', function () {
-  it('generate address & deploy wallet', async () => {
-    console.log(wallet.privateKey)
-    console.log(
-      await getSmartWalletAddress(
-        '0xf59cda6fd211303bfb79f87269abd37f565499d8',
-        provider,
+  // it('generate address & deploy wallet', async () => {
+  //   console.log(wallet.privateKey)
+  //   console.log(
+  //     await getSmartWalletAddress(
+  //       '0xf59cda6fd211303bfb79f87269abd37f565499d8',
+  //       provider,
 
-        wallet.address,
-        0
-      )
-    );
+  //       wallet.address,
+  //       0
+  //     )
+  //   );
 
-    const callData = callDataDeployWallet(
-      wallet.address,
-      '0x119df1582e0dd7334595b8280180f336c959f3bb', // entryPoint
-      '0x0bc0c08122947be919a02f9861d83060d34ea478', // fallback handler
-      0
-    );
+  //   const callData = callDataDeployWallet(
+  //     wallet.address,
+  //     '0x119df1582e0dd7334595b8280180f336c959f3bb', // entryPoint
+  //     '0x0bc0c08122947be919a02f9861d83060d34ea478', // fallback handler
+  //     0
+  //   );
 
-    console.log(callData);
+  //   console.log(callData);
 
-    // const r = await wallet.sendTransaction({
-    //   chainId: 5,
-    //   to: '0xf59cda6fd211303bfb79f87269abd37f565499d8',
-    //   data: callData,
-    //   gasLimit: 2000000,
-    //   gasPrice: await p.getGasPrice(),
-    //   nonce: await p.getTransactionCount(wallet.address),
-    // })
+  //   // const r = await wallet.sendTransaction({
+  //   //   chainId: 5,
+  //   //   to: '0xf59cda6fd211303bfb79f87269abd37f565499d8',
+  //   //   data: callData,
+  //   //   gasLimit: 2000000,
+  //   //   gasPrice: await p.getGasPrice(),
+  //   //   nonce: await p.getTransactionCount(wallet.address),
+  //   // })
 
-    // https://goerli.etherscan.io/tx/0x8a9aba2264b7b9a7e20178d9972c0f2f55f231a8f0bd73610d16b4b3ba7a0cdf
+  //   // https://goerli.etherscan.io/tx/0x8a9aba2264b7b9a7e20178d9972c0f2f55f231a8f0bd73610d16b4b3ba7a0cdf
 
-    // console.log(r)
-  });
+  //   // console.log(r)
+  // });
 
   // it('send transaction - eth transfer - not gasless', async () => {
   //   const smartWalletAddress = await getSmartWalletAddress(
@@ -103,10 +105,10 @@ describe('@choko-wallet/account-abstraction/contract', function () {
   //   console.log(
   //     await wallet.sendTransaction({
   //       to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
-  // value: 0,
-  // data: encodeContractCall(
-  //   'erc20', 'transfer', [ smartWalletAddress, (10 * Math.pow(10, 18)).toString() ]
-  // )
+  //       value: 0,
+  //       data: encodeContractCall(
+  //         'erc20', 'transfer', [ smartWalletAddress, (10 * Math.pow(10, 18)).toString() ]
+  //       )
   //     })
   //   )
 
@@ -202,13 +204,23 @@ describe('@choko-wallet/account-abstraction/contract', function () {
   // });
 
   it('send transaction - gasless', async () => {
+    const smartWalletAddr = await getSmartWalletAddress(
+      '0xf59cda6fd211303bfb79f87269abd37f565499d8',
+      provider,
+
+      wallet.address,
+      0
+    );
+
     await sendBiconomyBundlerPayload(
       provider,
       {
-        to: wallet.address, 
-        data: '0x', 
+        to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+        data: encodeContractCall('erc20', 'transfer', ['0xAA1658296e2b770fB793eb8B36E856c8210A566F', 100000]),
+        value: 0
       },
+      smartWalletAddr,
       wallet
-    )
+    );
   });
 });

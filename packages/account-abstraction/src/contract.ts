@@ -4,12 +4,12 @@
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { BigNumberish, ethers, utils, Wallet } from 'ethers';
+import { arrayify, hexValue } from 'ethers/lib/utils';
+import superagent from 'superagent';
 
 import { encodeContractCall, loadAbi } from '@choko-wallet/abi';
 
 import { BiconomyUserOperation, IWalletTransaction } from './types';
-import { hexValue } from 'ethers/lib/utils';
-import superagent from 'superagent';
 import { getRequestId } from './util';
 
 /* eslint-disable sort-keys */
@@ -146,75 +146,91 @@ const callDataExecTransactionBatch = (
 const sendBiconomyBundlerPayload = async (
   provider: JsonRpcProvider,
   op: {
-    to: string, data: string, value?: BigNumberish, 
+    to: string, data: string, value?: BigNumberish,
   },
+  sender: string,
   wallet: ethers.Wallet
 ) => {
   const entryPointCallData = encodeContractCall('aa-wallet', 'execFromEntryPoint', [
     op.to, op.value || ethers.utils.parseEther('0'), op.data, 0, 1000000
   ]);
 
+  const smartWalletContract = new ethers.Contract(
+    sender, loadAbi('aa-wallet'), provider
+  );
+
+  const nonce = (await smartWalletContract.getNonce(0)) as number;
+
   const chainId = (await provider.getNetwork()).chainId;
-  console.log(wallet.address)
-  let userOp: BiconomyUserOperation = {
-    sender: wallet.address,
-    nonce: 80,
+  const userOp: BiconomyUserOperation = {
+    sender: sender,
+    nonce: nonce,
     initCode: '0x',
     callData: entryPointCallData,
 
     callGasLimit: 2000000,
-    verificationGasLimit: 2000000,
+    verificationGasLimit: 100000,
     preVerificationGas: 21000,
-    maxFeePerGas: 10000,
-    maxPriorityFeePerGas: 2000000,
+    maxFeePerGas: 61072872608,
+    maxPriorityFeePerGas: 1500000000,
 
     paymasterAndData: '0x',
     signature: '0x'
   };
 
-  // const paymasterData = await superagent
-  //   .post('https://us-central1-biconomy-staging.cloudfunctions.net/signing-service')
-  //   .set('x-api-key', 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428')
-  //   .send({
-  //     userOp: userOp
-  //   });
+  const paymasterData = await superagent
+    .post('https://us-central1-biconomy-staging.cloudfunctions.net/signing-service')
+    .set('x-api-key', 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428')
+    .send({
+      userOp: userOp
+    });
 
-  // userOp.paymasterAndData = paymasterData.body.data['paymasterAndData'];
+  userOp.paymasterAndData = paymasterData.body.data.paymasterAndData;
 
   const hash = getRequestId(userOp, '0x119df1582e0dd7334595b8280180f336c959f3bb', chainId);
-  const sig = await wallet.signMessage(hash);
+  const sig = await wallet.signMessage(arrayify(hash));
 
   userOp.signature = sig;
-  
-  const hexifiedUserOp = Object.entries(userOp).map(pair => {
-    if (typeof pair[1] !== 'string' || !pair[1].startsWith('0x') ) {
-      pair[1] = hexValue(pair[1])
+
+  // The below code block is used to send the payload directly
+  // const calldata = encodeContractCall('aa-entryPoint', 'handleOps', [[userOp], wallet.address]);
+  // const res = await wallet.sendTransaction({
+  //   to: '0x119df1582e0dd7334595b8280180f336c959f3bb',
+  //   value: 0,
+  //   data: calldata,
+  //   gasLimit: 2000000
+  // })
+
+  const hexifiedUserOp = Object.entries(userOp).map((pair) => {
+    if (typeof pair[1] !== 'string' || !pair[1].startsWith('0x')) {
+      pair[1] = hexValue(pair[1]);
     }
-    return pair
-  }).reduce((s, [k, v]) => ({... s, [k]: v}), {})
+
+    return pair;
+  }).reduce((s, [k, v]) => ({ ...s, [k]: v }), {});
 
   const params = [
     hexifiedUserOp, '0x119df1582e0dd7334595b8280180f336c959f3bb', 5, {
-    dappAPIKey: "RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428"
-  }];
+      dappAPIKey: 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428'
+    }];
 
-  console.log(JSON.stringify(params))
+  console.log(JSON.stringify(params));
 
   try {
     const res = await superagent
-    .post('https://sdk-relayer.prod.biconomy.io/api/v1/relay')
-    .send({
-      method: 'eth_sendUserOperation',
-      params: params,
-      id: 1234,
-      jsonrpc: '2.0'
-    })
+      .post('https://sdk-relayer.prod.biconomy.io/api/v1/relay')
+      .send({
+        method: 'eth_sendUserOperation',
+        params: params,
+        id: 1234,
+        jsonrpc: '2.0'
+      });
 
-    console.log(res.text)
-  } catch(e: any) {
-    console.log(e)
+    console.log(res.text);
+  } catch (e: any) {
+    console.log(e);
   }
-}
+};
 
 export { getSmartWalletAddress };
 

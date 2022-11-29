@@ -1,7 +1,10 @@
+// Copyright 2021-2022 @choko-wallet/account-abstraction authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 // Ported from @biconomy/common/ERC4337Utils.ts 
 // To be removed
 
-import { defaultAbiCoder, keccak256 } from 'ethers/lib/utils'
+import { arrayify, defaultAbiCoder, keccak256 } from 'ethers/lib/utils'
 import type { BiconomyUserOperation } from './types';
 
 // reverse "Deferrable" or "PromiseOrValue" fields
@@ -9,6 +12,7 @@ import type { BiconomyUserOperation } from './types';
 export type NotPromise<T> = {
   [P in keyof T]: Exclude<T[P], Promise<any>>
 }
+
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 function encode(typevalues: Array<{ type: string; val: any }>, forSignature: boolean): string {
@@ -41,6 +45,9 @@ export function packUserOp(op: NotPromise<BiconomyUserOperation>, forSignature =
       name: 'userOp',
       type: 'tuple'
     }
+    // console.log('hard-coded userOpType', userOpType)
+    // console.log('from ABI userOpType', UserOpType)
+    console.log('op is ', op)
     let encoded = defaultAbiCoder.encode([userOpType as any], [{ ...op, signature: '0x' }])
     // remove leading word (total length) and trailing word (zero-length signature)
     encoded = '0x' + encoded.slice(66, encoded.length - 64)
@@ -59,6 +66,7 @@ export function packUserOp(op: NotPromise<BiconomyUserOperation>, forSignature =
     { type: 'uint256', val: op.maxPriorityFeePerGas },
     { type: 'bytes', val: op.paymasterAndData }
   ]
+  console.log('hard-coded typedvalues', typevalues)
   if (!forSignature) {
     // for the purpose of calculating gas cost, also hash signature
     typevalues.push({ type: 'bytes', val: op.signature })
@@ -71,10 +79,22 @@ export function getRequestId(
   entryPoint: string,
   chainId: number
 ): string {
+  console.log(' inside getRequestId')
   const userOpHash = keccak256(packUserOp(op, true))
+  console.log('userOpHash ', userOpHash)
+
   const enc = defaultAbiCoder.encode(
     ['bytes32', 'address', 'uint256'],
     [userOpHash, entryPoint, chainId]
   )
+  console.log('enc ', enc)
   return keccak256(enc)
+}
+
+export function getRequestIdForSigning(
+  op: NotPromise<BiconomyUserOperation>,
+  entryPoint: string,
+  chainId: number
+): Uint8Array {
+  return arrayify(getRequestId(op, entryPoint, chainId))
 }
