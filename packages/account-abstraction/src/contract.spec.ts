@@ -4,7 +4,7 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { ethers, Wallet } from 'ethers';
 
-import { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, getSmartWalletAddress } from './contract';
+import { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, getSmartWalletAddress, sendBiconomyBundlerPayload } from './contract';
 
 const seed = 'humor cook snap sunny ticket distance leaf unusual join business obey below';
 const provider = new JsonRpcProvider('https://eth-goerli.g.alchemy.com/v2/70wjS92mV7V63UCiARGJFJW95dJTldV-', 'goerli');
@@ -13,7 +13,8 @@ const wallet = new ethers.Wallet(
 );
 
 describe('@choko-wallet/account-abstraction/contract', function () {
-  it('generate address & deploy wallet', () => {
+  it('generate address & deploy wallet', async () => {
+    console.log(wallet.privateKey)
     console.log(
       await getSmartWalletAddress(
         '0xf59cda6fd211303bfb79f87269abd37f565499d8',
@@ -199,4 +200,15 @@ describe('@choko-wallet/account-abstraction/contract', function () {
 
   //   console.log(res)
   // });
+
+  it('send transaction - gasless', async () => {
+    await sendBiconomyBundlerPayload(
+      provider,
+      {
+        to: wallet.address, 
+        data: '0x', 
+      },
+      wallet
+    )
+  });
 });

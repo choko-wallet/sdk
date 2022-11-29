@@ -21,6 +21,10 @@
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.8-13",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "superagent": "^8.0.4"
+  },
+  "devDependencies": {
+    "@types/superagent": "^4.1.16"
   }
 }

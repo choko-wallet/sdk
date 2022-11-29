@@ -3,11 +3,14 @@
 
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { ethers, utils, Wallet } from 'ethers';
+import { BigNumberish, ethers, utils, Wallet } from 'ethers';
 
 import { encodeContractCall, loadAbi } from '@choko-wallet/abi';
 
-import { IWalletTransaction } from './types';
+import { BiconomyUserOperation, IWalletTransaction } from './types';
+import { hexValue } from 'ethers/lib/utils';
+import superagent from 'superagent';
+import { getRequestId } from './util';
 
 /* eslint-disable sort-keys */
 const getSmartWalletAddress = async (
@@ -140,6 +143,81 @@ const callDataExecTransactionBatch = (
   return encodeContractCall('aa-multisendCallOnly', 'multiSend', [encodedTransactions]);
 };
 
+const sendBiconomyBundlerPayload = async (
+  provider: JsonRpcProvider,
+  op: {
+    to: string, data: string, value?: BigNumberish, 
+  },
+  wallet: ethers.Wallet
+) => {
+  const entryPointCallData = encodeContractCall('aa-wallet', 'execFromEntryPoint', [
+    op.to, op.value || ethers.utils.parseEther('0'), op.data, 0, 1000000
+  ]);
+
+  const chainId = (await provider.getNetwork()).chainId;
+  console.log(wallet.address)
+  let userOp: BiconomyUserOperation = {
+    sender: wallet.address,
+    nonce: 80,
+    initCode: '0x',
+    callData: entryPointCallData,
+
+    callGasLimit: 2000000,
+    verificationGasLimit: 2000000,
+    preVerificationGas: 21000,
+    maxFeePerGas: 10000,
+    maxPriorityFeePerGas: 2000000,
+
+    paymasterAndData: '0x',
+    signature: '0x'
+  };
+
+  // const paymasterData = await superagent
+  //   .post('https://us-central1-biconomy-staging.cloudfunctions.net/signing-service')
+  //   .set('x-api-key', 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428')
+  //   .send({
+  //     userOp: userOp
+  //   });
+
+  // userOp.paymasterAndData = paymasterData.body.data['paymasterAndData'];
+
+  const hash = getRequestId(userOp, '0x119df1582e0dd7334595b8280180f336c959f3bb', chainId);
+  const sig = await wallet.signMessage(hash);
+
+  userOp.signature = sig;
+  
+  const hexifiedUserOp = Object.entries(userOp).map(pair => {
+    if (typeof pair[1] !== 'string' || !pair[1].startsWith('0x') ) {
+      pair[1] = hexValue(pair[1])
+    }
+    return pair
+  }).reduce((s, [k, v]) => ({... s, [k]: v}), {})
+
+  const params = [
+    hexifiedUserOp, '0x119df1582e0dd7334595b8280180f336c959f3bb', 5, {
+    dappAPIKey: "RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428"
+  }];
+
+  console.log(JSON.stringify(params))
+
+  try {
+    const res = await superagent
+    .post('https://sdk-relayer.prod.biconomy.io/api/v1/relay')
+    .send({
+      method: 'eth_sendUserOperation',
+      params: params,
+      id: 1234,
+      jsonrpc: '2.0'
+    })
+
+    console.log(res.text)
+  } catch(e: any) {
+    console.log(e)
+  }
+}
+
 export { getSmartWalletAddress };
 
 export { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch };
+
+export { sendBiconomyBundlerPayload };
