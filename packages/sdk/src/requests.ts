@@ -3,7 +3,7 @@
 
 import { u8aToHex } from '@skyekiwi/util';
 
-import { KeypairType } from '@choko-wallet/core/types';
+import { KeypairType, SignMessageType, SignTxType } from '@choko-wallet/core/types';
 import { compressParameters } from '@choko-wallet/core/util';
 import { ConnectDappRequest, ConnectDappRequestPayload, DecryptMessageRequest, DecryptMessageRequestPayload, SignMessageRequest, SignMessageRequestPayload, SignTxRequest, SignTxRequestPayload } from '@choko-wallet/request-handler';
 
@@ -23,27 +23,27 @@ export const buildConnectDappRequest = (): Uint8Array => {
   return compressParameters(request.serialize());
 };
 
-export const buildSignMessageRequest = (message: Uint8Array): Uint8Array => {
+export const buildSignMessageRequest = (message: Uint8Array, signMessageType: SignMessageType): Uint8Array => {
   const dapp = getDappDescriptor();
   const userAccount = getUserAccount();
 
   console.log(userAccount);
   const request = new SignMessageRequest({
     dappOrigin: dapp,
-    payload: new SignMessageRequestPayload({ message }),
+    payload: new SignMessageRequestPayload({ message, signMessageType }),
     userOrigin: userAccount
   });
 
   return compressParameters(request.serialize());
 };
 
-export const buildSignTxRequest = (encoded: Uint8Array): Uint8Array => {
+export const buildSignTxRequest = (encoded: Uint8Array, signTxType: SignTxType): Uint8Array => {
   const dapp = getDappDescriptor();
   const userAccount = getUserAccount();
 
   const request = new SignTxRequest({
     dappOrigin: dapp,
-    payload: new SignTxRequestPayload({ encoded }),
+    payload: new SignTxRequestPayload({ encoded, signTxType }),
     userOrigin: userAccount
   });
 
@@ -81,23 +81,23 @@ export const buildConnectDappUrl = (type?: string): string => {
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
-export const buildSignMessageUrl = (message: Uint8Array, type?: string): string => {
+export const buildSignMessageUrl = (message: Uint8Array, signMessageType: SignMessageType, type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
   const url = `${getWalletUrl(type)}/request?`;
 
   return `${url}` +
     'requestType=signMessage' + '&' +
-    `payload=${u8aToHex(buildSignMessageRequest(message))}` + '&' +
+    `payload=${u8aToHex(buildSignMessageRequest(message, signMessageType))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 
-export const buildSignTxUrl = (encoded: Uint8Array, type?: string): string => {
+export const buildSignTxUrl = (encoded: Uint8Array, signTxType: SignTxType, type?: string): string => {
   const callbackUrlBase = getCallBackUrl();
   const url = `${getWalletUrl(type)}/request?`;
 
   return `${url}` +
     'requestType=signTx' + '&' +
-    `payload=${u8aToHex(buildSignTxRequest(encoded))}` + '&' +
+    `payload=${u8aToHex(buildSignTxRequest(encoded, signTxType))}` + '&' +
     `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
 };
 

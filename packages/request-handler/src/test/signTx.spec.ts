@@ -55,7 +55,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
     const request = new SignTxRequest({
       dappOrigin: dapp,
       payload: new SignTxRequestPayload({
-        encoded, type: SignTxType.Ordinary
+        encoded, signTxType: SignTxType.Ordinary
       }),
       userOrigin: account
     });
@@ -112,7 +112,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
       }),
       payload: new SignTxRequestPayload({
         encoded: await getPolkadotEncodedTx(),
-        type: SignTxType.Ordinary
+        signTxType: SignTxType.Ordinary
       }),
       userOrigin: account
     });

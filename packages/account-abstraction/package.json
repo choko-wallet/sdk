@@ -23,7 +23,6 @@
     "@choko-wallet/core": "0.1.8-13",
     "@skyekiwi/util": "^1.0.1",
     "ethers": "^5.7.2",
-    "ethers-multisend": "^2.4.0",
     "superagent": "^8.0.4"
   },
   "devDependencies": {

@@ -80,7 +80,6 @@ const parseSDKConfig = (config: SDKConfig): [DappDescriptor, UserAccount] => {
   const emptyAccount = new UserAccount(new AccountOption(accountOption));
 
   // 2.1 assign empty public key
-  emptyAccount.publicKey = new Uint8Array(32);
   emptyAccount.publicKeys = [
     new Uint8Array(32), new Uint8Array(32), new Uint8Array(33)
   ];

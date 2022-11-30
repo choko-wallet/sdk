@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
-import { encodeAddress } from '@polkadot/util-crypto';
 import { hexToU8a } from '@skyekiwi/util';
 import { TextDecoder, TextEncoder } from 'util';
+
+import { SignMessageType, SignTxType } from '@choko-wallet/core/types';
 
 import { buildConnectDappUrl, buildSignMessageUrl, buildSignTxUrl, configSDK, getUserAccount, storeUserAccount } from '.';
 
@@ -19,12 +20,10 @@ describe('@choko-wallet/sdk - request', function () {
     configSDK({
       accountOption: {
         hasEncryptedPrivateKeyExported: false,
-        keyType: 'sr25519',
         localKeyEncryptionStrategy: 0
       },
 
       activeNetworkHash: '847e7b7fa160d85f',
-
       callbackUrlBase: 'https://localhost:3001',
 
       displayName: 'SDK Test',
@@ -42,7 +41,6 @@ describe('@choko-wallet/sdk - request', function () {
     configSDK({
       accountOption: {
         hasEncryptedPrivateKeyExported: false,
-        keyType: 'sr25519',
         localKeyEncryptionStrategy: 0
       },
 
@@ -59,15 +57,13 @@ describe('@choko-wallet/sdk - request', function () {
     // ConnectDapp
     const account = getUserAccount();
 
-    account.publicKey = hexToU8a('463c4dd84fdc93ee6f8fcaf479476246f8b8df4454b2827ae3d89f4eaf779a2b');
-    account.address = encodeAddress(account.publicKey);
     storeUserAccount(account);
 
     const api = await ApiPromise.create({ provider: provider });
     const tx = api.tx.balances.transfer('5CQ5PxbmUkAzRnLPUkU65fZtkypqpx8MrKnAfXkSy9eiSeoM', 1);
     const encoded = hexToU8a(tx.toHex().substring(2));
 
-    const x = buildSignTxUrl(encoded);
+    const x = buildSignTxUrl(encoded, SignTxType.Ordinary);
 
     console.log(x);
   });
@@ -76,7 +72,6 @@ describe('@choko-wallet/sdk - request', function () {
     configSDK({
       accountOption: {
         hasEncryptedPrivateKeyExported: false,
-        keyType: 'sr25519',
         localKeyEncryptionStrategy: 0
       },
 
@@ -93,11 +88,9 @@ describe('@choko-wallet/sdk - request', function () {
     // ConnectDapp
     const account = getUserAccount();
 
-    account.publicKey = hexToU8a('463c4dd84fdc93ee6f8fcaf479476246f8b8df4454b2827ae3d89f4eaf779a2b');
-    account.address = encodeAddress(account.publicKey);
     storeUserAccount(account);
 
-    const x = buildSignMessageUrl(new Uint8Array([1, 2, 3, 4, 5]));
+    const x = buildSignMessageUrl(new Uint8Array([1, 2, 3, 4, 5]), SignMessageType.EthereumPersonalSign);
 
     console.log(x);
   });

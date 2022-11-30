@@ -11,7 +11,6 @@ const biconomyFixtures: BiconomyFixture = {
     walletFactoryAddress: '0xf59cda6fd211303bfb79f87269abd37f565499d8'
   },
   137: {
-
     entryPointAddress: '0x119df1582e0dd7334595b8280180f336c959f3bb',
     fallbackHandlerAddress: '0x0bc0c08122947be919a02f9861d83060d34ea478',
     multiSendAddress: '0xa1677d8c8edb188e49ecd832236af281d6b0b20e',

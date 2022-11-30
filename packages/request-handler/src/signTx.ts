@@ -31,22 +31,22 @@ export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
 export class SignTxRequestPayload implements IPayload {
   public readonly encoded: Uint8Array;
-  public readonly type: SignTxType;
+  public readonly signTxType: SignTxType;
   public readonly version: Version;
 
   constructor (config: {
     encoded: Uint8Array,
-    type: SignTxType,
+    signTxType: SignTxType,
     version?: Version
   }) {
-    const { encoded, type } = config;
+    const { encoded, signTxType } = config;
 
     if (encoded.length >= 512) {
       throw new Error('message too long');
     }
 
     this.encoded = encoded;
-    this.type = type;
+    this.signTxType = signTxType;
     this.version = config.version || CURRENT_VERSION;
   }
 
@@ -59,7 +59,7 @@ export class SignTxRequestPayload implements IPayload {
 
     res.set(padSize(this.encoded.length), 0);
     res.set(this.encoded, 4);
-    res.set([this.type], 4 + 512);
+    res.set([this.signTxType], 4 + 512);
     res.set([this.version], 4 + 512 + 1);
 
     return res;
@@ -75,7 +75,7 @@ export class SignTxRequestPayload implements IPayload {
 
     return new SignTxRequestPayload({
       encoded: msg,
-      type: data[4 + 512],
+      signTxType: data[4 + 512],
       version: data[4 + 512 + 1]
     });
   }
