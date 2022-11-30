@@ -26,7 +26,7 @@ export interface IRequestHandlerDescriptor {
 
 export interface IRequest {
   dappOrigin: IDappDescriptor;
-  userOrigin: UserAccount;
+  userOrigin?: UserAccount;
 
   type: HexString;
 
@@ -42,7 +42,7 @@ export interface IRequest {
 
 export interface IResponse {
   dappOrigin: IDappDescriptor;
-  userOrigin: UserAccount;
+  userOrigin?: UserAccount;
 
   type: HexString;
 

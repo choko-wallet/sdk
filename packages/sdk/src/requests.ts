@@ -12,12 +12,10 @@ import { getCallBackUrl, getDappDescriptor, getUserAccount } from '.';
 
 export const buildConnectDappRequest = (): Uint8Array => {
   const dapp = getDappDescriptor();
-  const userAccount = getUserAccount();
 
   const request = new ConnectDappRequest({
     dappOrigin: dapp,
-    payload: new ConnectDappRequestPayload({}),
-    userOrigin: userAccount
+    payload: new ConnectDappRequestPayload({})
   });
 
   return compressParameters(request.serialize());
@@ -27,7 +25,6 @@ export const buildSignMessageRequest = (message: Uint8Array, signMessageType: Si
   const dapp = getDappDescriptor();
   const userAccount = getUserAccount();
 
-  console.log(userAccount);
   const request = new SignMessageRequest({
     dappOrigin: dapp,
     payload: new SignMessageRequestPayload({ message, signMessageType }),

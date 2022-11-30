@@ -22,15 +22,10 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     version: 0
   });
 
-  it('request serde - connectDapp', async () => {
-    account.unlock(SEED);
-    await account.init();
-    account.lock();
-
+  it('request serde - connectDapp', () => {
     const request = new ConnectDappRequest({
       dappOrigin: dapp,
-      payload: new ConnectDappRequestPayload({}),
-      userOrigin: account
+      payload: new ConnectDappRequestPayload({})
     });
 
     const serialized = request.serialize();
@@ -38,7 +33,6 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
 
     expect(deserialized.payload).toEqual(new ConnectDappRequestPayload({}));
     expect(deserialized.dappOrigin).toEqual(dapp);
-    expect(deserialized.userOrigin).toEqual(account);
   });
 
   it('response serde - connectDapp', async () => {
@@ -50,8 +44,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
       dappOrigin: dapp,
       payload: new ConnectDappResponsePayload({
         userAccount: account
-      }),
-      userOrigin: account
+      })
     });
 
     const serialized = response.serialize();
@@ -61,20 +54,14 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
       userAccount: account
     }));
     expect(deserialized.dappOrigin).toEqual(dapp);
-    expect(deserialized.userOrigin).toEqual(account);
     expect(deserialized.isSuccessful).toEqual(true);
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
   it('e2e - connectDapp', async () => {
-    account.unlock(SEED);
-    await account.init();
-    account.lock();
-
     const request = new ConnectDappRequest({
       dappOrigin: dapp,
-      payload: new ConnectDappRequestPayload({}),
-      userOrigin: account
+      payload: new ConnectDappRequestPayload({})
     });
 
     expect(request.validatePayload()).toBe(true);
@@ -91,7 +78,6 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     expect(response.dappOrigin).toEqual(dapp);
     expect(response.isSuccessful).toEqual(true);
     expect(response.payload.userAccount.serialize()).toEqual(account.serialize());
-    expect(response.userOrigin).toEqual(account);
     expect(response.error).toEqual(RequestError.NoError);
   });
 });

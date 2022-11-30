@@ -3,12 +3,11 @@
 
 import type { SDKConfig } from './type';
 
-import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
+import { AccountOption, DappDescriptor } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { hasUserAccountStored } from './store';
-import { storeCallBackUrl, storeDappDescriptor, storeUserAccount } from '.';
+import { storeCallBackUrl, storeDappDescriptor } from '.';
 
 /**
   * validate a SDKConfig
@@ -60,45 +59,28 @@ export const validateConfig = (config: SDKConfig): string => {
   * @param {SDKConfig} config the SDKConfig to be proceed
   * @returns {[DappDescriptor, UserAccount]} return a parsed DappDescriptor and a (locked) UserAccount
 */
-const parseSDKConfig = (config: SDKConfig): [DappDescriptor, UserAccount] => {
+const parseSDKConfig = (config: SDKConfig): DappDescriptor => {
   const invalidReason = validateConfig(config);
 
   if (invalidReason) {
     throw new Error(invalidReason);
   }
 
-  // 1. config the DappDescriptor
-  const dappDescriptor = new DappDescriptor({
+  return new DappDescriptor({
     activeNetwork: knownNetworks[config.activeNetworkHash],
     displayName: config.displayName,
     infoName: config.infoName,
     version: CURRENT_VERSION
   });
-
-  // 2. config the UserAccount
-  const { accountOption } = config;
-  const emptyAccount = new UserAccount(new AccountOption(accountOption));
-
-  // 2.1 assign empty public key
-  emptyAccount.publicKeys = [
-    new Uint8Array(32), new Uint8Array(32), new Uint8Array(33)
-  ];
-
-  return [dappDescriptor, emptyAccount];
 };
 
 /**
   * Config SDK and store information locally in localStorage
   * @param {SDKConfig} config the SDKConfig to be proceed
-  * @param {UserAccount} act (optional) UserAccount to inject
   * @returns {void} None. Will store relevant information in localStorage
 */
 export const configSDK = (config: SDKConfig): void => {
-  const [dappDescriptor, emptyAccount] = parseSDKConfig(config);
-
-  if (!hasUserAccountStored()) {
-    storeUserAccount(emptyAccount);
-  }
+  const dappDescriptor = parseSDKConfig(config);
 
   storeDappDescriptor(dappDescriptor);
   storeCallBackUrl(config.callbackUrlBase);
