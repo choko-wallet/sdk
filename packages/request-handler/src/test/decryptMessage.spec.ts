@@ -20,7 +20,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
     await cryptoWaitReady();
   });
 
-  ['sr25519', 'ed25519'].map((keyType) => {
+  ['sr25519', 'ed25519', 'ethereum'].map((keyType, index) => {
     const account = new UserAccount(new AccountOption({
       hasEncryptedPrivateKeyExported: false,
       localKeyEncryptionStrategy: 0
@@ -92,7 +92,6 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
 
       const account = new UserAccount(new AccountOption({
         hasEncryptedPrivateKeyExported: false,
-        keyType: keyType as KeypairType,
         localKeyEncryptionStrategy: 0
       }));
 
@@ -101,10 +100,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
       account.lock();
 
       // 1. generate an encrypted messaage
-      const encrypted = AsymmetricEncryption.encryptWithCurveType(
-        keyType as 'sr25519' | 'ed25519',
-        msg, account.publicKey
-      );
+      const encrypted = AsymmetricEncryption.encryptWithCurveType(keyType as KeypairType, msg, account.publicKeys[index]);
 
       // 2. Generate a ephemeral keypair for receiving the data
       const receivingSK = randomBytes(32);

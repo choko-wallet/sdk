@@ -3,13 +3,13 @@
 
 import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
 import { ethereumEncode, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { initWASMInterface, SymmetricEncryption } from '@skyekiwi/crypto';
+import { hexToU8a } from '@skyekiwi/util';
+import { ethers } from 'ethers';
 
 import { KeypairType } from './types';
 import { AccountOption } from '.';
-import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { ethers } from 'ethers';
-import { hexToU8a } from '@skyekiwi/util';
 
 export interface IUserAccount {
   // CORE FIELDS
@@ -81,36 +81,39 @@ export class UserAccount implements IUserAccount {
     this.publicKeys = [];
     ['sr25519', 'ed25519', 'ethereum'].map((type) => {
       const t = type as KeypairType;
+
       if (t === 'ethereum') {
         const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
-        const privateKey = hexToU8a( ethersJsWallet.privateKey.slice(2) );
+        const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
         const kr = (new Keyring({ type: t })).addFromSeed(privateKey);
+
         this.publicKeys.push(kr.publicKey);
       } else {
         const kr = (new Keyring({ type: t })).addFromMnemonic(seed);
+
         this.publicKeys.push(kr.publicKey);
       }
-      
+
       return null;
     });
   }
 
-  public getPublicKey(keyType: KeypairType): Uint8Array {
+  public getPublicKey (keyType: KeypairType): Uint8Array {
     if (this.publicKeys.length !== 3) {
-      throw new Error('account not properly initiated - UserAccount.getAddress')
+      throw new Error('account not properly initiated - UserAccount.getAddress');
     }
 
     switch (keyType) {
-      case 'sr25519': return this.publicKeys[0] ;
+      case 'sr25519': return this.publicKeys[0];
       case 'ed25519': return this.publicKeys[1];
       case 'ethereum': return this.publicKeys[2];
       case 'ecdsa': return this.publicKeys[2];
     }
   }
 
-  public getAddress(keyType: KeypairType): string {
+  public getAddress (keyType: KeypairType): string {
     if (this.publicKeys.length !== 3) {
-      throw new Error('account not properly initiated - UserAccount.getAddress')
+      throw new Error('account not properly initiated - UserAccount.getAddress');
     }
 
     switch (keyType) {
@@ -179,7 +182,7 @@ export class UserAccount implements IUserAccount {
   public static serializedLength (): number {
     return 32 + 32 + 33 + // length of all publicKeys len
       // we pad all public keys to 33 bytes so that secp256k1 keys can fit as well
-      + AccountOption.serializedLength();
+      +AccountOption.serializedLength();
   }
 
   // account serialize does not include private key info
@@ -220,7 +223,9 @@ export class UserAccount implements IUserAccount {
     const option = AccountOption.deserialize(data.slice(32 + 32 + 33, 32 + 32 + 33 + AccountOption.serializedLength()));
 
     const userAccount = new UserAccount(option);
+
     userAccount.publicKeys = publicKeys;
+
     return userAccount;
   }
 

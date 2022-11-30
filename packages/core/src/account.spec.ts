@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { mnemonicToEntropy } from '@polkadot/util-crypto';
-import { AccountOption, UserAccount } from '.';
-import { KeypairType } from './types';
+import { ethers } from 'ethers';
 
-import {ethers} from 'ethers';
+import { KeypairType } from './types';
+import { AccountOption, UserAccount } from '.';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 const Tests = [
@@ -51,6 +51,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
     it(`UserAccount - serde - ${type.keyType}`, async () => {
       const userAccount = new UserAccount(option);
+
       userAccount.unlock(SEED);
       await userAccount.init();
 
@@ -75,6 +76,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
     it(`UserAccount - serdeWithEncryptedKey - ${type.keyType}`, async () => {
       const userAccount = new UserAccount(option);
+
       userAccount.unlock(SEED);
       await userAccount.init();
 
@@ -103,6 +105,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
   test('ethersjs compatibility for account generation', async () => {
     const userAccount = new UserAccount(option);
+
     userAccount.unlock(SEED);
     await userAccount.init();
 

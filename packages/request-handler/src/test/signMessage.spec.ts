@@ -1,18 +1,17 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { KeypairType, SignMessageType } from '@choko-wallet/core/types';
-
 import Keyring from '@polkadot/keyring';
-
-import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
-import { DappDescriptor } from '@choko-wallet/core/dapp';
-import { knownNetworks } from '@choko-wallet/known-networks';
-
-import { SignMessageDescriptor, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload } from '../signMessage';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
+
+import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
+import { DappDescriptor } from '@choko-wallet/core/dapp';
+import { KeypairType, SignMessageType } from '@choko-wallet/core/types';
+import { knownNetworks } from '@choko-wallet/known-networks';
+
+import { SignMessageDescriptor, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload } from '../signMessage';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
@@ -37,7 +36,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
 
     const request = new SignMessageRequest({
       dappOrigin: dapp,
-      payload: new SignMessageRequestPayload({ message: msg, signMessageType: 'raw-sr25519' }),
+      payload: new SignMessageRequestPayload({ message: msg, signMessageType: SignMessageType.RawSr25519 }),
       userOrigin: account
     });
 
@@ -58,7 +57,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     const response = new SignMessageResponse({
       dappOrigin: dapp,
       payload: new SignMessageResponsePayload({
-        signature: new Uint8Array(64), signMessageType: 'raw-sr25519'
+        signature: new Uint8Array(64), signMessageType: SignMessageType.RawSr25519
       }),
       userOrigin: account
     });
@@ -67,7 +66,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     const deserialized = SignMessageResponse.deserialize(serialized);
 
     expect(deserialized.payload).toEqual(new SignMessageResponsePayload({
-      signature: new Uint8Array(64), signMessageType: 'raw-sr25519'
+      signature: new Uint8Array(64), signMessageType: SignMessageType.RawSr25519
     }));
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
@@ -75,8 +74,8 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
-  ['raw-sr25519', 'raw-ed25519'].map((type) => {
-    it(`e2e - signMessage - ${type}`, async () => {
+  [SignMessageType.RawSr25519, SignMessageType.RawEd25519].map((type) => {
+    it(`e2e - signMessage - ${SignMessageType[type]}`, async () => {
       const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
       const account = new UserAccount(new AccountOption({
@@ -97,7 +96,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
         }),
         payload: new SignMessageRequestPayload({
           message: msg,
-          signMessageType: type as SignMessageType
+          signMessageType: type
         }),
         userOrigin: account
       });
@@ -112,7 +111,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
       const response = await signMessasge.requestHandler(request, account);
 
       // validate against raw sign
-      const kr = (new Keyring({ type: type.slice(4) as KeypairType }))
+      const kr = (new Keyring({ type: SignMessageType[type].slice(3).toLowerCase() as KeypairType }))
         .addFromMnemonic(entropyToMnemonic(account.entropy));
 
       const res = kr.verify(msg, response.payload.signature, kr.publicKey);
@@ -123,7 +122,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     return null;
   });
 
-  test('ethereum personal sign compatibility', async() => {
+  test('ethereum personal sign compatibility', async () => {
     const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
     const account = new UserAccount(new AccountOption({
@@ -144,7 +143,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
       }),
       payload: new SignMessageRequestPayload({
         message: msg,
-        signMessageType: 'ethereum-personal'
+        signMessageType: SignMessageType.EthereumPersonalSign
       }),
       userOrigin: account
     });
@@ -157,12 +156,11 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     await account.init();
 
     const response = await signMessasge.requestHandler(request, account);
-    console.log( u8aToHex(response.payload.signature) )
 
-    const wallet = ethers.Wallet.fromMnemonic( entropyToMnemonic(account.entropy) );
+    const wallet = ethers.Wallet.fromMnemonic(entropyToMnemonic(account.entropy));
     const sig = await wallet.signMessage(msg);
 
-    expect(sig).toEqual('0x' + u8aToHex(response.payload.signature))
+    expect(sig).toEqual('0x' + u8aToHex(response.payload.signature));
 
     // dump it out for verification on etherscan
     // console.log(account.getAddress('ethereum'))
