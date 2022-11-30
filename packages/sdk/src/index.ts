@@ -3,10 +3,10 @@
 
 import { configSDK, validateConfig } from './config';
 import { buildConnectDappRequest, buildConnectDappUrl, buildSignMessageRequest, buildSignMessageUrl, buildSignTxRequest, buildSignTxUrl } from './requests';
-import { getCallBackUrl, getDappDescriptor, getUserAccount, storeCallBackUrl, storeDappDescriptor, storeUserAccount } from './store';
+import { getDappDescriptor, getUserAccount, loadStorage, persistStorage, purgeStorage, storeDappDescriptor, storeUserAccount } from './store';
 
 export {
-  storeUserAccount, getUserAccount, storeDappDescriptor, getDappDescriptor, storeCallBackUrl, getCallBackUrl,
+  storeUserAccount, getUserAccount, storeDappDescriptor, getDappDescriptor, persistStorage, purgeStorage, loadStorage,
   validateConfig, configSDK,
   buildConnectDappRequest, buildSignMessageRequest, buildSignTxRequest, buildConnectDappUrl, buildSignMessageUrl, buildSignTxUrl
 };

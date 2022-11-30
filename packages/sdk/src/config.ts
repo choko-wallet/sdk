@@ -1,13 +1,13 @@
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SDKConfig } from './type';
+import type { InMemoryStorage, SDKConfig } from './type';
 
 import { AccountOption, DappDescriptor } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { storeCallBackUrl, storeDappDescriptor } from '.';
+import { loadStorage, persistStorage, storeDappDescriptor } from '.';
 
 /**
   * validate a SDKConfig
@@ -41,17 +41,10 @@ export const validateConfig = (config: SDKConfig): string => {
     return version === 0;
   };
 
-  const callbackUrlIsValidV0 = (): boolean => {
-    const { callbackUrlBase } = config;
-
-    return !!callbackUrlBase;
-  };
-
   return (accountOptionIsValidV0() ? '' : 'Invalid AccountCreationOption ') as string +
   (activeNetworkHashIsValidV0() ? '' : 'Invalid activeNetworkHash ') +
   (nameIsValidV0() ? '' : 'Invalid name ') +
-  (versionIsValidV0() ? '' : 'Invalid version ') +
-  (callbackUrlIsValidV0() ? '' : 'Invalid callbackUrlBase ');
+  (versionIsValidV0() ? '' : 'Invalid version ');
 };
 
 /**
@@ -79,9 +72,14 @@ const parseSDKConfig = (config: SDKConfig): DappDescriptor => {
   * @param {SDKConfig} config the SDKConfig to be proceed
   * @returns {void} None. Will store relevant information in localStorage
 */
-export const configSDK = (config: SDKConfig): void => {
+export const configSDK = (config: SDKConfig, persist = true): InMemoryStorage => {
   const dappDescriptor = parseSDKConfig(config);
 
-  storeDappDescriptor(dappDescriptor);
-  storeCallBackUrl(config.callbackUrlBase);
+  const store = storeDappDescriptor(loadStorage(), dappDescriptor);
+
+  if (persist) {
+    persistStorage(store);
+  }
+
+  return store;
 };

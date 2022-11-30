@@ -15,6 +15,7 @@ module.exports = {
     '**/node_modules/*',
     '**/examples/*',
     'next-env.d.ts',
+    'sdk.spec.ts',
   ],
   parserOptions: {
     ...base.parserOptions,

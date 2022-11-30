@@ -1,6 +1,8 @@
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { InMemoryStorage } from './type';
+
 import { u8aToHex } from '@skyekiwi/util';
 
 import { KeypairType, SignMessageType, SignTxType } from '@choko-wallet/core/types';
@@ -8,10 +10,10 @@ import { compressParameters } from '@choko-wallet/core/util';
 import { ConnectDappRequest, ConnectDappRequestPayload, DecryptMessageRequest, DecryptMessageRequestPayload, SignMessageRequest, SignMessageRequestPayload, SignTxRequest, SignTxRequestPayload } from '@choko-wallet/request-handler';
 
 import getWalletUrl from './walletUrl';
-import { getCallBackUrl, getDappDescriptor, getUserAccount } from '.';
+import { getDappDescriptor, getUserAccount } from '.';
 
-export const buildConnectDappRequest = (): Uint8Array => {
-  const dapp = getDappDescriptor();
+export const buildConnectDappRequest = (store: InMemoryStorage): Uint8Array => {
+  const dapp = getDappDescriptor(store);
 
   const request = new ConnectDappRequest({
     dappOrigin: dapp,
@@ -21,9 +23,9 @@ export const buildConnectDappRequest = (): Uint8Array => {
   return compressParameters(request.serialize());
 };
 
-export const buildSignMessageRequest = (message: Uint8Array, signMessageType: SignMessageType): Uint8Array => {
-  const dapp = getDappDescriptor();
-  const userAccount = getUserAccount();
+export const buildSignMessageRequest = (store: InMemoryStorage, message: Uint8Array, signMessageType: SignMessageType): Uint8Array => {
+  const dapp = getDappDescriptor(store);
+  const userAccount = getUserAccount(store);
 
   const request = new SignMessageRequest({
     dappOrigin: dapp,
@@ -34,9 +36,9 @@ export const buildSignMessageRequest = (message: Uint8Array, signMessageType: Si
   return compressParameters(request.serialize());
 };
 
-export const buildSignTxRequest = (encoded: Uint8Array, signTxType: SignTxType): Uint8Array => {
-  const dapp = getDappDescriptor();
-  const userAccount = getUserAccount();
+export const buildSignTxRequest = (store: InMemoryStorage, encoded: Uint8Array, signTxType: SignTxType): Uint8Array => {
+  const dapp = getDappDescriptor(store);
+  const userAccount = getUserAccount(store);
 
   const request = new SignTxRequest({
     dappOrigin: dapp,
@@ -48,12 +50,13 @@ export const buildSignTxRequest = (encoded: Uint8Array, signTxType: SignTxType):
 };
 
 export const buildDecryptMessageRequest = (
+  store: InMemoryStorage,
   keyType: KeypairType,
   message: Uint8Array,
   receiptPublicKey: Uint8Array
 ): Uint8Array => {
-  const dapp = getDappDescriptor();
-  const userAccount = getUserAccount();
+  const dapp = getDappDescriptor(store);
+  const userAccount = getUserAccount(store);
 
   const request = new DecryptMessageRequest({
     dappOrigin: dapp,
@@ -68,47 +71,64 @@ export const buildDecryptMessageRequest = (
   return compressParameters(request.serialize());
 };
 
-export const buildConnectDappUrl = (type?: string): string => {
-  const callbackUrlBase = getCallBackUrl();
+export const buildConnectDappUrl = (
+  store: InMemoryStorage,
+  callbackUrl: string,
+  type?: string
+): string => {
   const url = `${getWalletUrl(type)}/request?`;
 
   return `${url}` +
     'requestType=connectDapp' + '&' +
-    `payload=${u8aToHex(buildConnectDappRequest())}` + '&' +
-    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
+    `payload=${u8aToHex(buildConnectDappRequest(store))}` + '&' +
+    `callbackUrl=${encodeURIComponent(callbackUrl)}`;
 };
 
-export const buildSignMessageUrl = (message: Uint8Array, signMessageType: SignMessageType, type?: string): string => {
-  const callbackUrlBase = getCallBackUrl();
+export const buildSignMessageUrl = (
+  store: InMemoryStorage,
+
+  message: Uint8Array,
+  signMessageType: SignMessageType,
+  callbackUrl: string,
+  type?: string
+): string => {
   const url = `${getWalletUrl(type)}/request?`;
 
   return `${url}` +
     'requestType=signMessage' + '&' +
-    `payload=${u8aToHex(buildSignMessageRequest(message, signMessageType))}` + '&' +
-    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
+    `payload=${u8aToHex(buildSignMessageRequest(store, message, signMessageType))}` + '&' +
+    `callbackUrl=${encodeURIComponent(callbackUrl)}`;
 };
 
-export const buildSignTxUrl = (encoded: Uint8Array, signTxType: SignTxType, type?: string): string => {
-  const callbackUrlBase = getCallBackUrl();
+export const buildSignTxUrl = (
+  store: InMemoryStorage,
+
+  encoded: Uint8Array,
+  signTxType: SignTxType,
+  callbackUrl: string,
+  type?: string
+): string => {
   const url = `${getWalletUrl(type)}/request?`;
 
   return `${url}` +
     'requestType=signTx' + '&' +
-    `payload=${u8aToHex(buildSignTxRequest(encoded, signTxType))}` + '&' +
-    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
+    `payload=${u8aToHex(buildSignTxRequest(store, encoded, signTxType))}` + '&' +
+    `callbackUrl=${encodeURIComponent(callbackUrl)}`;
 };
 
 export const buildDecryptMessageUrl = (
+  store: InMemoryStorage,
+
   keyType: KeypairType,
   message: Uint8Array,
   receiptPublicKey: Uint8Array,
+  callbackUrl: string,
   type?: string
 ): string => {
-  const callbackUrlBase = getCallBackUrl();
   const url = `${getWalletUrl(type)}/request?`;
 
   return `${url}` +
     'requestType=decryptMessage' + '&' +
-    `payload=${u8aToHex(buildDecryptMessageRequest(keyType, message, receiptPublicKey))}` + '&' +
-    `callbackUrl=${encodeURIComponent(callbackUrlBase)}`;
+    `payload=${u8aToHex(buildDecryptMessageRequest(store, keyType, message, receiptPublicKey))}` + '&' +
+    `callbackUrl=${encodeURIComponent(callbackUrl)}`;
 };
