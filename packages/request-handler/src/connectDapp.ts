@@ -307,8 +307,6 @@ export class ConnectDappDescriptor implements IRequestHandlerDescriptor {
     // unlike Rust where we can use account.clone(), JS might use a pointer to the original obj.
     // Therefore, we construct another account a-fresh
     const userAccount = new UserAccount(account.option);
-
-    userAccount.publicKey = account.publicKey;
     userAccount.publicKeys = account.publicKeys;
 
     const response = new ConnectDappResponse({

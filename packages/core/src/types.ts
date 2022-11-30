@@ -13,6 +13,7 @@ export type AccountBalance = number;
 export type KeypairType = 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum';
 
 export type NetworkType = 'polkadot' | 'ethereum';
+export type SignMessageType = 'raw-sr25519' | 'raw-ed25519' | 'ethereum-personal';
 
 const CURRENT_VERSION = 0;
 

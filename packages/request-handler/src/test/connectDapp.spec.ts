@@ -1,8 +1,6 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
-
 import { AccountOption, DappDescriptor, RequestError, UserAccount } from '@choko-wallet/core';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
@@ -13,7 +11,6 @@ const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther 
 describe('@choko-wallet/request-handler - connectDapp', function () {
   const option = new AccountOption({
     hasEncryptedPrivateKeyExported: false,
-    keyType: 'sr25519',
     localKeyEncryptionStrategy: 0
   });
 
@@ -26,7 +23,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
   });
 
   it('request serde - connectDapp', async () => {
-    account.unlock(mnemonicToMiniSecret(SEED));
+    account.unlock(SEED);
     await account.init();
     account.lock();
 
@@ -45,7 +42,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
   });
 
   it('response serde - connectDapp', async () => {
-    account.unlock(mnemonicToMiniSecret(SEED));
+    account.unlock(SEED);
     await account.init();
     account.lock();
 
@@ -70,7 +67,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
   });
 
   it('e2e - connectDapp', async () => {
-    account.unlock(mnemonicToMiniSecret(SEED));
+    account.unlock(SEED);
     await account.init();
     account.lock();
 
@@ -84,7 +81,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
 
     const connectDapp = new ConnectDappDescriptor();
 
-    account.unlock(mnemonicToMiniSecret(SEED));
+    account.unlock(SEED);
     await account.init();
 
     const response = await connectDapp.requestHandler(request, account);

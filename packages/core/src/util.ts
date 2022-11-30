@@ -4,7 +4,7 @@
 import { xxhashAsU8a } from '@polkadot/util-crypto';
 import pako from 'pako';
 
-import { KeypairType } from './types';
+import { KeypairType, SignMessageType } from './types';
 
 /**
   * convert KeypairType from number -> KeypairType (string)
@@ -43,6 +43,36 @@ export const keypairTypeStringToNumber = (keyType: KeypairType): number => {
       return 3;
     default:
       throw new Error('unknown key type - Util.mapKeypairTypeToNumber');
+  }
+};
+
+/**
+  * convert SignMessageType from number -> SignMessageType (string)
+  * @param {SignMessageType} signMesasgeTypeId the number from 0 - 3 of the SignMessageType
+  * @returns {number} signMesasgeTypeId
+*/
+export const signMessageTypeToId = (signMessageType: SignMessageType): number => {
+  switch (signMessageType) {
+    case 'raw-sr25519': return 0;
+    case 'raw-ed25519': return 1;
+    case 'ethereum-personal': return 2;
+    default:
+      throw new Error('unknown signature type - Util.signMessageTypeToId');
+  }
+};
+
+/**
+  * convert SignMessageType from KeypairType(string) -> number
+  * @param {number} signMesasgeTypeId id of the SignMessageType
+  * @returns {SignMessageType} SignMessageType
+*/
+export const signMessageTypeToString = (signMesasgeTypeId: number): SignMessageType => {
+  switch (signMesasgeTypeId) {
+    case 0: return 'raw-sr25519';
+    case 1: return 'raw-ed25519';
+    case 2: return 'ethereum-personal';
+    default:
+      throw new Error('unknown signature type - Util.signMessageTypeToString');
   }
 };
 

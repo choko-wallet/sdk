@@ -6,7 +6,7 @@ import { ethers, Wallet } from 'ethers';
 
 import { encodeContractCall } from '@choko-wallet/abi';
 
-import { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, getSmartWalletAddress, sendBiconomyBundlerPayload } from './contract';
+import { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, getSmartWalletAddress, sendBiconomyBundlerPayload } from '.';
 
 const seed = 'humor cook snap sunny ticket distance leaf unusual join business obey below';
 const provider = new JsonRpcProvider('https://eth-goerli.g.alchemy.com/v2/70wjS92mV7V63UCiARGJFJW95dJTldV-', 'goerli');

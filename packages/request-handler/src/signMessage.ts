@@ -1,15 +1,17 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString, KeypairType, Version } from '@choko-wallet/core/types';
+import type { HexString, SignMessageType, Version } from '@choko-wallet/core/types';
 
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 
 import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
-import { keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from '@choko-wallet/core/util';
+import { signMessageTypeToId, signMessageTypeToString, xxHash } from '@choko-wallet/core/util';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
+import { ethers } from 'ethers';
 
 export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
 
@@ -29,31 +31,34 @@ export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
 export class SignMessageRequestPayload implements IPayload {
   public readonly message: Uint8Array;
   public readonly version: Version;
+  public readonly signMessageType: SignMessageType;
 
   constructor (config: {
     message: Uint8Array,
+    signMessageType: SignMessageType,
     version?: Version
   }) {
-    const { message } = config;
+    const { message, signMessageType } = config;
 
     if (message.length >= 512) {
       throw new Error('message too long');
     }
 
     this.message = message;
+    this.signMessageType = signMessageType;
     this.version = config.version || CURRENT_VERSION;
   }
 
   public static serializedLength (): number {
-    return 512 + 4 + 2;
+    return 512 + 4 + 1 + 1;
   }
 
   public build (): Uint8Array {
     const res = new Uint8Array(SignMessageRequestPayload.serializedLength());
-
     res.set(padSize(this.message.length), 0);
     res.set(this.message, 4);
-    res.set([this.version, this.version], 4 + 512);
+    res.set([this.version ], 4 + 512);
+    res.set([signMessageTypeToId(this.signMessageType)], 4 + 512 + 1);
 
     return res;
   }
@@ -68,6 +73,7 @@ export class SignMessageRequestPayload implements IPayload {
 
     return new SignMessageRequestPayload({
       message: msg,
+      signMessageType: signMessageTypeToString(data[4 + 512 + 1]),
       version: data[4 + 512]
     });
   }
@@ -75,23 +81,23 @@ export class SignMessageRequestPayload implements IPayload {
 
 export class SignMessageResponsePayload implements IPayload {
   public readonly signature: Uint8Array;
-  public readonly keyType: KeypairType;
+  public readonly signMessageType: SignMessageType;
   public readonly version: Version;
 
   constructor (config: {
     signature: Uint8Array,
-    keyType: KeypairType
+    signMessageType: SignMessageType
     version?: Version
   }) {
-    const { keyType, signature } = config;
+    const { signMessageType, signature } = config;
 
     this.signature = signature;
-    this.keyType = keyType;
+    this.signMessageType = signMessageType;
     this.version = config.version || CURRENT_VERSION;
   }
 
   public static serializedLength (): number {
-    return 1 + // keytype
+    return 1 + // signMessageType
       65 + // sig = pad a zero byte for sr25519 & ed25519
       2; // version
   }
@@ -99,9 +105,9 @@ export class SignMessageResponsePayload implements IPayload {
   public build (): Uint8Array {
     const res = new Uint8Array(SignMessageResponsePayload.serializedLength());
 
-    res.set([keypairTypeStringToNumber(this.keyType)], 0);
+    res.set([signMessageTypeToId(this.signMessageType)], 0);
 
-    if (this.keyType === 'sr25519' || this.keyType === 'ed25519') {
+    if (this.signMessageType === 'raw-sr25519' || this.signMessageType === 'raw-ed25519') {
       if (this.signature.length !== 64) {
         throw new Error('invalid length');
       }
@@ -126,17 +132,17 @@ export class SignMessageResponsePayload implements IPayload {
       throw new Error('invalid length');
     }
 
-    const keyType = keypairTypeNumberToString(data[0]);
+    const signMessageType = signMessageTypeToString(data[0]);
     let signature = data.slice(1, 1 + 65);
 
-    if (keyType === 'sr25519' || keyType === 'ed25519') {
+    if (signMessageType === 'raw-sr25519' || signMessageType === 'raw-ed25519') {
       signature = signature.slice(1);
     }
 
     const version = data[1 + 65];
 
     return new SignMessageResponsePayload({
-      keyType, signature, version
+      signMessageType, signature, version
     });
   }
 }
@@ -358,16 +364,31 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
       err = RequestError.AccountLocked;
     }
 
-    const kr = (new Keyring({
-      type: account.option.keyType
-    })).addFromUri('0x' + u8aToHex(account.privateKey));
+    let signature: Uint8Array
+    switch (request.payload.signMessageType) {
+      case 'raw-sr25519': {
+        const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic( entropyToMnemonic(account.entropy) );
+        signature = kr.sign(request.payload.message)
+        break;
+      }
+      case 'raw-ed25519': {
+        const kr = (new Keyring({ type: 'ed25519' })).addFromMnemonic( entropyToMnemonic(account.entropy) );
+        signature = kr.sign(request.payload.message)
+        break;
+      }
+      case 'ethereum-personal': {
+        const wallet = ethers.Wallet.fromMnemonic( entropyToMnemonic(account.entropy) );
+        signature = hexToU8a((await wallet.signMessage(request.payload.message)).slice(2));
+        break;
+      }
+    }
 
     const response = new SignMessageResponse({
       dappOrigin: request.dappOrigin,
       error: err,
       payload: new SignMessageResponsePayload({
-        keyType: account.option.keyType,
-        signature: kr.sign(request.payload.message)
+        signature: signature,
+        signMessageType: request.payload.signMessageType,
       }),
       userOrigin: request.userOrigin
     });
