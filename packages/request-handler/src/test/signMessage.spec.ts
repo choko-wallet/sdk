@@ -57,7 +57,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     const response = new SignMessageResponse({
       dappOrigin: dapp,
       payload: new SignMessageResponsePayload({
-        signature: new Uint8Array(64), signMessageType: SignMessageType.RawSr25519
+        signMessageType: SignMessageType.RawSr25519, signature: new Uint8Array(64)
       }),
       userOrigin: account
     });
@@ -66,7 +66,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     const deserialized = SignMessageResponse.deserialize(serialized);
 
     expect(deserialized.payload).toEqual(new SignMessageResponsePayload({
-      signature: new Uint8Array(64), signMessageType: SignMessageType.RawSr25519
+      signMessageType: SignMessageType.RawSr25519, signature: new Uint8Array(64)
     }));
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);

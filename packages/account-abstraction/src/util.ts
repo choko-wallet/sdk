@@ -14,7 +14,7 @@ export type NotPromise<T> = {
   [P in keyof T]: Exclude<T[P], Promise<any>>
 }
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
+/* eslint-disable  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return */
 function encode (typevalues: Array<{ type: string; val: any }>, forSignature: boolean): string {
   const types = typevalues.map((typevalue) =>
     typevalue.type === 'bytes' && forSignature ? 'bytes32' : typevalue.type
@@ -31,25 +31,21 @@ export function packUserOp (op: NotPromise<BiconomyUserOperation>, forSignature 
     // lighter signature scheme (must match UserOperation#pack): do encode a zero-length signature, but strip afterwards the appended zero-length value
     const userOpType = {
       components: [
-        { type: 'address', name: 'sender' },
-        { type: 'uint256', name: 'nonce' },
-        { type: 'bytes', name: 'initCode' },
-        { type: 'bytes', name: 'callData' },
-        { type: 'uint256', name: 'callGasLimit' },
-        { type: 'uint256', name: 'verificationGasLimit' },
-        { type: 'uint256', name: 'preVerificationGas' },
-        { type: 'uint256', name: 'maxFeePerGas' },
-        { type: 'uint256', name: 'maxPriorityFeePerGas' },
-        { type: 'bytes', name: 'paymasterAndData' },
-        { type: 'bytes', name: 'signature' }
+        { name: 'sender', type: 'address' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'initCode', type: 'bytes' },
+        { name: 'callData', type: 'bytes' },
+        { name: 'callGasLimit', type: 'uint256' },
+        { name: 'verificationGasLimit', type: 'uint256' },
+        { name: 'preVerificationGas', type: 'uint256' },
+        { name: 'maxFeePerGas', type: 'uint256' },
+        { name: 'maxPriorityFeePerGas', type: 'uint256' },
+        { name: 'paymasterAndData', type: 'bytes' },
+        { name: 'signature', type: 'bytes' }
       ],
       name: 'userOp',
       type: 'tuple'
     };
-
-    // console.log('hard-coded userOpType', userOpType)
-    // console.log('from ABI userOpType', UserOpType)
-    console.log('op is ', op);
     let encoded = defaultAbiCoder.encode([userOpType as any], [{ ...op, signature: '0x' }]);
 
     // remove leading word (total length) and trailing word (zero-length signature)
@@ -71,8 +67,6 @@ export function packUserOp (op: NotPromise<BiconomyUserOperation>, forSignature 
     { type: 'bytes', val: op.paymasterAndData }
   ];
 
-  console.log('hard-coded typedvalues', typevalues);
-
   if (!forSignature) {
     // for the purpose of calculating gas cost, also hash signature
     typevalues.push({ type: 'bytes', val: op.signature });
@@ -86,17 +80,11 @@ export function getRequestId (
   entryPoint: string,
   chainId: number
 ): string {
-  console.log(' inside getRequestId');
   const userOpHash = keccak256(packUserOp(op, true));
-
-  console.log('userOpHash ', userOpHash);
-
   const enc = defaultAbiCoder.encode(
     ['bytes32', 'address', 'uint256'],
     [userOpHash, entryPoint, chainId]
   );
-
-  console.log('enc ', enc);
 
   return keccak256(enc);
 }

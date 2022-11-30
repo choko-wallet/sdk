@@ -3,77 +3,77 @@
 
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { BigNumberish, ethers, utils, Wallet } from 'ethers';
+import { hexToU8a } from '@skyekiwi/util';
+import { ethers, utils, Wallet } from 'ethers';
 import { arrayify, hexValue } from 'ethers/lib/utils';
 import superagent from 'superagent';
 
 import { encodeContractCall, loadAbi } from '@choko-wallet/abi';
+import { entropyToMnemonic, UserAccount } from '@choko-wallet/core';
 
+import { biconomyFixtures, biconomyServicesUrl } from './fixtures';
 import { BiconomyUserOperation, IWalletTransaction } from './types';
 import { getRequestId } from './util';
 
-/* eslint-disable sort-keys */
-const getSmartWalletAddress = async (
-  contractAddress: string, // 0xf59cda6fd211303bfb79f87269abd37f565499d8
-  provider: JsonRpcProvider,
+/**
+ * Smart Wallet deployment
+*/
 
-  owner: string,
-  index: number
+// get the smart wallet address for an EOA
+const getSmartWalletAddress = async (
+  provider: JsonRpcProvider, owner: string, index: number
 ): Promise<string> => {
+  const chainId = await getChainIdFromProvider(provider);
   const walletFactoryContract = new ethers.Contract(
-    contractAddress, loadAbi('aa-walletFactory'), provider
+    biconomyFixtures[chainId].walletFactoryAddress,
+    loadAbi('aa-walletFactory'),
+    provider
   );
 
-  /* eslint-disable */
-  // @ts-ignore
+  /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */
   return await walletFactoryContract.getAddressForCounterfactualWallet(owner, index);
-  /* eslint-enable */
 };
 
+// generate call data to deploy a wallet
 const callDataDeployWallet = (
-  owner: string,
-  entryPoint: string,
-  handler: string,
+  chainId: number,
+  eoaAddress: string,
   index: number
-) => {
+): string => {
   return encodeContractCall('aa-walletFactory', 'deployCounterFactualWallet', [
-    owner, entryPoint, handler, index
+    eoaAddress, // EOA account
+    biconomyFixtures[chainId].entryPointAddress,
+    biconomyFixtures[chainId].fallbackHandlerAddress,
+    index
   ]);
 };
 
-// send tx
+/**
+ * Raw exec transaction
+*/
+
+// generate call data to send a tx
 const callDataExecTransaction = async (
-  factoryContractAddress: string,
   provider: JsonRpcProvider,
 
-  eoaAddress: string,
-  index: number,
-
-  seed: string, // TODO: fixme
+  smartWalletAddress: string,
+  unlockedUserAccount: UserAccount,
 
   tx: IWalletTransaction,
-  batchId: number
-) => {
-  const w = Wallet.fromMnemonic(seed);
-  const wallet = new ethers.Wallet(
-    w.privateKey, provider
-  );
-
-  const smartWalletAddress = await getSmartWalletAddress(
-    factoryContractAddress, provider, eoaAddress, index
-  );
+  batchId: number // always 0 for now?
+): Promise<string> => {
+  const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
+  const chainId = await getChainIdFromProvider(provider);
 
   const smartWalletContract = new ethers.Contract(
     smartWalletAddress, loadAbi('aa-wallet'), provider
   );
-
   const nonce = (await smartWalletContract.getNonce(batchId)) as number;
-  const chainId = (await provider.getNetwork()).chainId;
 
-  // validation and fillups
+  /* eslint-disable sort-keys */
   const transactionWithAllParams: IWalletTransaction = {
     to: tx.to,
-    value: tx.value || 0,
+    value: tx.value || ethers.utils.parseEther('0'),
     data: tx.data || '0x',
 
     operation: tx.operation || 0,
@@ -126,68 +126,65 @@ const callDataExecTransaction = async (
   return execTransactionCalldata;
 };
 
+// generate batched tx
 const callDataExecTransactionBatch = (
   transactions: IWalletTransaction[]
-) => {
+): string => {
   const encodedTransactions = '0x' + transactions.map((tx) => {
-    const data = utils.arrayify(tx.data || '0x');
+    const data = utils.arrayify(tx.data || '0x00');
+    const value = tx.value || tx.value || ethers.utils.parseEther('0');
 
     return utils.solidityPack(
       ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
-      [tx.operation || 0, tx.to, tx.value, data.length, data]
+      [tx.operation || 0, tx.to, value.toString(), data.length, data]
     ).slice(2);
   }).join('');
 
-  console.log(encodedTransactions);
-
-  return encodeContractCall('aa-multisendCallOnly', 'multiSend', [encodedTransactions]);
+  return encodeContractCall('aa-multisend', 'multiSend', [encodedTransactions]);
 };
 
-const sendBiconomyBundlerPayload = async (
+/**
+ * biconomy gasless tx
+ */
+const sendBiconomyTxPayload = async (
   provider: JsonRpcProvider,
-  op: {
-    to: string, data: string, value?: BigNumberish,
-  },
-  sender: string,
-  wallet: ethers.Wallet
-) => {
+  op: IWalletTransaction,
+  unlockedUserAccount: UserAccount,
+
+  index: number,
+  batchId: number
+): Promise<Uint8Array> => {
+  const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
+  const eoaAddress = unlockedUserAccount.getAddress('ethereum');
+  const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
+  const nonce = await fetchWalletNonce(eoaAddress, index, provider, batchId);
+  const chainId = await getChainIdFromProvider(provider);
+
   const entryPointCallData = encodeContractCall('aa-wallet', 'execFromEntryPoint', [
     op.to, op.value || ethers.utils.parseEther('0'), op.data, 0, 1000000
   ]);
 
-  const smartWalletContract = new ethers.Contract(
-    sender, loadAbi('aa-wallet'), provider
-  );
-
-  const nonce = (await smartWalletContract.getNonce(0)) as number;
-
-  const chainId = (await provider.getNetwork()).chainId;
   const userOp: BiconomyUserOperation = {
-    sender: sender,
+    sender: smartWalletAddress,
     nonce: nonce,
     initCode: '0x',
     callData: entryPointCallData,
 
+    // TODO: make sense of these fee
     callGasLimit: 2000000,
     verificationGasLimit: 100000,
     preVerificationGas: 21000,
     maxFeePerGas: 61072872608,
     maxPriorityFeePerGas: 1500000000,
 
+    // to be filled
     paymasterAndData: '0x',
     signature: '0x'
   };
 
-  const paymasterData = await superagent
-    .post('https://us-central1-biconomy-staging.cloudfunctions.net/signing-service')
-    .set('x-api-key', 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428')
-    .send({
-      userOp: userOp
-    });
+  userOp.paymasterAndData = await fetchPaymasterAndData(userOp);
 
-  userOp.paymasterAndData = paymasterData.body.data.paymasterAndData;
-
-  const hash = getRequestId(userOp, '0x119df1582e0dd7334595b8280180f336c959f3bb', chainId);
+  const hash = getRequestId(userOp, biconomyFixtures[chainId].entryPointAddress, chainId);
   const sig = await wallet.signMessage(arrayify(hash));
 
   userOp.signature = sig;
@@ -195,7 +192,7 @@ const sendBiconomyBundlerPayload = async (
   // The below code block is used to send the payload directly
   // const calldata = encodeContractCall('aa-entryPoint', 'handleOps', [[userOp], wallet.address]);
   // const res = await wallet.sendTransaction({
-  //   to: '0x119df1582e0dd7334595b8280180f336c959f3bb',
+  //   to: '0x119df1582e0dd7334595b8280180f336c959f3bb', // entryPoint
   //   value: 0,
   //   data: calldata,
   //   gasLimit: 2000000
@@ -210,15 +207,15 @@ const sendBiconomyBundlerPayload = async (
   }).reduce((s, [k, v]) => ({ ...s, [k]: v }), {});
 
   const params = [
-    hexifiedUserOp, '0x119df1582e0dd7334595b8280180f336c959f3bb', 5, {
+    hexifiedUserOp, biconomyFixtures[chainId].entryPointAddress, chainId,
+    {
       dappAPIKey: 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428'
-    }];
-
-  console.log(JSON.stringify(params));
+    }
+  ];
 
   try {
     const res = await superagent
-      .post('https://sdk-relayer.prod.biconomy.io/api/v1/relay')
+      .post(biconomyServicesUrl.biconomyRelayService)
       .send({
         method: 'eth_sendUserOperation',
         params: params,
@@ -226,14 +223,58 @@ const sendBiconomyBundlerPayload = async (
         jsonrpc: '2.0'
       });
 
-    console.log(res.text);
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
+    const gaslessTxId = res.body.data.transactionId;
+
+    return hexToU8a(gaslessTxId.slice(2));
   } catch (e: any) {
-    console.log(e);
+    console.error(e);
+    throw new Error('biconomy relayer throws error - AA:sendBiconomyTxPayload');
   }
+};
+
+/**
+ * Misc helpers
+*/
+const getChainIdFromProvider = async (provider: JsonRpcProvider): Promise<number> => {
+  return (await provider.getNetwork()).chainId;
+};
+
+const unlockedUserAccountToEthersJsWallet = (unlockedUserAccount: UserAccount, provider: JsonRpcProvider): ethers.Wallet => {
+  if (unlockedUserAccount.isLocked) {
+    throw new Error('user account is locked - AA:unlockedUserAccountToEthersJsWallet');
+  }
+
+  const w = Wallet.fromMnemonic(entropyToMnemonic(unlockedUserAccount.entropy));
+
+  return new ethers.Wallet(w.privateKey, provider);
+};
+
+const fetchWalletNonce = async (eoaAddress: string, index: number, provider: JsonRpcProvider, batchId: number): Promise<number> => {
+  const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
+  const smartWalletContract = new ethers.Contract(smartWalletAddress, loadAbi('aa-wallet'), provider);
+
+  return (await smartWalletContract.getNonce(batchId));
+};
+
+const fetchPaymasterAndData = async (userOp: BiconomyUserOperation): Promise<string> => {
+  const paymasterData = await superagent
+    .post(biconomyServicesUrl.biconomySigningService)
+    .set('x-api-key', 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428')
+    .send({ userOp: userOp });
+
+  if (paymasterData.body.code !== 200) {
+    throw new Error('fetching biconomy paymaster data error - AA:fetchPaymasterAndData');
+  }
+
+  return paymasterData.body.data.paymasterAndData;
 };
 
 export { getSmartWalletAddress };
 
 export { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch };
 
-export { sendBiconomyBundlerPayload };
+export { sendBiconomyTxPayload };
+
+export { getChainIdFromProvider, unlockedUserAccountToEthersJsWallet, fetchWalletNonce };
+// not exported fetchPaymasterAndData

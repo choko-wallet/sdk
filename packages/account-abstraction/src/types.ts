@@ -33,3 +33,12 @@ export type BiconomyUserOperation = {
   paymasterAndData: string;
   signature: string;
 };
+
+export type BiconomyFixtureOnNetwork = {
+  walletFactoryAddress: string,
+  multiSendAddress: string,
+  entryPointAddress: string,
+  fallbackHandlerAddress: string,
+}
+
+export type BiconomyFixture = Record<number, BiconomyFixtureOnNetwork>;

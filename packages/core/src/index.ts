@@ -1,6 +1,8 @@
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
+
 import { IUserAccount, UserAccount } from './account';
 import { AccountOption, IAccountOption } from './accountOption';
 import { DappDescriptor, IDappDescriptor } from './dapp';
@@ -22,5 +24,7 @@ export {
 
   Network,
 
-  RequestError, RequestErrorSerializedLength, mapRequestErrorToString, serializeRequestError, deserializeRequestError
+  RequestError, RequestErrorSerializedLength, mapRequestErrorToString, serializeRequestError, deserializeRequestError,
+
+  entropyToMnemonic // re-export
 };
