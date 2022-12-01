@@ -29,29 +29,29 @@ describe('@choko-wallet/account-abstraction/contract', function () {
 //     console.log('test');
 //   })
 
-  // it('generate address & deploy wallet', async () => {
-  //   userAccount.unlock(seed);
-  //   await userAccount.init();
+// it('generate address & deploy wallet', async () => {
+//   userAccount.unlock(seed);
+//   await userAccount.init();
 
-  //   const smartWalletAddress = await getSmartWalletAddress(
-  //     provider, userAccount.getAddress('ethereum'), 0
-  //   );
+//   const smartWalletAddress = await getSmartWalletAddress(
+//     provider, userAccount.getAddress('ethereum'), 0
+//   );
 
-  //   console.log('smartWalletAddress is', smartWalletAddress);
+//   console.log('smartWalletAddress is', smartWalletAddress);
 
-  //   const callData = callDataDeployWallet(5, userAccount.getAddress('ethereum'),  0 );
+//   const callData = callDataDeployWallet(5, userAccount.getAddress('ethereum'),  0 );
 
-  //   console.log('smart wallet deployment calldata is', callData);
+//   console.log('smart wallet deployment calldata is', callData);
 
-  //   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
-  //   const r = await wallet.sendTransaction({
-  //     chainId: 5,
-  //     to: biconomyFixtures[5].walletFactoryAddress,
-  //     data: callData,
-  //     gasLimit: 2000000,
-  //   })
-  //   console.log(r)
-  // });
+//   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
+//   const r = await wallet.sendTransaction({
+//     chainId: 5,
+//     to: biconomyFixtures[5].walletFactoryAddress,
+//     data: callData,
+//     gasLimit: 2000000,
+//   })
+//   console.log(r)
+// });
 
 //   // it('send transaction - eth transfer - not gasless', async () => {
 //   //   userAccount.unlock(seed);

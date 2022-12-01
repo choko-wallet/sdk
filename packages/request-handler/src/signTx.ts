@@ -1,21 +1,23 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 import type { HexString, SignTxType, Version } from '@choko-wallet/core/types';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import Keyring from '@polkadot/keyring';
+import { KeyringPair } from '@polkadot/keyring/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
+import { unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
 import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { chainIdToProvider } from '@choko-wallet/core/etherProviders';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { xxHash } from '@choko-wallet/core/util';
-import { unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
@@ -354,6 +356,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     }
 
     let txHash;
+    let blockNumber = 0;
     const rawProvider = request.dappOrigin.activeNetwork.defaultProvider;
     const mnemonic = entropyToMnemonic(account.entropy);
 
@@ -364,12 +367,36 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       // TODO: we use sr25519 by default on Polkadot
       const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(mnemonic);
 
-      txHash = await api.tx(request.payload.encoded).signAndSend(kr);
+      const sendTx = (ext: SubmittableExtrinsic, kr: KeyringPair): Promise<[Uint8Array, number]> => {
+        let blockNumber = 0;
+
+        return new Promise((resolve, reject) => {
+          ext.signAndSend(kr, (result) => {
+            api.query.system.number().then((value) => {
+              blockNumber = value.toJSON() as number;
+
+              if (result.status.isInBlock) {
+                console.log(result.toHuman());
+                console.log(blockNumber);
+
+                resolve([result.txHash, blockNumber]);
+              }
+            }).catch((e) => {
+              console.log(e);
+            });
+          }).catch((e) => {
+            console.log(e);
+            resolve([new Uint8Array(32), 0]);
+          });
+        });
+      };
+
+      [txHash, blockNumber] = await sendTx(api.tx(request.payload.encoded), kr);
       await provider.disconnect();
     } else {
       const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
       const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
-  
+
       const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
       const txResponse = await wallet.sendTransaction({
         data: deserializedTx.data,
@@ -377,17 +404,17 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
         value: deserializedTx.value
       });
 
-      const txHashWithHex = await txResponse.wait();
+      const txResult = await txResponse.wait();
 
-      console.log(txResponse);
-      txHash = hexToU8a(txHashWithHex.transactionHash.substring(2));
+      txHash = hexToU8a(txResult.transactionHash.substring(2));
+      blockNumber = txResult.blockNumber;
     }
 
     const response = new SignTxResponse({
       dappOrigin: request.dappOrigin,
       error: err,
       payload: new SignTxResponsePayload({
-        blockNumber: 0,
+        blockNumber: blockNumber,
         gaslessTxId: new Uint8Array(32),
         txHash: txHash
       }),

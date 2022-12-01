@@ -36,7 +36,7 @@ describe('@choko-wallet/request-handler-eth - signTx', function () {
     await account.init();
     account.lock();
 
-    console.log(account)
+    console.log(account);
     const tx = {
       chainId: 5,
       to: '0xE8DAC12f7A4b0a47e8e2Af2b96db6F54e2E2C9C3',

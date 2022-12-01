@@ -51,6 +51,8 @@ describe('@choko-wallet/request-handler - signTx', function () {
     await account.init();
     account.lock();
 
+    account.aaWalletAddress = undefined;
+
     const encoded = await getPolkadotEncodedTx();
     const request = new SignTxRequest({
       dappOrigin: dapp,
@@ -73,6 +75,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const response = new SignTxResponse({
       dappOrigin: dapp,
@@ -102,6 +105,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const request = new SignTxRequest({
       dappOrigin: new DappDescriptor({
@@ -126,7 +130,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
 
     const response = await signTx.requestHandler(request, account);
 
-    // console.log(response);
+    console.log(response);
 
     expect(response.isSuccessful).toBe(true);
   });
