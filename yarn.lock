@@ -1469,7 +1469,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/account-abstraction@workspace:packages/account-abstraction":
+"@choko-wallet/account-abstraction@0.1.8-14, @choko-wallet/account-abstraction@workspace:packages/account-abstraction":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/account-abstraction@workspace:packages/account-abstraction"
   dependencies:
@@ -1485,6 +1485,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
   dependencies:
+    "@choko-wallet/account-abstraction": 0.1.8-14
     "@choko-wallet/known-networks": 0.1.8-14
     "@polkadot/util-crypto": ^10.1.11
     "@skyekiwi/crypto": 1.0.2-5
@@ -1509,6 +1510,7 @@ __metadata:
   resolution: "@choko-wallet/request-handler@workspace:packages/request-handler"
   dependencies:
     "@choko-wallet/abi": 0.1.8-14
+    "@choko-wallet/account-abstraction": 0.1.8-14
     "@choko-wallet/core": 0.1.8-14
     "@polkadot/keyring": ^10.1.11
     "@polkadot/util-crypto": ^10.1.11

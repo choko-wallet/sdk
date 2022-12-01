@@ -18,6 +18,7 @@ export interface INetwork {
 
   nativeTokenSymbol: string;
   nativeTokenDecimal: number;
+  chainId?: number;
 
   ss58Prefix?: number;
   homepage?: string;

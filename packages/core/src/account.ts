@@ -9,8 +9,8 @@ import { hexToU8a } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
 import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
-import { chokoWalletDefaultProviders } from '@choko-wallet/account-abstraction/fixtures';
 
+import { chainIdToProvider } from './etherProviders';
 import { KeypairType } from './types';
 import { AccountOption } from '.';
 
@@ -109,7 +109,7 @@ export class UserAccount implements IUserAccount {
 
   public async getAAWwalletAddress (index = 0): Promise<string> {
     return await getSmartWalletAddress(
-      chokoWalletDefaultProviders[5], // we use goerli, AA address is the same cross-chains
+      chainIdToProvider[5], // we use goerli, AA address is the same cross-chains
       ethereumEncode(this.publicKeys[2]),
       index
     );

@@ -3,8 +3,6 @@
 
 import type { BiconomyFixture } from './types';
 
-import { JsonRpcProvider } from '@ethersproject/providers';
-
 const biconomyFixtures: BiconomyFixture = {
   1: {
     entryPointAddress: '0x119df1582e0dd7334595b8280180f336c959f3bb',
@@ -49,8 +47,4 @@ const biconomyServicesUrl = {
   biconomySigningService: 'https://us-central1-biconomy-staging.cloudfunctions.net/signing-service'
 };
 
-const chokoWalletDefaultProviders = {
-  5: new JsonRpcProvider('https://eth-goerli.g.alchemy.com/v2/70wjS92mV7V63UCiARGJFJW95dJTldV-', 'goerli')
-};
-
-export { biconomyFixtures, biconomyServicesUrl, chokoWalletDefaultProviders };
+export { biconomyFixtures, biconomyServicesUrl };

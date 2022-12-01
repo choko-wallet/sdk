@@ -12,8 +12,10 @@ import { ethers } from 'ethers';
 
 import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
+import { chainIdToProvider } from '@choko-wallet/core/etherProviders';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { xxHash } from '@choko-wallet/core/util';
+import { unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
@@ -365,16 +367,12 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       txHash = await api.tx(request.payload.encoded).signAndSend(kr);
       await provider.disconnect();
     } else {
-      const provider = new ethers.providers.WebSocketProvider(rawProvider);
-      const wallet = ethers.Wallet.fromMnemonic(mnemonic);
+      const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
+      const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
+  
       const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
-
       const txResponse = await wallet.sendTransaction({
-        chainId: deserializedTx.chainId,
         data: deserializedTx.data,
-        gasLimit: deserializedTx.gasLimit,
-        gasPrice: await wallet.getGasPrice(),
-        nonce: await provider.getTransactionCount(wallet.address),
         to: deserializedTx.to,
         value: deserializedTx.value
       });
@@ -383,7 +381,6 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
 
       console.log(txResponse);
       txHash = hexToU8a(txHashWithHex.transactionHash.substring(2));
-      provider.websocket.close();
     }
 
     const response = new SignTxResponse({
@@ -396,6 +393,8 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       }),
       userOrigin: request.userOrigin
     });
+
+    account.lock();
 
     return response;
   }
