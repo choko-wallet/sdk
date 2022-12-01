@@ -8,6 +8,9 @@ import { initWASMInterface, SymmetricEncryption } from '@skyekiwi/crypto';
 import { hexToU8a } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
+import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
+import { chokoWalletDefaultProviders } from '@choko-wallet/account-abstraction/fixtures';
+
 import { KeypairType } from './types';
 import { AccountOption } from '.';
 
@@ -22,6 +25,8 @@ export interface IUserAccount {
   isLocked: boolean;
   publicKeys: Uint8Array[];
 
+  aaWalletAddress?: string;
+
   serialize(): Uint8Array;
 }
 
@@ -34,6 +39,8 @@ export class UserAccount implements IUserAccount {
   isLocked: boolean;
 
   publicKeys: Uint8Array[];
+
+  aaWalletAddress?: string;
 
   constructor (option: AccountOption) {
     if (!option.validate()) {
@@ -96,6 +103,16 @@ export class UserAccount implements IUserAccount {
 
       return null;
     });
+
+    this.aaWalletAddress = await this.getAAWwalletAddress();
+  }
+
+  public async getAAWwalletAddress (index = 0): Promise<string> {
+    return await getSmartWalletAddress(
+      chokoWalletDefaultProviders[5], // we use goerli, AA address is the same cross-chains
+      ethereumEncode(this.publicKeys[2]),
+      index
+    );
   }
 
   public getPublicKey (keyType: KeypairType): Uint8Array {
