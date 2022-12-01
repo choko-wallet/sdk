@@ -1,14 +1,13 @@
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SDKConfig } from './type';
+import type { InMemoryStorage, SDKConfig } from './type';
 
-import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
+import { AccountOption, DappDescriptor } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
-import { hasUserAccountStored } from './store';
-import { storeCallBackUrl, storeDappDescriptor, storeUserAccount } from '.';
+import { loadStorage, persistStorage, storeDappDescriptor } from '.';
 
 /**
   * validate a SDKConfig
@@ -42,17 +41,10 @@ export const validateConfig = (config: SDKConfig): string => {
     return version === 0;
   };
 
-  const callbackUrlIsValidV0 = (): boolean => {
-    const { callbackUrlBase } = config;
-
-    return !!callbackUrlBase;
-  };
-
   return (accountOptionIsValidV0() ? '' : 'Invalid AccountCreationOption ') as string +
   (activeNetworkHashIsValidV0() ? '' : 'Invalid activeNetworkHash ') +
   (nameIsValidV0() ? '' : 'Invalid name ') +
-  (versionIsValidV0() ? '' : 'Invalid version ') +
-  (callbackUrlIsValidV0() ? '' : 'Invalid callbackUrlBase ');
+  (versionIsValidV0() ? '' : 'Invalid version ');
 };
 
 /**
@@ -60,47 +52,34 @@ export const validateConfig = (config: SDKConfig): string => {
   * @param {SDKConfig} config the SDKConfig to be proceed
   * @returns {[DappDescriptor, UserAccount]} return a parsed DappDescriptor and a (locked) UserAccount
 */
-const parseSDKConfig = (config: SDKConfig): [DappDescriptor, UserAccount] => {
+const parseSDKConfig = (config: SDKConfig): DappDescriptor => {
   const invalidReason = validateConfig(config);
 
   if (invalidReason) {
     throw new Error(invalidReason);
   }
 
-  // 1. config the DappDescriptor
-  const dappDescriptor = new DappDescriptor({
+  return new DappDescriptor({
     activeNetwork: knownNetworks[config.activeNetworkHash],
     displayName: config.displayName,
     infoName: config.infoName,
     version: CURRENT_VERSION
   });
-
-  // 2. config the UserAccount
-  const { accountOption } = config;
-  const emptyAccount = new UserAccount(new AccountOption(accountOption));
-
-  // 2.1 assign empty public key
-  emptyAccount.publicKey = new Uint8Array(32);
-  emptyAccount.publicKeys = [
-    new Uint8Array(32), new Uint8Array(32), new Uint8Array(33)
-  ];
-
-  return [dappDescriptor, emptyAccount];
 };
 
 /**
   * Config SDK and store information locally in localStorage
   * @param {SDKConfig} config the SDKConfig to be proceed
-  * @param {UserAccount} act (optional) UserAccount to inject
   * @returns {void} None. Will store relevant information in localStorage
 */
-export const configSDK = (config: SDKConfig): void => {
-  const [dappDescriptor, emptyAccount] = parseSDKConfig(config);
+export const configSDK = (config: SDKConfig, persist = true): InMemoryStorage => {
+  const dappDescriptor = parseSDKConfig(config);
 
-  if (!hasUserAccountStored()) {
-    storeUserAccount(emptyAccount);
+  const store = storeDappDescriptor(loadStorage(), dappDescriptor);
+
+  if (persist) {
+    persistStorage(store);
   }
 
-  storeDappDescriptor(dappDescriptor);
-  storeCallBackUrl(config.callbackUrlBase);
+  return store;
 };

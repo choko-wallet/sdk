@@ -3,7 +3,7 @@
 
 import type { KeypairType } from '@choko-wallet/core/types';
 
-import { cryptoWaitReady, mnemonicToMiniSecret } from '@polkadot/util-crypto';
+import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { AsymmetricEncryption } from '@skyekiwi/crypto';
 import { randomBytes } from 'tweetnacl';
 
@@ -20,10 +20,9 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
     await cryptoWaitReady();
   });
 
-  ['sr25519', 'ed25519'].map((keyType) => {
+  ['sr25519', 'ed25519', 'ethereum'].map((keyType, index) => {
     const account = new UserAccount(new AccountOption({
       hasEncryptedPrivateKeyExported: false,
-      keyType: keyType as KeypairType,
       localKeyEncryptionStrategy: 0
     }));
     const dapp = new DappDescriptor({
@@ -36,7 +35,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
     it(`request serde - decryptMessage ${keyType}`, async () => {
       const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-      account.unlock(mnemonicToMiniSecret(SEED));
+      account.unlock(SEED);
       await account.init();
       account.lock();
 
@@ -63,7 +62,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
     });
 
     it(`response serde - decryptMessage ${keyType}`, async () => {
-      account.unlock(mnemonicToMiniSecret(SEED));
+      account.unlock(SEED);
       await account.init();
       account.lock();
       const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
@@ -93,19 +92,15 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
 
       const account = new UserAccount(new AccountOption({
         hasEncryptedPrivateKeyExported: false,
-        keyType: keyType as KeypairType,
         localKeyEncryptionStrategy: 0
       }));
 
-      account.unlock(mnemonicToMiniSecret(SEED));
+      account.unlock(SEED);
       await account.init();
       account.lock();
 
       // 1. generate an encrypted messaage
-      const encrypted = AsymmetricEncryption.encryptWithCurveType(
-        keyType as 'sr25519' | 'ed25519',
-        msg, account.publicKey
-      );
+      const encrypted = AsymmetricEncryption.encryptWithCurveType(keyType as KeypairType, msg, account.publicKeys[index]);
 
       // 2. Generate a ephemeral keypair for receiving the data
       const receivingSK = randomBytes(32);
@@ -130,7 +125,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
       // 4. Execute the requestHandler
       const decryptMessage = new DecryptMessageDescriptor();
 
-      account.unlock(mnemonicToMiniSecret(SEED));
+      account.unlock(SEED);
       await account.init();
       const response = await decryptMessage.requestHandler(request, account);
 

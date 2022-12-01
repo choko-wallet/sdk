@@ -1,8 +1,6 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { mnemonicToMiniSecret } from '@polkadot/util-crypto';
-
 import { AccountOption, DappDescriptor, RequestError, UserAccount } from '@choko-wallet/core';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
@@ -13,7 +11,6 @@ const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther 
 describe('@choko-wallet/request-handler - connectDapp', function () {
   const option = new AccountOption({
     hasEncryptedPrivateKeyExported: false,
-    keyType: 'sr25519',
     localKeyEncryptionStrategy: 0
   });
 
@@ -25,15 +22,10 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     version: 0
   });
 
-  it('request serde - connectDapp', async () => {
-    account.unlock(mnemonicToMiniSecret(SEED));
-    await account.init();
-    account.lock();
-
+  it('request serde - connectDapp', () => {
     const request = new ConnectDappRequest({
       dappOrigin: dapp,
-      payload: new ConnectDappRequestPayload({}),
-      userOrigin: account
+      payload: new ConnectDappRequestPayload({})
     });
 
     const serialized = request.serialize();
@@ -41,11 +33,10 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
 
     expect(deserialized.payload).toEqual(new ConnectDappRequestPayload({}));
     expect(deserialized.dappOrigin).toEqual(dapp);
-    expect(deserialized.userOrigin).toEqual(account);
   });
 
   it('response serde - connectDapp', async () => {
-    account.unlock(mnemonicToMiniSecret(SEED));
+    account.unlock(SEED);
     await account.init();
     account.lock();
 
@@ -53,8 +44,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
       dappOrigin: dapp,
       payload: new ConnectDappResponsePayload({
         userAccount: account
-      }),
-      userOrigin: account
+      })
     });
 
     const serialized = response.serialize();
@@ -64,27 +54,21 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
       userAccount: account
     }));
     expect(deserialized.dappOrigin).toEqual(dapp);
-    expect(deserialized.userOrigin).toEqual(account);
     expect(deserialized.isSuccessful).toEqual(true);
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
   it('e2e - connectDapp', async () => {
-    account.unlock(mnemonicToMiniSecret(SEED));
-    await account.init();
-    account.lock();
-
     const request = new ConnectDappRequest({
       dappOrigin: dapp,
-      payload: new ConnectDappRequestPayload({}),
-      userOrigin: account
+      payload: new ConnectDappRequestPayload({})
     });
 
     expect(request.validatePayload()).toBe(true);
 
     const connectDapp = new ConnectDappDescriptor();
 
-    account.unlock(mnemonicToMiniSecret(SEED));
+    account.unlock(SEED);
     await account.init();
 
     const response = await connectDapp.requestHandler(request, account);
@@ -94,7 +78,6 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     expect(response.dappOrigin).toEqual(dapp);
     expect(response.isSuccessful).toEqual(true);
     expect(response.payload.userAccount.serialize()).toEqual(account.serialize());
-    expect(response.userOrigin).toEqual(account);
     expect(response.error).toEqual(RequestError.NoError);
   });
 });

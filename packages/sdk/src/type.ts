@@ -9,10 +9,13 @@ export interface SDKConfig {
   accountOption: IAccountOption;
   activeNetworkHash: HexString;
 
-  callbackUrlBase: string;
-
   displayName: string;
   infoName: string;
 
   version: number;
+}
+
+export type InMemoryStorage = {
+  userAccount: string,
+  dappDescriptor: string,
 }

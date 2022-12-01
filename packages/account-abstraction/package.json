@@ -1,8 +1,8 @@
 {
-  "name": "@choko-wallet/request-handler",
+  "name": "@choko-wallet/account-abstraction",
   "version": "0.1.8-13",
   "type": "module",
-  "description": "wallet request handlers",
+  "description": "account abstraction utility used by Choko Wallet",
   "main": "index.js",
   "sideEffects": [
     "./detectPackage.js",
@@ -20,15 +20,12 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/abi": "0.1.8-13",
     "@choko-wallet/core": "0.1.8-13",
-    "@polkadot/keyring": "^10.1.11",
-    "@polkadot/util-crypto": "^10.1.11",
-    "@skyekiwi/crypto": "1.0.2-5",
-    "@skyekiwi/util": "1.0.2-5",
-    "ethers": "^5.7.2"
+    "@skyekiwi/util": "^1.0.1",
+    "ethers": "^5.7.2",
+    "superagent": "^8.0.4"
   },
   "devDependencies": {
-    "tweetnacl": "^1.0.3"
+    "@types/superagent": "^4.1.16"
   }
 }

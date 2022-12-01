@@ -3,9 +3,11 @@
 
 import type { HexString, KeypairType, Version } from '@choko-wallet/core/types';
 
-import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { cryptoWaitReady, mnemonicToMiniSecret } from '@polkadot/util-crypto';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { AsymmetricEncryption } from '@skyekiwi/crypto';
-import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { ethers } from 'ethers';
 
 import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
@@ -362,19 +364,18 @@ export class DecryptMessageDescriptor implements IRequestHandlerDescriptor {
 
     let reEncryptedMessage: Uint8Array;
 
-    if (account.option.keyType !== keyType || (keyType !== 'sr25519' && keyType !== 'ed25519')) {
-      err = RequestError.Unknown;
-    }
-
     if (err === RequestError.NoError) {
       try {
-        // 1. get the original message
-        const clearTextMessage = AsymmetricEncryption.decryptWithCurveType(
-          keyType as 'sr25519' | 'ed25519', // TODO: fixme
-          account.privateKey, message
-        );
+        // 1. get the privateKey
+        const mnemonic = entropyToMnemonic(account.entropy);
+        let privateKey: Uint8Array = mnemonicToMiniSecret(mnemonic);
 
-        // 2. now re-encrypt the message
+        if (keyType === 'ethereum') privateKey = hexToU8a(ethers.Wallet.fromMnemonic(mnemonic).privateKey.slice(2));
+
+        // 2. get the original message
+        const clearTextMessage = AsymmetricEncryption.decryptWithCurveType(keyType, privateKey, message);
+
+        // 3. now re-encrypt the message
         // We always re-encrypt with ECDH on Curve25519!
         reEncryptedMessage = AsymmetricEncryption.encrypt(clearTextMessage, receiptPublicKey);
       } catch (e) {

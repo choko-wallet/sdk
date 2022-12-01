@@ -1,138 +1,38 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import Keyring, { encodeAddress } from '@polkadot/keyring';
-import { ethereumEncode, mnemonicToMiniSecret, mnemonicValidate } from '@polkadot/util-crypto';
+import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
+import { ethereumEncode, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { initWASMInterface, SymmetricEncryption } from '@skyekiwi/crypto';
+import { hexToU8a } from '@skyekiwi/util';
+import { ethers } from 'ethers';
 
-import { CURRENT_VERSION, KeypairType, Version } from './types';
-import * as Util from './util';
-import { IDappDescriptor } from '.';
-
-export interface IAccountOption {
-  keyType: KeypairType;
-  localKeyEncryptionStrategy: number; // 1='password-v0' | 2='webauthn';
-  hasEncryptedPrivateKeyExported: boolean;
-  // whether the user had exported the private key to email
-  // set to be true when
-  //      1. the account is imported from unencrypted private key link
-  //      2. the account has click the link to export private key via link to email
-
-  version?: Version;
-}
-
-export class AccountOption implements IAccountOption {
-  keyType: KeypairType;
-  localKeyEncryptionStrategy: number;
-  hasEncryptedPrivateKeyExported: boolean;
-  version?: Version;
-
-  constructor (option: IAccountOption) {
-    this.keyType = option.keyType;
-    this.localKeyEncryptionStrategy = option.localKeyEncryptionStrategy;
-    this.hasEncryptedPrivateKeyExported = option.hasEncryptedPrivateKeyExported;
-    this.version = option.version ? option.version : CURRENT_VERSION;
-  }
-
-  /**
-   * validate if the AccountOption is valid
-   * @returns {boolean} the validity of the AccountOption
-  */
-  public validate (): boolean {
-    return this.keyType && (this.localKeyEncryptionStrategy > 0 || this.localKeyEncryptionStrategy < 2);
-  }
-
-  /**
-    * get the length of serializedLength
-    * @returns {number} size of the serializedLength
-  */
-  public static serializedLength (): number {
-    return 1 + // keyType
-      1 + // localKeyEncryptionStrategy
-      1 + // hasEncryptedPrivateKeyExported
-      1; // version
-  }
-
-  /**
-   * serialize AccountOption
-   * @returns {Uint8Array} serialized AccountOption
- */
-  public serialize (): Uint8Array {
-    const res = new Uint8Array(AccountOption.serializedLength());
-
-    res.set([Util.keypairTypeStringToNumber(this.keyType)], 0);
-    res.set([this.localKeyEncryptionStrategy], 1);
-    res.set([this.hasEncryptedPrivateKeyExported ? 1 : 0], 2);
-    res.set([this.version], 3);
-
-    return res;
-  }
-
-  /**
-    * deserialize AccountOption
-    * @param {Uint8Array} data serialized AccountOption
-    * @returns {AccountOption} AccountOption Object
-  */
-  public static deserialize (data: Uint8Array): AccountOption {
-    if (data.length !== AccountOption.serializedLength()) {
-      throw new Error('invalid data length - AccountOption.deserialize');
-    }
-
-    const keyType = Util.keypairTypeNumberToString(data[0]);
-    const localKeyEncryptionStrategy = data[1];
-    const hasEncryptedPrivateKeyExported = data[2] === 1;
-    const version = data[3];
-
-    return new AccountOption({
-      hasEncryptedPrivateKeyExported: hasEncryptedPrivateKeyExported,
-
-      keyType: keyType,
-
-      localKeyEncryptionStrategy: localKeyEncryptionStrategy,
-
-      version: version
-    });
-  }
-}
-
-export interface AccountBalance {
-  freeBalance: string;
-  lockedBalance: string;
-}
-
-export interface IUserAccountInfo extends IUserAccount {
-  // derived fields
-  balance?: AccountBalance;
-  connectedDapps?: IDappDescriptor[];
-  // ....
-
-  version: Version,
-}
+import { KeypairType } from './types';
+import { AccountOption } from '.';
 
 export interface IUserAccount {
   // CORE FIELDS
-  privateKey?: Uint8Array;
+  entropy?: Uint8Array;
+  encryptedEntropy?: Uint8Array;
+
   option: AccountOption;
 
   // DERIVED
   isLocked: boolean;
-  address: string;
-  publicKey: Uint8Array; // len == 32 for curve25519 family | len == 33 for secp256k1
   publicKeys: Uint8Array[];
 
   serialize(): Uint8Array;
 }
 
 export class UserAccount implements IUserAccount {
-  privateKey?: Uint8Array;
-  encryptedPrivateKey?: Uint8Array; // len = 72
+  entropy?: Uint8Array;
+  encryptedEntropy?: Uint8Array;
 
   option: AccountOption;
 
   isLocked: boolean;
-  address: string;
 
-  publicKey: Uint8Array; // len == 32 for curve25519 family | len == 33 for secp256k1
   publicKeys: Uint8Array[];
 
   constructor (option: AccountOption) {
@@ -149,20 +49,20 @@ export class UserAccount implements IUserAccount {
   * remove privateKey from account and lock the account
   */
   public lock (): void {
-    delete this.privateKey;
+    delete this.entropy;
     this.isLocked = true;
   }
 
   /**
   * unlock account
-  * @param {Uint8Array} privateKey a 32 bytes secretKey
+  * @param {string} seed mnemonic phrase
   */
-  public unlock (privateKey: Uint8Array): void {
-    if (privateKey.length !== 32) {
-      throw new Error('invalid private key length - UserAccount.unlock');
+  public unlock (seed: string): void {
+    if (!mnemonicValidate(seed)) {
+      throw new Error('invalid seed phrase - UserAccount.unlock');
     }
 
-    this.privateKey = privateKey;
+    this.entropy = mnemonicToEntropy(seed);
     this.isLocked = false;
   }
 
@@ -176,81 +76,78 @@ export class UserAccount implements IUserAccount {
     }
 
     await initWASMInterface();
+    const seed = entropyToMnemonic(this.entropy);
 
     this.publicKeys = [];
     ['sr25519', 'ed25519', 'ethereum'].map((type) => {
       const t = type as KeypairType;
-      const kr = (new Keyring({ type: t })).addFromSeed(this.privateKey);
 
-      this.publicKeys.push(kr.publicKey);
+      if (t === 'ethereum') {
+        const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
+        const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
+        const kr = (new Keyring({ type: t })).addFromSeed(privateKey);
 
-      if (type === this.option.keyType) {
-        this.publicKey = kr.publicKey;
-        this.address = kr.address;
+        this.publicKeys.push(kr.publicKey);
+      } else {
+        const kr = (new Keyring({ type: t })).addFromMnemonic(seed);
+
+        this.publicKeys.push(kr.publicKey);
       }
 
       return null;
     });
   }
 
-  /**
-    * use privateKey to generate account
-    * @param {Uint8Array} privateKey a 32 bytes secretKey
-    * @param {Uint8Array} option account option
-    * @returns {UserAccount} user account
-  */
-  public static privateKeyToUserAccount (privateKey: Uint8Array, option: AccountOption): UserAccount {
-    if (privateKey.length !== 32) {
-      // sanity check
-      throw new Error('invalid private key length - UserAccount.privateKeyToUserAccount');
+  public getPublicKey (keyType: KeypairType): Uint8Array {
+    if (this.publicKeys.length !== 3) {
+      throw new Error('account not properly initiated - UserAccount.getAddress');
     }
 
-    const userAccount = new UserAccount(option);
-
-    userAccount.unlock(privateKey);
-
-    return userAccount;
+    switch (keyType) {
+      case 'sr25519': return this.publicKeys[0];
+      case 'ed25519': return this.publicKeys[1];
+      case 'ethereum': return this.publicKeys[2];
+      case 'ecdsa': return this.publicKeys[2];
+    }
   }
 
-  /**
-    * create an UserAccount object from a mnemonic seed
-    * @param {string} seed a 12 words seed
-    * @param {AccountOption} option account option
-    * @returns {UserAccount} user account
-  */
-  public static seedToUserAccount (seed: string, option: AccountOption): UserAccount {
-    if (!mnemonicValidate(seed)) {
-      throw new Error('invalid seed - UserAccount.seedToUserAccount');
+  public getAddress (keyType: KeypairType): string {
+    if (this.publicKeys.length !== 3) {
+      throw new Error('account not properly initiated - UserAccount.getAddress');
     }
 
-    const privateKey = mnemonicToMiniSecret(seed);
-
-    return UserAccount.privateKeyToUserAccount(privateKey, option);
+    switch (keyType) {
+      case 'sr25519': return polkadotEncodeAddress(this.getPublicKey(keyType));
+      case 'ed25519': return polkadotEncodeAddress(this.getPublicKey(keyType));
+      case 'ethereum': return ethereumEncode(this.getPublicKey(keyType));
+      case 'ecdsa': return polkadotEncodeAddress(this.getPublicKey(keyType));
+    }
   }
 
+  // account secret handling
   /**
-    * encrypt the privateKey of the user and lock the account
-    * @param {Uint8Array} passwordHash password hash, always bhe 32 bytes long
+    * encrypt the seed of the user and lock the account
+    * @param {Uint8Array} passwordHash password hash, always be 32 bytes long
     * @returns {void} None
   */
   public encryptUserAccount (passwordHash: Uint8Array): void {
     if (this.isLocked) {
-      throw new Error('account has been locked locked - UserAccount.lockUserAccount');
+      throw new Error('account has been locked locked - UserAccount.encryptUserAccount');
     }
 
     if (passwordHash.length !== 32) {
-      throw new Error('invalid password hash length - UserAccount.lockUserAccount');
+      throw new Error('invalid password hash length - UserAccount.encryptUserAccount');
     }
 
-    const encryptedPrivateKey = SymmetricEncryption.encrypt(passwordHash, this.privateKey);
+    const encryptedEntropy = SymmetricEncryption.encrypt(passwordHash, this.entropy);
 
-    // original key size + encryption overhead + nonce
-    if (encryptedPrivateKey.length !== 32 + 16 + 24) {
-      throw new Error('invalid encrypted private key length - UserAccount.lockUserAccount');
+    // entropy size + encryption overhead + nonce
+    if (encryptedEntropy.length !== 16 + 16 + 24) {
+      throw new Error('invalid encrypted private key length - UserAccount.encryptUserAccount');
     }
 
     this.lock();
-    this.encryptedPrivateKey = encryptedPrivateKey;
+    this.encryptedEntropy = encryptedEntropy;
   }
 
   /**
@@ -259,7 +156,7 @@ export class UserAccount implements IUserAccount {
     * @returns {void} None
   */
   public decryptUserAccount (passwordHash: Uint8Array): void {
-    if (this.encryptedPrivateKey && this.encryptedPrivateKey.length !== 32 + 16 + 24) {
+    if (this.encryptedEntropy && this.encryptedEntropy.length !== 16 + 16 + 24) {
       throw new Error('invalid encrypted private key length - UserAccount.decryptUserAccount');
     }
 
@@ -267,13 +164,14 @@ export class UserAccount implements IUserAccount {
       throw new Error('invalid password hash length - UserAccount.decryptUserAccount');
     }
 
-    const privateKey = SymmetricEncryption.decrypt(passwordHash, this.encryptedPrivateKey);
+    const entropy = SymmetricEncryption.decrypt(passwordHash, this.encryptedEntropy);
 
-    if (privateKey.length !== 32) {
+    if (entropy.length !== 16) {
+      // sanity check
       throw new Error('invalid private key length - UserAccount.decryptUserAccount');
     }
 
-    this.unlock(privateKey);
+    this.unlock(entropyToMnemonic(entropy));
   }
 
   // Account Serde
@@ -293,8 +191,8 @@ export class UserAccount implements IUserAccount {
    * @returns {Uint8Array} serialized user account
   */
   public serialize (): Uint8Array {
-    if (!this.publicKey) {
-      throw new Error('account is not initialized - UserAccount.serialize');
+    if (this.publicKeys.length !== 3) {
+      throw new Error('account is not properly initialized - UserAccount.serialize');
     }
 
     const res = new Uint8Array(UserAccount.serializedLength());
@@ -323,21 +221,10 @@ export class UserAccount implements IUserAccount {
       data.slice(32 + 32, 32 + 32 + 33) // secp256k1
     ];
     const option = AccountOption.deserialize(data.slice(32 + 32 + 33, 32 + 32 + 33 + AccountOption.serializedLength()));
-    const typeIndex = ['sr25519', 'ed25519', 'ethereum'].indexOf(option.keyType);
-
-    if (typeIndex === -1) {
-      throw new Error('invalid KeypairType or unsupported keypair type - UserAccount.deserialize');
-    }
-
-    // We also encode an address!
-    const publicKey = publicKeys[typeIndex];
-    const address = option.keyType === 'ethereum' ? ethereumEncode(publicKey) : encodeAddress(publicKey);
 
     const userAccount = new UserAccount(option);
 
-    userAccount.publicKey = publicKey;
     userAccount.publicKeys = publicKeys;
-    userAccount.address = address;
 
     return userAccount;
   }
@@ -347,7 +234,7 @@ export class UserAccount implements IUserAccount {
     * @returns {number} size of the serializedLength plus the length of EncryptedKey
   */
   public static serializedLengthWithEncryptedKey (): number {
-    return UserAccount.serializedLength() + 72;
+    return UserAccount.serializedLength() + 16 + 16 + 24;
   }
 
   // account serialize does not include CLEARTEXT private key info
@@ -356,14 +243,14 @@ export class UserAccount implements IUserAccount {
    * @returns {Uint8Array} serialized user account with EncryptedKey
   */
   public serializeWithEncryptedKey (): Uint8Array {
-    if (!this.encryptedPrivateKey || this.encryptedPrivateKey.length !== 72) {
-      throw new Error('invalid encryptedPrivateKey - UserAccount.serializeWithEncryptedKey');
+    if (!this.encryptedEntropy || this.encryptedEntropy.length !== 16 + 16 + 24) {
+      throw new Error('invalid encryptedEntropy - UserAccount.serializeWithEncryptedKey');
     }
 
     const res = new Uint8Array(UserAccount.serializedLengthWithEncryptedKey());
 
     res.set(this.serialize(), 0);
-    res.set(this.encryptedPrivateKey, UserAccount.serializedLength());
+    res.set(this.encryptedEntropy, UserAccount.serializedLength());
 
     return res;
   }
@@ -380,7 +267,7 @@ export class UserAccount implements IUserAccount {
 
     const userAccount = UserAccount.deserialize(data.slice(0, UserAccount.serializedLength()));
 
-    userAccount.encryptedPrivateKey = data.slice(UserAccount.serializedLength(), UserAccount.serializedLength() + 72);
+    userAccount.encryptedEntropy = data.slice(UserAccount.serializedLength(), UserAccount.serializedLength() + 16 + 16 + 24);
 
     return userAccount;
   }

@@ -1,11 +1,12 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString, Version } from '@choko-wallet/core/types';
+import type { HexString, SignTxType, Version } from '@choko-wallet/core/types';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
@@ -30,24 +31,27 @@ export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
 export class SignTxRequestPayload implements IPayload {
   public readonly encoded: Uint8Array;
+  public readonly signTxType: SignTxType;
   public readonly version: Version;
 
   constructor (config: {
     encoded: Uint8Array,
+    signTxType: SignTxType,
     version?: Version
   }) {
-    const { encoded } = config;
+    const { encoded, signTxType } = config;
 
     if (encoded.length >= 512) {
       throw new Error('message too long');
     }
 
     this.encoded = encoded;
+    this.signTxType = signTxType;
     this.version = config.version || CURRENT_VERSION;
   }
 
   public static serializedLength (): number {
-    return 512 + 4 + 2;
+    return 512 + 4 + 1 + 1;
   }
 
   public build (): Uint8Array {
@@ -55,7 +59,8 @@ export class SignTxRequestPayload implements IPayload {
 
     res.set(padSize(this.encoded.length), 0);
     res.set(this.encoded, 4);
-    res.set([this.version, this.version], 4 + 512);
+    res.set([this.signTxType], 4 + 512);
+    res.set([this.version], 4 + 512 + 1);
 
     return res;
   }
@@ -70,35 +75,46 @@ export class SignTxRequestPayload implements IPayload {
 
     return new SignTxRequestPayload({
       encoded: msg,
-      version: data[4 + 512]
+      signTxType: data[4 + 512],
+      version: data[4 + 512 + 1]
     });
   }
 }
 
 export class SignTxResponsePayload implements IPayload {
+  public readonly blockNumber: number;
+  public readonly gaslessTxId: Uint8Array;
   public readonly txHash: Uint8Array;
   public readonly version: Version;
 
   constructor (config: {
+    blockNumber: number,
+    gaslessTxId: Uint8Array,
     txHash: Uint8Array,
     version?: Version
   }) {
-    const { txHash } = config;
+    const { blockNumber, gaslessTxId, txHash } = config;
 
+    this.blockNumber = blockNumber;
+    this.gaslessTxId = gaslessTxId;
     this.txHash = txHash;
     this.version = config.version || CURRENT_VERSION;
   }
 
   public static serializedLength (): number {
-    return 32 + // txHash size for both substrate & ethereum
-      2; // version
+    return 4 + // blockNumber - padSize(blockNumber)
+      32 + // gassless tx id - will be 0x0 if not exist
+      32 +// txHash size for both substrate & ethereum
+      1; // version
   }
 
   public build (): Uint8Array {
     const res = new Uint8Array(SignTxResponsePayload.serializedLength());
 
-    res.set(this.txHash, 0);
-    res.set([this.version, this.version], 32);
+    res.set(padSize(this.blockNumber), 0);
+    res.set(this.gaslessTxId, 4);
+    res.set(this.txHash, 32 + 4);
+    res.set([this.version], 32 + 32 + 4);
 
     return res;
   }
@@ -109,8 +125,10 @@ export class SignTxResponsePayload implements IPayload {
     }
 
     return new SignTxResponsePayload({
-      txHash: data.slice(0, 32),
-      version: data[32]
+      blockNumber: unpadSize(data.slice(0, 4)),
+      gaslessTxId: data.slice(4, 4 + 32),
+      txHash: data.slice(32 + 4, 32 + 32 + 4),
+      version: data[32 + 32 + 4]
     });
   }
 }
@@ -333,22 +351,22 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       err = RequestError.AccountLocked;
     }
 
-    const kr = (new Keyring({
-      type: account.option.keyType
-    })).addFromUri('0x' + u8aToHex(account.privateKey));
-
     let txHash;
     const rawProvider = request.dappOrigin.activeNetwork.defaultProvider;
+    const mnemonic = entropyToMnemonic(account.entropy);
 
     if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
       const provider = new WsProvider(rawProvider);
       const api = await ApiPromise.create({ provider: provider });
 
+      // TODO: we use sr25519 by default on Polkadot
+      const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(mnemonic);
+
       txHash = await api.tx(request.payload.encoded).signAndSend(kr);
       await provider.disconnect();
     } else {
       const provider = new ethers.providers.WebSocketProvider(rawProvider);
-      const wallet = new ethers.Wallet(('0x' + u8aToHex(account.privateKey)), provider);
+      const wallet = ethers.Wallet.fromMnemonic(mnemonic);
       const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
 
       const txResponse = await wallet.sendTransaction({
@@ -356,14 +374,14 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
         data: deserializedTx.data,
         gasLimit: deserializedTx.gasLimit,
         gasPrice: await wallet.getGasPrice(),
-        nonce: await provider.getTransactionCount(kr.address),
+        nonce: await provider.getTransactionCount(wallet.address),
         to: deserializedTx.to,
         value: deserializedTx.value
       });
 
       const txHashWithHex = await txResponse.wait();
 
-      console.log(txHashWithHex);
+      console.log(txResponse);
       txHash = hexToU8a(txHashWithHex.transactionHash.substring(2));
       provider.websocket.close();
     }
@@ -372,6 +390,8 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       dappOrigin: request.dappOrigin,
       error: err,
       payload: new SignTxResponsePayload({
+        blockNumber: 0,
+        gaslessTxId: new Uint8Array(32),
         txHash: txHash
       }),
       userOrigin: request.userOrigin

@@ -90,7 +90,6 @@ export class ConnectDappResponsePayload implements IPayload {
 
 export class ConnectDappRequest implements IRequest {
   dappOrigin: IDappDescriptor;
-  userOrigin: UserAccount;
 
   type: HexString;
 
@@ -102,18 +101,12 @@ export class ConnectDappRequest implements IRequest {
   constructor (config: {
     dappOrigin: IDappDescriptor,
     payload: ConnectDappRequestPayload,
-    userOrigin: UserAccount,
 
     version?: Version
   }) {
-    const { dappOrigin, payload, userOrigin } = config;
-
-    if (!userOrigin.isLocked) {
-      throw new Error('userOrigin is not LOCKED. Aborting. ');
-    }
+    const { dappOrigin, payload } = config;
 
     this.dappOrigin = dappOrigin;
-    this.userOrigin = userOrigin;
 
     this.payload = payload;
     this.type = connectDappHash;
@@ -134,7 +127,6 @@ export class ConnectDappRequest implements IRequest {
 
   public static serializedLength (): number {
     return DappDescriptor.serializedLength() +
-      UserAccount.serializedLength() +
       ConnectDappRequestPayload.serializedLength() +
       2; // Version
   }
@@ -143,29 +135,24 @@ export class ConnectDappRequest implements IRequest {
     const res = new Uint8Array(ConnectDappRequest.serializedLength());
 
     res.set(this.dappOrigin.serialize(), 0);
-    res.set(this.userOrigin.serialize(), DappDescriptor.serializedLength());
-    res.set(this.payload.build(), DappDescriptor.serializedLength() + UserAccount.serializedLength());
+    res.set(this.payload.build(), DappDescriptor.serializedLength());
     res.set([this.version, this.version],
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() + ConnectDappRequestPayload.serializedLength());
+      DappDescriptor.serializedLength() + ConnectDappRequestPayload.serializedLength());
 
     return res;
   }
 
   public static deserialize (data: Uint8Array): ConnectDappRequest {
     const dappOrigin = DappDescriptor.deserialize(data.slice(0, DappDescriptor.serializedLength()));
-    const userOrigin = UserAccount.deserialize(data.slice(DappDescriptor.serializedLength(),
-      DappDescriptor.serializedLength() + UserAccount.serializedLength()));
     const payload = ConnectDappRequestPayload.parse(
-      data.slice(DappDescriptor.serializedLength() + UserAccount.serializedLength(),
-        DappDescriptor.serializedLength() + UserAccount.serializedLength() + ConnectDappRequestPayload.serializedLength())
+      data.slice(DappDescriptor.serializedLength(),
+        DappDescriptor.serializedLength() + ConnectDappRequestPayload.serializedLength())
     );
-    const version = data[DappDescriptor.serializedLength() + UserAccount.serializedLength() +
-        ConnectDappRequestPayload.serializedLength()];
+    const version = data[DappDescriptor.serializedLength() + ConnectDappRequestPayload.serializedLength()];
 
     return new ConnectDappRequest({
       dappOrigin: dappOrigin,
       payload: payload,
-      userOrigin: userOrigin,
       version: version
     });
   }
@@ -173,7 +160,6 @@ export class ConnectDappRequest implements IRequest {
 
 export class ConnectDappResponse implements IResponse {
   dappOrigin: IDappDescriptor;
-  userOrigin: UserAccount;
 
   type: HexString;
 
@@ -186,16 +172,14 @@ export class ConnectDappResponse implements IResponse {
 
   constructor (config: {
     dappOrigin: IDappDescriptor,
-    userOrigin: UserAccount,
 
     payload: ConnectDappResponsePayload,
     error?: RequestError,
     version?: Version
   }) {
-    const { dappOrigin, error, payload, userOrigin } = config;
+    const { dappOrigin, error, payload } = config;
 
     this.dappOrigin = dappOrigin;
-    this.userOrigin = userOrigin;
     this.payload = payload;
     this.type = connectDappHash;
     this.version = config.version || CURRENT_VERSION;
@@ -221,7 +205,6 @@ export class ConnectDappResponse implements IResponse {
 
   public static serializedLength (): number {
     return DappDescriptor.serializedLength() +
-      UserAccount.serializedLength() +
       ConnectDappResponsePayload.serializedLength() +
       RequestErrorSerializedLength + // error
       2; // Version
@@ -231,16 +214,12 @@ export class ConnectDappResponse implements IResponse {
     const res = new Uint8Array(ConnectDappResponse.serializedLength());
 
     res.set(this.dappOrigin.serialize(), 0);
-    res.set(this.userOrigin.serialize(), DappDescriptor.serializedLength());
-    res.set(this.payload.build(),
-      DappDescriptor.serializedLength() + UserAccount.serializedLength());
+    res.set(this.payload.build(), DappDescriptor.serializedLength());
 
     res.set(serializeRequestError(this.error),
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() +
-      ConnectDappResponsePayload.serializedLength());
+      DappDescriptor.serializedLength() + ConnectDappResponsePayload.serializedLength());
     res.set([this.version, this.version],
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() +
-      ConnectDappResponsePayload.serializedLength() + RequestErrorSerializedLength);
+      DappDescriptor.serializedLength() + ConnectDappResponsePayload.serializedLength() + RequestErrorSerializedLength);
 
     return res;
   }
@@ -248,31 +227,23 @@ export class ConnectDappResponse implements IResponse {
   public static deserialize (data: Uint8Array): ConnectDappResponse {
     const dappOrigin = DappDescriptor.deserialize(data.slice(0, DappDescriptor.serializedLength()));
 
-    const userOrigin = UserAccount.deserialize(data.slice(
-      DappDescriptor.serializedLength(),
-      DappDescriptor.serializedLength() + UserAccount.serializedLength()
-    ));
-
     const payload = ConnectDappResponsePayload.parse(data.slice(
-      DappDescriptor.serializedLength() + UserAccount.serializedLength(),
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() + ConnectDappResponsePayload.serializedLength()
+      DappDescriptor.serializedLength(), DappDescriptor.serializedLength() + ConnectDappResponsePayload.serializedLength()
     ));
 
     const error = deserializeRequestError(data.slice(
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() + ConnectDappResponsePayload.serializedLength(),
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() + ConnectDappResponsePayload.serializedLength() + RequestErrorSerializedLength
+      DappDescriptor.serializedLength() + ConnectDappResponsePayload.serializedLength(),
+      DappDescriptor.serializedLength() + ConnectDappResponsePayload.serializedLength() + RequestErrorSerializedLength
     ));
 
     const version = data[
-      DappDescriptor.serializedLength() + UserAccount.serializedLength() +
-      ConnectDappResponsePayload.serializedLength() + RequestErrorSerializedLength
+      DappDescriptor.serializedLength() + ConnectDappResponsePayload.serializedLength() + RequestErrorSerializedLength
     ];
 
     return new ConnectDappResponse({
       dappOrigin: dappOrigin,
       error: error,
       payload: payload,
-      userOrigin: userOrigin,
       version: version
     });
   }
@@ -308,7 +279,6 @@ export class ConnectDappDescriptor implements IRequestHandlerDescriptor {
     // Therefore, we construct another account a-fresh
     const userAccount = new UserAccount(account.option);
 
-    userAccount.publicKey = account.publicKey;
     userAccount.publicKeys = account.publicKeys;
 
     const response = new ConnectDappResponse({
@@ -316,8 +286,7 @@ export class ConnectDappDescriptor implements IRequestHandlerDescriptor {
       error: err,
       payload: new ConnectDappResponsePayload({
         userAccount: userAccount
-      }),
-      userOrigin: request.userOrigin
+      })
     });
 
     return response;
