@@ -53,149 +53,149 @@ describe('@choko-wallet/account-abstraction/contract', function () {
 //   console.log(r)
 // });
 
-//   // it('send transaction - eth transfer - not gasless', async () => {
-//   //   userAccount.unlock(seed);
-//   //   await userAccount.init();
-//   //   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
-//   //   const smartWalletAddress = await getSmartWalletAddress( provider, wallet.address, 0 );
+// it('send transaction - eth transfer - not gasless', async () => {
+//   userAccount.unlock(seed);
+//   await userAccount.init();
+//   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
+//   const smartWalletAddress = await getSmartWalletAddress( provider, wallet.address, 0 );
 
-//   //   // 1. send some tokens to contractWallet
-//   //   const transfer = await wallet.sendTransaction({
-//   //     to: smartWalletAddress,
-//   //     value: ethers.utils.parseEther("0.00001")
-//   //   });
+//   // 1. send some tokens to contractWallet
+//   const transfer = await wallet.sendTransaction({
+//     to: smartWalletAddress,
+//     value: ethers.utils.parseEther("0.00001")
+//   });
 
-//   //   await transfer.wait();
+//   await transfer.wait();
 
-//   //   const callData = callDataExecTransaction(
-//   //     provider, smartWalletAddress, userAccount,
-//   //     {
-//   //       to: '0xAA1658296e2b770fB793eb8B36E856c8210A566F',
-//   //       value: ethers.utils.parseEther('0.01'),
-//   //       data: '0x',
-//   //     },
-//   //     0
-//   //   )
+//   const callData = callDataExecTransaction(
+//     provider, smartWalletAddress, userAccount,
+//     {
+//       to: '0xAA1658296e2b770fB793eb8B36E856c8210A566F',
+//       value: ethers.utils.parseEther('0.01'),
+//       data: '0x',
+//     },
+//     0
+//   )
 
-//   //   const res = await wallet.sendTransaction({
-//   //     to: smartWalletAddress,
-//   //     data: callData,
-//   //     value: 0,
-//   //     chainId: 5
-//   //   });
+//   const res = await wallet.sendTransaction({
+//     to: smartWalletAddress,
+//     data: callData,
+//     value: 0,
+//     chainId: 5
+//   });
 
-//   //   await res.wait();
-//   //   console.log(res)
-//   // });
+//   await res.wait();
+//   console.log(res)
+// });
 
-//   // it('send transaction - eth transfer - not gasless', async () => {
-//   //   userAccount.unlock(seed);
-//   //   await userAccount.init();
-//   //   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
-//   //   const smartWalletAddress = await getSmartWalletAddress( provider, wallet.address, 0 );
+// it('send transaction - eth transfer - not gasless', async () => {
+//   userAccount.unlock(seed);
+//   await userAccount.init();
+//   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
+//   const smartWalletAddress = await getSmartWalletAddress( provider, wallet.address, 0 );
 
-//   //   const transfer = await wallet.sendTransaction({
-//   //     to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844', // DAI address
-//   //     value: 0,
-//   //     data: encodeContractCall(
-//   //       'erc20', 'transfer', [ smartWalletAddress, (10 * Math.pow(10, 18)).toString() ]
-//   //     )
-//   //   });
+//   const transfer = await wallet.sendTransaction({
+//     to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844', // DAI address
+//     value: 0,
+//     data: encodeContractCall(
+//       'erc20', 'transfer', [ smartWalletAddress, (10 * Math.pow(10, 18)).toString() ]
+//     )
+//   });
 
-//   //   await transfer.wait();
+//   await transfer.wait();
 
-//   //   const callData = callDataExecTransaction(
-//   //     provider,
+//   const callData = callDataExecTransaction(
+//     provider,
 
-//   //     smartWalletAddress,
+//     smartWalletAddress,
 
-//   //     userAccount,
+//     userAccount,
 
-//   //     {
-//   //       to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844', // DAI
-//   //       value: 0,
-//   //       data: encodeContractCall(
-//   //         'erc20', 'transfer', [ wallet.address, (9 * Math.pow(10, 18)).toString() ]
-//   //       ),
-//   //     },
-//   //     0
-//   //   )
+//     {
+//       to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844', // DAI
+//       value: 0,
+//       data: encodeContractCall(
+//         'erc20', 'transfer', [ wallet.address, (9 * Math.pow(10, 18)).toString() ]
+//       ),
+//     },
+//     0
+//   )
 
-//   //   const res = await wallet.sendTransaction({
-//   //     to: smartWalletAddress,
-//   //     data: callData,
-//   //     value: 0,
-//   //     chainId: 5
-//   //   });
+//   const res = await wallet.sendTransaction({
+//     to: smartWalletAddress,
+//     data: callData,
+//     value: 0,
+//     chainId: 5
+//   });
 
-//   //   console.log(res)
-//   // });
+//   console.log(res)
+// });
 
-//   // it('send transaction - batched - not gasless', async () => {
-//   //   userAccount.unlock(seed);
-//   //   await userAccount.init();
-//   //   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
-//   //   const smartWalletAddress = await getSmartWalletAddress( provider, wallet.address, 0 );
+// it('send transaction - batched - not gasless', async () => {
+//   userAccount.unlock(seed);
+//   await userAccount.init();
+//   const wallet = unlockedUserAccountToEthersJsWallet(userAccount, provider);
+//   const smartWalletAddress = await getSmartWalletAddress( provider, wallet.address, 0 );
 
-//   //   const callData = callDataExecTransaction(
-//   //     provider, smartWalletAddress, userAccount, {
-//   //       operation: 1, // Must include this!
-//   //       to: biconomyFixtures[5].multiSendAddress,
-//   //       value: '0x00',
-//   //       targetTxGas: 200000,
-//   //       data: callDataExecTransactionBatch([
-//   //         {
-//   //           to: wallet.address,
-//   //           value: ethers.utils.parseEther("0.001").toString(),
-//   //         },
-//   //         {
-//   //           to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
-//   //           value: ethers.utils.parseEther('0').toString(),
-//   //           data: encodeContractCall(
-//   //             'erc20', 'transfer', [ smartWalletAddress, (1 * Math.pow(10, 18)).toString() ]
-//   //           )
-//   //         },
-//   //         {
-//   //           to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
-//   //           data: encodeContractCall(
-//   //             'erc20', 'transfer', [ smartWalletAddress, (2 * Math.pow(10, 18)).toString() ]
-//   //           )
-//   //         },
-//   //         {
-//   //           to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
-//   //           data: encodeContractCall(
-//   //             'erc20', 'transfer', [ smartWalletAddress, (3 * Math.pow(10, 18)).toString() ]
-//   //           )
-//   //         }
-//   //       ]),
-//   //     }, 0
-//   //   );
+//   const callData = callDataExecTransaction(
+//     provider, smartWalletAddress, userAccount, {
+//       operation: 1, // Must include this!
+//       to: biconomyFixtures[5].multiSendAddress,
+//       value: '0x00',
+//       targetTxGas: 200000,
+//       data: callDataExecTransactionBatch([
+//         {
+//           to: wallet.address,
+//           value: ethers.utils.parseEther("0.001").toString(),
+//         },
+//         {
+//           to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+//           value: ethers.utils.parseEther('0').toString(),
+//           data: encodeContractCall(
+//             'erc20', 'transfer', [ smartWalletAddress, (1 * Math.pow(10, 18)).toString() ]
+//           )
+//         },
+//         {
+//           to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+//           data: encodeContractCall(
+//             'erc20', 'transfer', [ smartWalletAddress, (2 * Math.pow(10, 18)).toString() ]
+//           )
+//         },
+//         {
+//           to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844',
+//           data: encodeContractCall(
+//             'erc20', 'transfer', [ smartWalletAddress, (3 * Math.pow(10, 18)).toString() ]
+//           )
+//         }
+//       ]),
+//     }, 0
+//   );
 
-//   //   const res = await wallet.sendTransaction({
-//   //     to: smartWalletAddress,
-//   //     value: 0,
-//   //     gasLimit: 2000000,
-//   //     data: callData,
-//   //   });
+//   const res = await wallet.sendTransaction({
+//     to: smartWalletAddress,
+//     value: 0,
+//     gasLimit: 2000000,
+//     data: callData,
+//   });
 
-//   //   console.log(res)
-//   // });
+//   console.log(res)
+// });
 
-//   // it('send transaction - gasless', async () => {
-//   //   userAccount.unlock(seed);
-//   //   await userAccount.init();
+// it('send transaction - gasless', async () => {
+//   userAccount.unlock(seed);
+//   await userAccount.init();
 
-//   //   const gaslessTxId = await sendBiconomyTxPayload(
-//   //     provider,
-//   //     {
-//   //       to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844', // DAI
-//   //       data: encodeContractCall('erc20', 'transfer', ['0xAA1658296e2b770fB793eb8B36E856c8210A566F', 100000]),
-//   //       value: 0
-//   //     },
+//   const result = await sendBiconomyTxPayload(
+//     provider,
+//     {
+//       to: '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844', // DAI
+//       data: encodeContractCall('erc20', 'transfer', ['0xAA1658296e2b770fB793eb8B36E856c8210A566F', 100000]),
+//       value: 0
+//     },
 
-//   //     userAccount, 0, 0
-//   //   );
+//     userAccount, 0, 0
+//   );
 
-//   //   console.log(gaslessTxId)
-//   // });
+//   console.log(result)
+// });
 // });

@@ -23,7 +23,10 @@ export enum SignMessageType {
 
 export enum SignTxType {
   Ordinary,
+  AACall,
+  AACallBatch,
   Gasless,
+  GaslessBatch,
 }
 
 const CURRENT_VERSION = 0;

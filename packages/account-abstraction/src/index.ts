@@ -15,6 +15,8 @@ import { biconomyFixtures, biconomyServicesUrl } from './fixtures';
 import { BiconomyUserOperation, IWalletTransaction } from './types';
 import { getRequestId } from './util';
 
+// import { listenGaslessTxResult } from './listen';
+
 /**
  * Smart Wallet deployment
 */
@@ -227,6 +229,11 @@ const sendBiconomyTxPayload = async (
     const gaslessTxId = res.body.data.transactionId;
 
     return hexToU8a(gaslessTxId.slice(2));
+
+    // console.log(res.body.data)
+    // const [txHash, blockNumber] = await listenGaslessTxResult(gaslessTxId)
+    // return [txHash, blockNumber];
+    // return [new Uint8Array(32), 0];
   } catch (e: any) {
     console.error(e);
     throw new Error('biconomy relayer throws error - AA:sendBiconomyTxPayload');
