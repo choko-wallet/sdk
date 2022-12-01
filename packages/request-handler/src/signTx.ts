@@ -8,11 +8,12 @@ import Keyring from '@polkadot/keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { hexToU8a, padSize, sleep, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
 import { callDataExecTransaction, sendBiconomyTxPayload, unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
 import { biconomyFixtures } from '@choko-wallet/account-abstraction/fixtures';
+import { IWalletTransaction } from '@choko-wallet/account-abstraction/types';
 import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { chainIdToProvider } from '@choko-wallet/core/etherProviders';
@@ -362,7 +363,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     const mnemonic = entropyToMnemonic(account.entropy);
 
     switch (request.payload.signTxType) {
-      case SignTxType.Ordinary: {
+      case SignTxType.Ordinary:
         if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
           const provider = new WsProvider(request.dappOrigin.activeNetwork.defaultProvider);
           const api = await ApiPromise.create({ provider: provider });
@@ -379,9 +380,6 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
                   blockNumber = value.toJSON() as number;
 
                   if (result.status.isInBlock) {
-                    console.log(result.toHuman());
-                    console.log(blockNumber);
-
                     resolve([result.txHash.toU8a(), blockNumber]);
                   }
                 }).catch((e) => {
@@ -423,11 +421,10 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           }),
           userOrigin: request.userOrigin
         });
-
         break;
-      }
 
-      case SignTxType.AACall: {
+      case SignTxType.AACall:
+      case SignTxType.AACallBatch:
         if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
           throw new Error('AA transactions are only avaliable to ethereum networks');
         } else if (!biconomyFixtures[request.dappOrigin.activeNetwork.chainId]) {
@@ -442,8 +439,9 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
           const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
 
-          const tx = {
+          const tx: IWalletTransaction = {
             data: deserializedTx.data,
+            operation: request.payload.signTxType === SignTxType.AACall ? 0 : 1,
             to: deserializedTx.to,
             value: deserializedTx.value
           };
@@ -484,69 +482,9 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
         }
 
         break;
-      }
 
-      case SignTxType.AACallBatch: {
-        if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
-          throw new Error('AA transactions are only avaliable to ethereum networks');
-        } else if (!biconomyFixtures[request.dappOrigin.activeNetwork.chainId]) {
-          throw new Error('AA transaction is not avaliable to the selected network');
-        } else {
-          const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
-
-          if (!deserializedTx.gasLimit || deserializedTx.gasLimit.toNumber() === 0) {
-            throw new Error('GasLimit must be set on AA transactions');
-          }
-
-          const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
-          const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
-
-          const tx = {
-            data: deserializedTx.data,
-            to: deserializedTx.to,
-            value: deserializedTx.value,
-            operation: 1
-          };
-
-          let aaWalletAddress = account.aaWalletAddress;
-
-          if (!aaWalletAddress) {
-            await account.init();
-            aaWalletAddress = account.aaWalletAddress;
-          }
-
-          const callData = await callDataExecTransaction(
-            provider, aaWalletAddress, account, tx, 0
-          );
-
-          const txResponse = await wallet.sendTransaction({
-            data: callData,
-            gasLimit: deserializedTx.gasLimit,
-            to: aaWalletAddress,
-            value: deserializedTx.value
-          });
-
-          const txResult = await txResponse.wait();
-
-          txHash = hexToU8a(txResult.transactionHash.substring(2));
-          blockNumber = txResult.blockNumber;
-
-          response = new SignTxResponse({
-            dappOrigin: request.dappOrigin,
-            error: err,
-            payload: new SignTxResponsePayload({
-              blockNumber: blockNumber,
-              gaslessTxId: gaslessTxId,
-              txHash: txHash
-            }),
-            userOrigin: request.userOrigin
-          });
-        }
-
-        break;
-      }
-
-      case SignTxType.Gasless: {
+      case SignTxType.Gasless:
+      case SignTxType.GaslessBatch:
         if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
           throw new Error('gasless transactions are only avaliable to ethereum networks');
         } else if (!biconomyFixtures[request.dappOrigin.activeNetwork.chainId]) {
@@ -561,7 +499,8 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
 
           gaslessTxId = await sendBiconomyTxPayload(
             chainIdToProvider[request.dappOrigin.activeNetwork.chainId],
-            tx, account, 0, 0
+            tx, account, 0, 0,
+            request.payload.signTxType === SignTxType.GaslessBatch
           );
 
           response = new SignTxResponse({
@@ -576,42 +515,9 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           });
         }
 
-        break;
-      }
-
-      case SignTxType.GaslessBatch: {
-        if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
-          throw new Error('gasless transactions are only avaliable to ethereum networks');
-        } else if (!biconomyFixtures[request.dappOrigin.activeNetwork.chainId]) {
-          throw new Error('gasless transaction is not avaliable to the selected network');
-        } else {
-          const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
-          const tx = {
-            data: deserializedTx.data,
-            to: deserializedTx.to,
-            value: deserializedTx.value,
-            operation: 1
-          };
-
-          gaslessTxId = await sendBiconomyTxPayload(
-            chainIdToProvider[request.dappOrigin.activeNetwork.chainId],
-            tx, account, 0, 0
-          );
-
-          response = new SignTxResponse({
-            dappOrigin: request.dappOrigin,
-            error: err,
-            payload: new SignTxResponsePayload({
-              blockNumber: blockNumber,
-              gaslessTxId: gaslessTxId,
-              txHash: txHash
-            }),
-            userOrigin: request.userOrigin
-          });
-        }
+        await sleep(10000);
 
         break;
-      }
     }
 
     account.lock();

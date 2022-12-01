@@ -5,10 +5,10 @@ import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { hexToU8a } from '@skyekiwi/util';
 import { ethers, utils, Wallet } from 'ethers';
-import { arrayify, hexValue } from 'ethers/lib/utils';
+import { arrayify, hexValue, UnsignedTransaction } from 'ethers/lib/utils';
 import superagent from 'superagent';
 
-import { encodeContractCall, loadAbi } from '@choko-wallet/abi';
+import { encodeContractCall, encodeTransaction, loadAbi } from '@choko-wallet/abi';
 import { entropyToMnemonic, UserAccount } from '@choko-wallet/core';
 
 import { biconomyFixtures, biconomyServicesUrl } from './fixtures';
@@ -145,6 +145,18 @@ const callDataExecTransactionBatch = (
   return encodeContractCall('aa-multisend', 'multiSend', [encodedTransactions]);
 };
 
+const txEncodedBatchedTransactions = (
+  chainId: number,
+  transactions: IWalletTransaction[],
+  extra?: Partial<UnsignedTransaction>
+): string => {
+  return encodeTransaction({
+    to: biconomyFixtures[chainId].multiSendAddress,
+    data: callDataExecTransactionBatch(transactions),
+    ...extra
+  });
+};
+
 /**
  * biconomy gasless tx
  */
@@ -154,7 +166,8 @@ const sendBiconomyTxPayload = async (
   unlockedUserAccount: UserAccount,
 
   index: number,
-  batchId: number
+  batchId: number,
+  isBatchedTx: boolean
 ): Promise<Uint8Array> => {
   const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
   const eoaAddress = unlockedUserAccount.getAddress('ethereum');
@@ -163,7 +176,8 @@ const sendBiconomyTxPayload = async (
   const chainId = await getChainIdFromProvider(provider);
 
   const entryPointCallData = encodeContractCall('aa-wallet', 'execFromEntryPoint', [
-    op.to, op.value || ethers.utils.parseEther('0'), op.data, 0, 1000000
+    op.to, op.value || ethers.utils.parseEther('0'),
+    op.data, isBatchedTx ? 1 : 0, 1000000
   ]);
 
   const userOp: BiconomyUserOperation = {
@@ -211,7 +225,7 @@ const sendBiconomyTxPayload = async (
   const params = [
     hexifiedUserOp, biconomyFixtures[chainId].entryPointAddress, chainId,
     {
-      dappAPIKey: 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428'
+      dappAPIKey: 'muxP6qjQy.9b9e49ba-4268-42fe-b5fe-f16de49dc0e9'
     }
   ];
 
@@ -234,7 +248,7 @@ const sendBiconomyTxPayload = async (
     // const [txHash, blockNumber] = await listenGaslessTxResult(gaslessTxId)
     // return [txHash, blockNumber];
     // return [new Uint8Array(32), 0];
-  } catch (e: any) {
+  } catch (e) {
     console.error(e);
     throw new Error('biconomy relayer throws error - AA:sendBiconomyTxPayload');
   }
@@ -279,7 +293,7 @@ const fetchPaymasterAndData = async (userOp: BiconomyUserOperation): Promise<str
 
 export { getSmartWalletAddress };
 
-export { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch };
+export { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, txEncodedBatchedTransactions };
 
 export { sendBiconomyTxPayload };
 

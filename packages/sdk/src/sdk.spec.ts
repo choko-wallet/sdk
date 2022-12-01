@@ -28,6 +28,10 @@ const account = new UserAccount(new AccountOption({
 
 // This test needs to run inside the DOM env of Jest. Disabled by default.
 describe('@choko-wallet/sdk - request', function () {
+  afterAll(() => {
+    void provider.disconnect();
+  })
+
   it('e2e - connectDapp', () => {
     let store: InMemoryStorage = loadStorage();
 
@@ -75,8 +79,6 @@ describe('@choko-wallet/sdk - request', function () {
     const api = await ApiPromise.create({ provider: provider });
     const tx = api.tx.balances.transfer('5CQ5PxbmUkAzRnLPUkU65fZtkypqpx8MrKnAfXkSy9eiSeoM', 1);
     const encoded = hexToU8a(tx.toHex().substring(2));
-
-    await provider.disconnect();
 
     const x = buildSignTxUrl(store, encoded, SignTxType.Ordinary, 'https://localhost:3001');
 

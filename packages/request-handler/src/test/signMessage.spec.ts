@@ -33,6 +33,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const request = new SignMessageRequest({
       dappOrigin: dapp,
@@ -53,6 +54,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const response = new SignMessageResponse({
       dappOrigin: dapp,
@@ -86,6 +88,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
       account.unlock(SEED);
       await account.init();
       account.lock();
+      account.aaWalletAddress = undefined;
 
       const request = new SignMessageRequest({
         dappOrigin: new DappDescriptor({
@@ -133,6 +136,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const request = new SignMessageRequest({
       dappOrigin: new DappDescriptor({

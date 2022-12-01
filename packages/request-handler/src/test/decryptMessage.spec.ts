@@ -38,6 +38,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
       account.unlock(SEED);
       await account.init();
       account.lock();
+      account.aaWalletAddress = undefined;
 
       const request = new DecryptMessageRequest({
         dappOrigin: dapp,
@@ -65,8 +66,9 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
       account.unlock(SEED);
       await account.init();
       account.lock();
-      const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      account.aaWalletAddress = undefined;
 
+      const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       const response = new DecryptMessageResponse({
         dappOrigin: dapp,
         payload: new DecryptMessageResponsePayload({
@@ -98,6 +100,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
       account.unlock(SEED);
       await account.init();
       account.lock();
+      account.aaWalletAddress = undefined;
 
       // 1. generate an encrypted messaage
       const encrypted = AsymmetricEncryption.encryptWithCurveType(keyType as KeypairType, msg, account.publicKeys[index]);
