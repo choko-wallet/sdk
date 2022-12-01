@@ -1,11 +1,12 @@
 // Copyright 2021-2022 @choko-wallet/account-abstraction authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { UnsignedTransaction } from 'ethers';
+
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
 import { hexToU8a } from '@skyekiwi/util';
 import { ethers, utils, Wallet } from 'ethers';
-import { arrayify, hexValue, UnsignedTransaction } from 'ethers/lib/utils';
 import superagent from 'superagent';
 
 import { encodeContractCall, encodeTransaction, loadAbi } from '@choko-wallet/abi';
@@ -23,7 +24,7 @@ import { getRequestId } from './util';
 
 // get the smart wallet address for an EOA
 const getSmartWalletAddress = async (
-  provider: JsonRpcProvider, owner: string, index: number
+  provider: JsonRpcProvider, owner: string, index = 0
 ): Promise<string> => {
   const chainId = await getChainIdFromProvider(provider);
   const walletFactoryContract = new ethers.Contract(
@@ -40,7 +41,7 @@ const getSmartWalletAddress = async (
 const callDataDeployWallet = (
   chainId: number,
   eoaAddress: string,
-  index: number
+  index = 0
 ): string => {
   return encodeContractCall('aa-walletFactory', 'deployCounterFactualWallet', [
     eoaAddress, // EOA account
@@ -48,6 +49,20 @@ const callDataDeployWallet = (
     biconomyFixtures[chainId].fallbackHandlerAddress,
     index
   ]);
+};
+
+const txEncodedDeployWallet = (
+  chainId: number,
+  eoaAddress: string,
+  extra?: Partial<UnsignedTransaction>,
+  index = 0
+): string => {
+  return encodeTransaction({
+    chainId,
+    data: callDataDeployWallet(chainId, eoaAddress, index),
+    to: biconomyFixtures[chainId].walletFactoryAddress,
+    ...extra
+  });
 };
 
 /**
@@ -62,7 +77,7 @@ const callDataExecTransaction = async (
   unlockedUserAccount: UserAccount,
 
   tx: IWalletTransaction,
-  batchId: number // always 0 for now?
+  batchId = 0
 ): Promise<string> => {
   const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
   const chainId = await getChainIdFromProvider(provider);
@@ -151,6 +166,7 @@ const txEncodedBatchedTransactions = (
   extra?: Partial<UnsignedTransaction>
 ): string => {
   return encodeTransaction({
+    chainId,
     to: biconomyFixtures[chainId].multiSendAddress,
     data: callDataExecTransactionBatch(transactions),
     ...extra
@@ -201,7 +217,7 @@ const sendBiconomyTxPayload = async (
   userOp.paymasterAndData = await fetchPaymasterAndData(userOp);
 
   const hash = getRequestId(userOp, biconomyFixtures[chainId].entryPointAddress, chainId);
-  const sig = await wallet.signMessage(arrayify(hash));
+  const sig = await wallet.signMessage(utils.arrayify(hash));
 
   userOp.signature = sig;
 
@@ -216,7 +232,7 @@ const sendBiconomyTxPayload = async (
 
   const hexifiedUserOp = Object.entries(userOp).map((pair) => {
     if (typeof pair[1] !== 'string' || !pair[1].startsWith('0x')) {
-      pair[1] = hexValue(pair[1]);
+      pair[1] = utils.hexValue(pair[1]);
     }
 
     return pair;
@@ -293,7 +309,7 @@ const fetchPaymasterAndData = async (userOp: BiconomyUserOperation): Promise<str
 
 export { getSmartWalletAddress };
 
-export { callDataDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, txEncodedBatchedTransactions };
+export { callDataDeployWallet, txEncodedDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, txEncodedBatchedTransactions };
 
 export { sendBiconomyTxPayload };
 
