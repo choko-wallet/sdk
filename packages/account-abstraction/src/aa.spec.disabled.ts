@@ -14,9 +14,11 @@ import { ethers } from 'ethers';
 import { decodeTransaction, encodeContractCall } from '@choko-wallet/abi';
 import { AccountOption, UserAccount } from '@choko-wallet/core';
 
-import { callDataExecTransaction, getSmartWalletAddress, sendBiconomyTxPayload, txEncodedBatchedTransactions, txEncodedDeployWallet, unlockedUserAccountToEthersJsWallet } from '.';
+import { callDataExecTransaction, deployAAContractIfNeeded, getSmartWalletAddress, isSmartWalletDeployed, sendBiconomyTxPayload, txEncodedBatchedTransactions, txEncodedDeployWallet, unlockedUserAccountToEthersJsWallet } from '.';
 
 const seed = 'humor cook snap sunny ticket distance leaf unusual join business obey below';
+const anotherSeed = 'love cover fruit amateur only disorder exhibit injury resist jeans dinner that';
+
 const provider = new JsonRpcProvider('https://eth-goerli.g.alchemy.com/v2/70wjS92mV7V63UCiARGJFJW95dJTldV-', 'goerli');
 const userAccount = new UserAccount(new AccountOption({
   hasEncryptedPrivateKeyExported: false,
@@ -28,6 +30,31 @@ describe('@choko-wallet/account-abstraction/contract', function () {
     console.log('test');
   });
 
+  it('correct tell if AA is deployed', async () => {
+    userAccount.unlock(anotherSeed);
+    await userAccount.init();
+    await deployAAContractIfNeeded(5, userAccount);
+    console.log(userAccount.getAddress('ethereum'), userAccount.aaWalletAddress);
+    console.log(await isSmartWalletDeployed(5, userAccount.getAddress('ethereum')));
+  });
+
+  it('transfer assets before an account is deployed', async () => {
+    userAccount.unlock('glimpse choose valley wasp board amateur eight exhaust child hand verify true');
+    await userAccount.init();
+    await deployAAContractIfNeeded(5, userAccount);
+
+    // const aaWalletAddr = userAccount.aaWalletAddress;
+    // userAccount.unlock(seed);
+    // await userAccount.init();
+
+    // const wallet = unlockedUserAccountToEthersJsWallet(userAccount, chainIdToProvider[5]);
+    // const tx = await wallet.sendTransaction({
+    //   to: aaWalletAddr,
+    //   value: ethers.utils.parseEther('0.001'),
+    // });
+
+    // console.log(tx)
+  });
   it('generate address & deploy wallet', async () => {
     userAccount.unlock(seed);
     await userAccount.init();
@@ -180,7 +207,7 @@ describe('@choko-wallet/account-abstraction/contract', function () {
         value: 0
       },
 
-      userAccount, 0, 0, false
+      userAccount, false
     );
 
     await sleep(20000);
@@ -227,7 +254,7 @@ describe('@choko-wallet/account-abstraction/contract', function () {
         data: tx.data,
         to: tx.to
       },
-      userAccount, 0, 0, true
+      userAccount, true
     );
 
     await sleep(20000);

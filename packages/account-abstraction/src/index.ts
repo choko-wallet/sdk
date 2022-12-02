@@ -5,12 +5,12 @@ import type { UnsignedTransaction } from 'ethers';
 
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { hexToU8a } from '@skyekiwi/util';
+import { hexToU8a, sleep } from '@skyekiwi/util';
 import { ethers, utils, Wallet } from 'ethers';
 import superagent from 'superagent';
 
 import { encodeContractCall, encodeTransaction, loadAbi } from '@choko-wallet/abi';
-import { entropyToMnemonic, UserAccount } from '@choko-wallet/core';
+import { chainIdToProvider, entropyToMnemonic, UserAccount } from '@choko-wallet/core';
 
 import { biconomyFixtures, biconomyServicesUrl } from './fixtures';
 import { BiconomyUserOperation, IWalletTransaction } from './types';
@@ -63,6 +63,32 @@ const txEncodedDeployWallet = (
     to: biconomyFixtures[chainId].walletFactoryAddress,
     ...extra
   });
+};
+
+const isSmartWalletDeployed = async (chainId: number, eoaAddress: string): Promise<boolean> => {
+  const provider = chainIdToProvider[chainId];
+  const aaContractAddress = await getSmartWalletAddress(provider, eoaAddress);
+  const bytes = await provider.getCode(aaContractAddress);
+
+  return bytes !== '0x';
+};
+
+// returns if we have sent a deployment tx
+const deployAAContractIfNeeded = async (chainId: number, unlockedUserAccount: UserAccount): Promise<boolean> => {
+  const provider = chainIdToProvider[chainId];
+  const eoaAddress = unlockedUserAccount.getAddress('ethereum');
+
+  if (!(await isSmartWalletDeployed(chainId, eoaAddress))) {
+    await sendBiconomyTxPayload(
+      provider, {}, unlockedUserAccount, false
+    );
+
+    await sleep(10000);
+
+    return true;
+  }
+
+  return false;
 };
 
 /**
@@ -178,33 +204,43 @@ const txEncodedBatchedTransactions = (
  */
 const sendBiconomyTxPayload = async (
   provider: JsonRpcProvider,
-  op: IWalletTransaction,
+  op: Partial<IWalletTransaction>,
   unlockedUserAccount: UserAccount,
 
-  index: number,
-  batchId: number,
-  isBatchedTx: boolean
+  isBatchedTx = false,
+
+  index = 0,
+  batchId = 0
 ): Promise<Uint8Array> => {
   const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
   const eoaAddress = unlockedUserAccount.getAddress('ethereum');
   const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
-  const nonce = await fetchWalletNonce(eoaAddress, index, provider, batchId);
   const chainId = await getChainIdFromProvider(provider);
 
-  const entryPointCallData = encodeContractCall('aa-wallet', 'execFromEntryPoint', [
-    op.to, op.value || ethers.utils.parseEther('0'),
-    op.data, isBatchedTx ? 1 : 0, 1000000
-  ]);
+  let walletNonce = 0;
+  let willDeployAAContract = true;
+
+  if (!(await isSmartWalletDeployed(chainId, eoaAddress))) {
+    willDeployAAContract = true;
+    walletNonce = 0;
+  } else {
+    walletNonce = await fetchWalletNonce(eoaAddress, index, provider, batchId);
+  }
 
   const userOp: BiconomyUserOperation = {
     sender: smartWalletAddress,
-    nonce: nonce,
-    initCode: '0x',
-    callData: entryPointCallData,
+    nonce: walletNonce,
+    initCode: willDeployAAContract ? biconomyFixtures[chainId].walletFactoryAddress + callDataDeployWallet(chainId, eoaAddress).slice(2) : '0x',
+    callData: op.to
+      ? encodeContractCall('aa-wallet', 'execFromEntryPoint', [
+        op.to, op.value || ethers.utils.parseEther('0'),
+        op.data, isBatchedTx ? 1 : 0, 1000000
+      ])
+      : '0x', /* op.to should always be assigned if op is not empty */
 
     // TODO: make sense of these fee
     callGasLimit: 2000000,
-    verificationGasLimit: 100000,
+    verificationGasLimit: willDeployAAContract ? 2000000 : 100000,
     preVerificationGas: 21000,
     maxFeePerGas: 61072872608,
     maxPriorityFeePerGas: 1500000000,
@@ -307,7 +343,7 @@ const fetchPaymasterAndData = async (userOp: BiconomyUserOperation): Promise<str
   return paymasterData.body.data.paymasterAndData;
 };
 
-export { getSmartWalletAddress };
+export { getSmartWalletAddress, isSmartWalletDeployed, deployAAContractIfNeeded };
 
 export { callDataDeployWallet, txEncodedDeployWallet, callDataExecTransaction, callDataExecTransactionBatch, txEncodedBatchedTransactions };
 

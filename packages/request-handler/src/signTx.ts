@@ -496,8 +496,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
 
           gaslessTxId = await sendBiconomyTxPayload(
             chainIdToProvider[request.dappOrigin.activeNetwork.chainId],
-            tx, account, 0, 0,
-            request.payload.signTxType === SignTxType.GaslessBatch
+            tx, account, request.payload.signTxType === SignTxType.GaslessBatch
           );
 
           response = new SignTxResponse({
