@@ -6,7 +6,7 @@
 
 import type { BiconomyUserOperation } from './types';
 
-import { arrayify, defaultAbiCoder, keccak256 } from 'ethers/lib/utils';
+import { ethers } from 'ethers';
 
 // reverse "Deferrable" or "PromiseOrValue" fields
 /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -20,10 +20,10 @@ function encode (typevalues: Array<{ type: string; val: any }>, forSignature: bo
     typevalue.type === 'bytes' && forSignature ? 'bytes32' : typevalue.type
   );
   const values = typevalues.map((typevalue) =>
-    typevalue.type === 'bytes' && forSignature ? keccak256(typevalue.val) : typevalue.val
+    typevalue.type === 'bytes' && forSignature ? ethers.utils.keccak256(typevalue.val) : typevalue.val
   );
 
-  return defaultAbiCoder.encode(types, values);
+  return ethers.utils.defaultAbiCoder.encode(types, values);
 }
 
 export function packUserOp (op: NotPromise<BiconomyUserOperation>, forSignature = true): string {
@@ -46,7 +46,7 @@ export function packUserOp (op: NotPromise<BiconomyUserOperation>, forSignature 
       name: 'userOp',
       type: 'tuple'
     };
-    let encoded = defaultAbiCoder.encode([userOpType as any], [{ ...op, signature: '0x' }]);
+    let encoded = ethers.utils.defaultAbiCoder.encode([userOpType as any], [{ ...op, signature: '0x' }]);
 
     // remove leading word (total length) and trailing word (zero-length signature)
     encoded = '0x' + encoded.slice(66, encoded.length - 64);
@@ -80,13 +80,13 @@ export function getRequestId (
   entryPoint: string,
   chainId: number
 ): string {
-  const userOpHash = keccak256(packUserOp(op, true));
-  const enc = defaultAbiCoder.encode(
+  const userOpHash = ethers.utils.keccak256(packUserOp(op, true));
+  const enc = ethers.utils.defaultAbiCoder.encode(
     ['bytes32', 'address', 'uint256'],
     [userOpHash, entryPoint, chainId]
   );
 
-  return keccak256(enc);
+  return ethers.utils.keccak256(enc);
 }
 
 export function getRequestIdForSigning (
@@ -94,5 +94,5 @@ export function getRequestIdForSigning (
   entryPoint: string,
   chainId: number
 ): Uint8Array {
-  return arrayify(getRequestId(op, entryPoint, chainId));
+  return ethers.utils.arrayify(getRequestId(op, entryPoint, chainId));
 }

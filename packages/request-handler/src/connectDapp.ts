@@ -6,10 +6,8 @@ import type { HexString, Version } from '@choko-wallet/core/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { u8aToHex } from '@skyekiwi/util';
 
-import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
-import { DappDescriptor } from '@choko-wallet/core/dapp';
+import { DappDescriptor, deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
-import { xxHash } from '@choko-wallet/core/util';
 
 export const connectDappHash: HexString = u8aToHex(xxHash('connectDapp'));
 

@@ -1,15 +1,16 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { HexString, Version } from '@choko-wallet/core/types';
+
 import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
-import { CURRENT_VERSION, HexString, SignMessageType, Version } from '@choko-wallet/core/types';
-import { xxHash } from '@choko-wallet/core/util';
+import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
+import { CURRENT_VERSION, SignMessageType } from '@choko-wallet/core/types';
 
 export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
 

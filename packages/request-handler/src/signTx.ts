@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
+import type { IWalletTransaction } from '@choko-wallet/account-abstraction/types';
+import type { HexString, Version } from '@choko-wallet/core/types';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import Keyring from '@polkadot/keyring';
@@ -11,14 +13,9 @@ import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { hexToU8a, padSize, sleep, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { callDataExecTransaction, sendBiconomyTxPayload, unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
-import { biconomyFixtures } from '@choko-wallet/account-abstraction/fixtures';
-import { IWalletTransaction } from '@choko-wallet/account-abstraction/types';
-import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
-import { DappDescriptor } from '@choko-wallet/core/dapp';
-import { chainIdToProvider } from '@choko-wallet/core/etherProviders';
-import { CURRENT_VERSION, HexString, SignTxType, Version } from '@choko-wallet/core/types';
-import { xxHash } from '@choko-wallet/core/util';
+import { biconomyFixtures, callDataExecTransaction, sendBiconomyTxPayload, unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
+import { chainIdToProvider, DappDescriptor, deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
+import { CURRENT_VERSION, SignTxType } from '@choko-wallet/core/types';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 

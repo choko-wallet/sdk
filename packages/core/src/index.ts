@@ -7,8 +7,10 @@ import { IUserAccount, UserAccount } from './account';
 import { AccountOption, IAccountOption } from './accountOption';
 import { DappDescriptor, IDappDescriptor } from './dapp';
 import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
+import { chainIdToProvider } from './etherProviders';
 import { INetwork, KnownNetworks, Network } from './network';
 import { IPayload, IRequest, IRequestHandlerDescriptor, IResponse } from './requestHandler';
+import { compressParameters, decompressParameters, keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from './util';
 
 export type {
   IUserAccount, IAccountOption,
@@ -26,5 +28,9 @@ export {
 
   RequestError, RequestErrorSerializedLength, mapRequestErrorToString, serializeRequestError, deserializeRequestError,
 
-  entropyToMnemonic // re-export
+  entropyToMnemonic, // re-export
+
+  chainIdToProvider,
+
+  keypairTypeNumberToString, keypairTypeStringToNumber, xxHash, compressParameters, decompressParameters
 };

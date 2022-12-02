@@ -315,3 +315,5 @@ export { sendBiconomyTxPayload };
 
 export { getChainIdFromProvider, unlockedUserAccountToEthersJsWallet, fetchWalletNonce };
 // not exported fetchPaymasterAndData
+
+export { biconomyFixtures, biconomyServicesUrl };

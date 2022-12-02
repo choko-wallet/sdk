@@ -9,9 +9,8 @@ import { AsymmetricEncryption } from '@skyekiwi/crypto';
 import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
+import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, keypairTypeNumberToString, keypairTypeStringToNumber, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
-import { keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from '@choko-wallet/core/util';
 
 export const decryptMessageHash: HexString = u8aToHex(xxHash('decryptMessage'));
 
