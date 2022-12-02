@@ -39,6 +39,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const response = new ConnectDappResponse({
       dappOrigin: dapp,
@@ -70,6 +71,7 @@ describe('@choko-wallet/request-handler - connectDapp', function () {
 
     account.unlock(SEED);
     await account.init();
+    account.aaWalletAddress = undefined;
 
     const response = await connectDapp.requestHandler(request, account);
 

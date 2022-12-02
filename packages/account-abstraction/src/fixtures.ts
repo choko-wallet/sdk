@@ -43,6 +43,7 @@ const biconomyFixtures: BiconomyFixture = {
 };
 
 const biconomyServicesUrl = {
+  biconomyGaslessTxListener: 'wss://sdk-ws.prod.biconomy.io/connection/websocket',
   biconomyRelayService: 'https://sdk-relayer.prod.biconomy.io/api/v1/relay',
   biconomySigningService: 'https://us-central1-biconomy-staging.cloudfunctions.net/signing-service'
 };

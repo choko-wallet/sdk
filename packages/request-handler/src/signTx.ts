@@ -1,24 +1,28 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { HexString, SignTxType, Version } from '@choko-wallet/core/types';
+import type { SubmittableExtrinsic } from '@polkadot/api/promise/types';
 
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import Keyring from '@polkadot/keyring';
+import { KeyringPair } from '@polkadot/keyring/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { hexToU8a, padSize, sleep, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
+import { callDataExecTransaction, sendBiconomyTxPayload, unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
+import { biconomyFixtures } from '@choko-wallet/account-abstraction/fixtures';
+import { IWalletTransaction } from '@choko-wallet/account-abstraction/types';
 import { deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
-import { CURRENT_VERSION } from '@choko-wallet/core/types';
+import { chainIdToProvider } from '@choko-wallet/core/etherProviders';
+import { CURRENT_VERSION, HexString, SignTxType, Version } from '@choko-wallet/core/types';
 import { xxHash } from '@choko-wallet/core/util';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
 
 /**
- * @Experimental Limited support on Ethereum-style networks
  *
  * @Request the encoded transaction to be signed and sent
  * @param {Uint8Array} encoded the encoded transaction, MAX LENGTH: 512
@@ -41,7 +45,7 @@ export class SignTxRequestPayload implements IPayload {
   }) {
     const { encoded, signTxType } = config;
 
-    if (encoded.length >= 512) {
+    if (encoded.length >= 2048) {
       throw new Error('message too long');
     }
 
@@ -51,7 +55,7 @@ export class SignTxRequestPayload implements IPayload {
   }
 
   public static serializedLength (): number {
-    return 512 + 4 + 1 + 1;
+    return 2048 + 4 + 1 + 1;
   }
 
   public build (): Uint8Array {
@@ -59,8 +63,8 @@ export class SignTxRequestPayload implements IPayload {
 
     res.set(padSize(this.encoded.length), 0);
     res.set(this.encoded, 4);
-    res.set([this.signTxType], 4 + 512);
-    res.set([this.version], 4 + 512 + 1);
+    res.set([this.signTxType], 4 + 2048);
+    res.set([this.version], 4 + 2048 + 1);
 
     return res;
   }
@@ -75,8 +79,8 @@ export class SignTxRequestPayload implements IPayload {
 
     return new SignTxRequestPayload({
       encoded: msg,
-      signTxType: data[4 + 512],
-      version: data[4 + 512 + 1]
+      signTxType: data[4 + 2048],
+      version: data[4 + 2048 + 1]
     });
   }
 }
@@ -351,51 +355,172 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
       err = RequestError.AccountLocked;
     }
 
-    let txHash;
-    const rawProvider = request.dappOrigin.activeNetwork.defaultProvider;
+    let txHash: Uint8Array = new Uint8Array(32);
+    let blockNumber = 0;
+    let gaslessTxId: Uint8Array = new Uint8Array(32);
+    let response: SignTxResponse;
+
     const mnemonic = entropyToMnemonic(account.entropy);
 
-    if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
-      const provider = new WsProvider(rawProvider);
-      const api = await ApiPromise.create({ provider: provider });
+    switch (request.payload.signTxType) {
+      case SignTxType.Ordinary:
+        if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
+          const provider = new WsProvider(request.dappOrigin.activeNetwork.defaultProvider);
+          const api = await ApiPromise.create({ provider: provider });
 
-      // TODO: we use sr25519 by default on Polkadot
-      const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(mnemonic);
+          // TODO: we use sr25519 by default on Polkadot
+          const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(mnemonic);
 
-      txHash = await api.tx(request.payload.encoded).signAndSend(kr);
-      await provider.disconnect();
-    } else {
-      const provider = new ethers.providers.WebSocketProvider(rawProvider);
-      const wallet = ethers.Wallet.fromMnemonic(mnemonic);
-      const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
+          const sendTx = (ext: SubmittableExtrinsic, kr: KeyringPair): Promise<[Uint8Array, number]> => {
+            let blockNumber = 0;
 
-      const txResponse = await wallet.sendTransaction({
-        chainId: deserializedTx.chainId,
-        data: deserializedTx.data,
-        gasLimit: deserializedTx.gasLimit,
-        gasPrice: await wallet.getGasPrice(),
-        nonce: await provider.getTransactionCount(wallet.address),
-        to: deserializedTx.to,
-        value: deserializedTx.value
-      });
+            return new Promise((resolve, reject) => {
+              ext.signAndSend(kr, (result) => {
+                api.query.system.number().then((value) => {
+                  blockNumber = value.toJSON() as number;
 
-      const txHashWithHex = await txResponse.wait();
+                  if (result.status.isInBlock) {
+                    resolve([result.txHash.toU8a(), blockNumber]);
+                  }
+                }).catch((e) => {
+                  console.log(e);
+                });
+              }).catch((e) => {
+                console.log(e);
+                resolve([new Uint8Array(32), 0]);
+              });
+            });
+          };
 
-      console.log(txResponse);
-      txHash = hexToU8a(txHashWithHex.transactionHash.substring(2));
-      provider.websocket.close();
+          [txHash, blockNumber] = await sendTx(api.tx(request.payload.encoded), kr);
+          await provider.disconnect();
+        } else {
+          const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
+          const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
+
+          const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
+          const txResponse = await wallet.sendTransaction({
+            data: deserializedTx.data,
+            to: deserializedTx.to,
+            value: deserializedTx.value
+          });
+
+          const txResult = await txResponse.wait();
+
+          txHash = hexToU8a(txResult.transactionHash.substring(2));
+          blockNumber = txResult.blockNumber;
+        }
+
+        response = new SignTxResponse({
+          dappOrigin: request.dappOrigin,
+          error: err,
+          payload: new SignTxResponsePayload({
+            blockNumber: blockNumber,
+            gaslessTxId: new Uint8Array(32),
+            txHash: txHash
+          }),
+          userOrigin: request.userOrigin
+        });
+        break;
+
+      case SignTxType.AACall:
+      case SignTxType.AACallBatch:
+        if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
+          throw new Error('AA transactions are only avaliable to ethereum networks');
+        } else if (!biconomyFixtures[request.dappOrigin.activeNetwork.chainId]) {
+          throw new Error('AA transaction is not avaliable to the selected network');
+        } else {
+          const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
+
+          if (!deserializedTx.gasLimit || deserializedTx.gasLimit.toNumber() === 0) {
+            throw new Error('GasLimit must be set on AA transactions');
+          }
+
+          const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
+          const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
+
+          const tx: IWalletTransaction = {
+            data: deserializedTx.data,
+            operation: request.payload.signTxType === SignTxType.AACall ? 0 : 1,
+            to: deserializedTx.to,
+            value: deserializedTx.value
+          };
+
+          let aaWalletAddress = account.aaWalletAddress;
+
+          if (!aaWalletAddress) {
+            await account.init();
+            aaWalletAddress = account.aaWalletAddress;
+          }
+
+          const callData = await callDataExecTransaction(
+            provider, aaWalletAddress, account, tx, 0
+          );
+
+          const txResponse = await wallet.sendTransaction({
+            data: callData,
+            gasLimit: deserializedTx.gasLimit,
+            to: aaWalletAddress,
+            value: deserializedTx.value
+          });
+
+          const txResult = await txResponse.wait();
+
+          txHash = hexToU8a(txResult.transactionHash.substring(2));
+          blockNumber = txResult.blockNumber;
+
+          response = new SignTxResponse({
+            dappOrigin: request.dappOrigin,
+            error: err,
+            payload: new SignTxResponsePayload({
+              blockNumber: blockNumber,
+              gaslessTxId: gaslessTxId,
+              txHash: txHash
+            }),
+            userOrigin: request.userOrigin
+          });
+        }
+
+        break;
+
+      case SignTxType.Gasless:
+      case SignTxType.GaslessBatch:
+        if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
+          throw new Error('gasless transactions are only avaliable to ethereum networks');
+        } else if (!biconomyFixtures[request.dappOrigin.activeNetwork.chainId]) {
+          throw new Error('gasless transaction is not avaliable to the selected network');
+        } else {
+          const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
+          const tx = {
+            data: deserializedTx.data,
+            to: deserializedTx.to,
+            value: deserializedTx.value
+          };
+
+          gaslessTxId = await sendBiconomyTxPayload(
+            chainIdToProvider[request.dappOrigin.activeNetwork.chainId],
+            tx, account, 0, 0,
+            request.payload.signTxType === SignTxType.GaslessBatch
+          );
+
+          response = new SignTxResponse({
+            dappOrigin: request.dappOrigin,
+            error: err,
+            payload: new SignTxResponsePayload({
+              blockNumber: blockNumber,
+              gaslessTxId: gaslessTxId,
+              txHash: txHash
+            }),
+            userOrigin: request.userOrigin
+          });
+        }
+
+        await sleep(10000);
+
+        break;
     }
 
-    const response = new SignTxResponse({
-      dappOrigin: request.dappOrigin,
-      error: err,
-      payload: new SignTxResponsePayload({
-        blockNumber: 0,
-        gaslessTxId: new Uint8Array(32),
-        txHash: txHash
-      }),
-      userOrigin: request.userOrigin
-    });
+    account.lock();
 
     return response;
   }

@@ -24,10 +24,6 @@ const getPolkadotEncodedTx = async (): Promise<Uint8Array> => {
   return hexToU8a(tx.toHex().substring(2));
 };
 
-// const getEthereumEncodedTx = () => {
-
-// }
-
 describe('@choko-wallet/request-handler - signTx', function () {
   const account = new UserAccount(new AccountOption({
     hasEncryptedPrivateKeyExported: false,
@@ -51,6 +47,8 @@ describe('@choko-wallet/request-handler - signTx', function () {
     await account.init();
     account.lock();
 
+    account.aaWalletAddress = undefined;
+
     const encoded = await getPolkadotEncodedTx();
     const request = new SignTxRequest({
       dappOrigin: dapp,
@@ -73,6 +71,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const response = new SignTxResponse({
       dappOrigin: dapp,
@@ -102,6 +101,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
     account.unlock(SEED);
     await account.init();
     account.lock();
+    account.aaWalletAddress = undefined;
 
     const request = new SignTxRequest({
       dappOrigin: new DappDescriptor({
@@ -126,7 +126,7 @@ describe('@choko-wallet/request-handler - signTx', function () {
 
     const response = await signTx.requestHandler(request, account);
 
-    // console.log(response);
+    console.log(response.serialize());
 
     expect(response.isSuccessful).toBe(true);
   });
