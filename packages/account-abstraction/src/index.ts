@@ -217,20 +217,17 @@ const sendBiconomyTxPayload = async (
   const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
   const chainId = await getChainIdFromProvider(provider);
 
-  let walletNonce = 0;
-  let willDeployAAContract = true;
-
-  if (!(await isSmartWalletDeployed(chainId, eoaAddress))) {
-    willDeployAAContract = true;
-    walletNonce = 0;
-  } else {
-    walletNonce = await fetchWalletNonce(eoaAddress, index, provider, batchId);
-  }
+  console.log(eoaAddress, smartWalletAddress, (await isSmartWalletDeployed(chainId, eoaAddress)));
+  const isContractDeployed = await isSmartWalletDeployed(chainId, eoaAddress);
 
   const userOp: BiconomyUserOperation = {
     sender: smartWalletAddress,
-    nonce: walletNonce,
-    initCode: willDeployAAContract ? biconomyFixtures[chainId].walletFactoryAddress + callDataDeployWallet(chainId, eoaAddress).slice(2) : '0x',
+    nonce: isContractDeployed
+      ? await fetchWalletNonce(eoaAddress, index, provider, batchId)
+      : 0,
+    initCode: isContractDeployed
+      ? '0x'
+      : biconomyFixtures[chainId].walletFactoryAddress + callDataDeployWallet(chainId, eoaAddress).slice(2),
     callData: op.to
       ? encodeContractCall('aa-wallet', 'execFromEntryPoint', [
         op.to, op.value || ethers.utils.parseEther('0'),
@@ -240,7 +237,9 @@ const sendBiconomyTxPayload = async (
 
     // TODO: make sense of these fee
     callGasLimit: 2000000,
-    verificationGasLimit: willDeployAAContract ? 2000000 : 100000,
+    verificationGasLimit: isContractDeployed
+      ? 100000
+      : 2000000,
     preVerificationGas: 21000,
     maxFeePerGas: 61072872608,
     maxPriorityFeePerGas: 1500000000,
@@ -257,6 +256,7 @@ const sendBiconomyTxPayload = async (
 
   userOp.signature = sig;
 
+  console.log(userOp);
   // The below code block is used to send the payload directly
   // const calldata = encodeContractCall('aa-entryPoint', 'handleOps', [[userOp], wallet.address]);
   // const res = await wallet.sendTransaction({
