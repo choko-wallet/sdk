@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/abi",
-  "version": "0.1.8-17",
+  "version": "0.1.8-18",
   "type": "module",
   "description": "common abi used by choko wallet",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.8-17",
+    "@choko-wallet/core": "0.1.8-18",
     "ethers": "^5.7.2"
   }
 }
