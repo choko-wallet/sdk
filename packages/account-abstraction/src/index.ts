@@ -217,9 +217,7 @@ const sendBiconomyTxPayload = async (
   const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
   const chainId = await getChainIdFromProvider(provider);
 
-  console.log(eoaAddress, smartWalletAddress, (await isSmartWalletDeployed(chainId, eoaAddress)));
   const isContractDeployed = await isSmartWalletDeployed(chainId, eoaAddress);
-
   const userOp: BiconomyUserOperation = {
     sender: smartWalletAddress,
     nonce: isContractDeployed
@@ -235,7 +233,7 @@ const sendBiconomyTxPayload = async (
       ])
       : '0x', /* op.to should always be assigned if op is not empty */
 
-    // TODO: make sense of these fee
+    // TODO: allow customize these fees?
     callGasLimit: 2000000,
     verificationGasLimit: isContractDeployed
       ? 100000
@@ -256,7 +254,6 @@ const sendBiconomyTxPayload = async (
 
   userOp.signature = sig;
 
-  console.log(userOp);
   // The below code block is used to send the payload directly
   // const calldata = encodeContractCall('aa-entryPoint', 'handleOps', [[userOp], wallet.address]);
   // const res = await wallet.sendTransaction({

@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/sdk",
-  "version": "0.1.8-17",
+  "version": "0.1.9",
   "type": "module",
   "description": "core wallet sdk used by choko-wallet",
   "main": "index.js",
@@ -20,6 +20,6 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.8-17"
+    "@choko-wallet/core": "0.1.9"
   }
 }

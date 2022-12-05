@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/account-abstraction",
-  "version": "0.1.8-17",
+  "version": "0.1.9",
   "type": "module",
   "description": "account abstraction utility used by Choko Wallet",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/skyekiwi/choko-wallet-nexet "
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.8-17",
+    "@choko-wallet/core": "0.1.9",
     "@skyekiwi/util": "^1.0.1",
     "ethers": "^5.7.2",
     "isomorphic-ws": "^5.0.0",
