@@ -10,6 +10,7 @@ module.exports = Object.assign({}, config, {
     '@choko-wallet/core(.*)$': '<rootDir>/packages/core/src/$1',
     '@choko-wallet/frontend(.*)$': '<rootDir>/packages/frontend/$1',
     '@choko-wallet/known-networks(.*)$': '<rootDir>/packages/known-networks/src/$1',
+    '@choko-wallet/mpc(.*)$': '<rootDir>/packages/mpc/src/$1',
     '@choko-wallet/request-handler(.*)$': '<rootDir>/packages/request-handler/src/$1',
     '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1'
   },
@@ -19,6 +20,7 @@ module.exports = Object.assign({}, config, {
     '<rootDir>/packages/core/build',
     '<rootDir>/packages/frontend/build',
     '<rootDir>/packages/known-networks/build',
+    '<rootDir>/packages/mpc/build',
     '<rootDir>/packages/request-handler/build',
     '<rootDir>/packages/sdk/build'
   ],

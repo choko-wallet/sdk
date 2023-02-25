@@ -1,5 +1,5 @@
 {
-  "repository": "https://github.com/skyekiwi/choko-wallet-next",
+  "repository": "https://github.com/choko-wallet/sdk",
   "author": "Choko Wallet <contact@choko.app>",
   "license": "Apache-2",
   "private": true,

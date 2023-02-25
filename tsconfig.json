@@ -18,6 +18,8 @@
       "@choko-wallet/frontend/*": [ "packages/frontend/*" ],
       "@choko-wallet/known-networks": [ "packages/known-networks/src" ],
       "@choko-wallet/known-networks/*": [ "packages/known-networks/src/*" ],
+      "@choko-wallet/mpc": [ "packages/mpc/src" ],
+      "@choko-wallet/mpc/*": [ "packages/mpc/src/*" ],
       "@choko-wallet/request-handler": [ "packages/request-handler/src" ],
       "@choko-wallet/request-handler/*": [ "packages/request-handler/src/*" ],
       "@choko-wallet/sdk": [ "packages/sdk/src" ],

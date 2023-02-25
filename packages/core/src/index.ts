@@ -4,7 +4,7 @@
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 
 import { IUserAccount, UserAccount } from './account';
-import { AccountOption, IAccountOption } from './accountOption';
+import { AccountOption, defaultAccountOption, IAccountOption } from './accountOption';
 import { DappDescriptor, IDappDescriptor } from './dapp';
 import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
 import { chainIdToProvider } from './etherProviders';
@@ -20,7 +20,7 @@ export type {
 };
 
 export {
-  UserAccount, AccountOption,
+  UserAccount, AccountOption, defaultAccountOption,
 
   DappDescriptor,
 
