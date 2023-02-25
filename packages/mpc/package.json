@@ -20,8 +20,8 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
+    "@choko-wallet/core": "0.1.10-0",
     "@skyekiwi/util": "1.0.2-5",
-    "tweetnacl": "^1.0.3",
-    "@choko-wallet/core": "0.1.10-0"
+    "tweetnacl": "^1.0.3"
   }
 }
