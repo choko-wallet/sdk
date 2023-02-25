@@ -17,7 +17,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skyekiwi/choko-wallet-nexet "
+    "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.10-0"

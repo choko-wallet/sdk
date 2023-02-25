@@ -30,7 +30,7 @@ export class AccountOption implements IAccountOption {
      * @returns {boolean} the validity of the AccountOption
     */
   public validate (): boolean {
-    return this.localKeyEncryptionStrategy > 0 || this.localKeyEncryptionStrategy < 2;
+    return this.localKeyEncryptionStrategy > 0 || this.localKeyEncryptionStrategy < 3;
   }
 
   /**
@@ -78,3 +78,8 @@ export class AccountOption implements IAccountOption {
     });
   }
 }
+
+export const defaultAccountOption = new AccountOption({
+  hasEncryptedPrivateKeyExported: false,
+  localKeyEncryptionStrategy: 0
+});
