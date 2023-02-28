@@ -1,4 +1,4 @@
-// [object Object]
+// Copyright 2021-2022 @choko-wallet/auth-client authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { blake2s } from '@noble/hashes/blake2s';
@@ -6,26 +6,28 @@ import { u8aToHex } from '@skyekiwi/util';
 import superagent from 'superagent';
 
 import { AUTH_SERVER_URL } from './config';
-import { GAAuthValidateRequest } from './types';
+import { Certificate, GAAuthValidateRequest, ICertificate } from './types';
 
-export async function initProofOfOwnership () {
-  const gaToken = await superagent.post(`${AUTH_SERVER_URL}/auth/ga/init`);
+export async function initProofOfOwnership (): Promise<string> {
+  const res = await superagent.post(`${AUTH_SERVER_URL}/auth/ga/init`);
 
-  return gaToken;
+  return res.text;
 }
 
-export async function validateProofOfOwnership (gaToken: string, code: Uint8Array) {
+export async function validateProofOfOwnership (gaToken: string, code: Uint8Array): Promise<Certificate> {
   const gaHash = u8aToHex(blake2s(gaToken));
   const codeHex = u8aToHex(code);
 
-  const certificate = await superagent
+  const certificateString = await superagent
     .post(`${AUTH_SERVER_URL}/auth/ga/validate`)
     .send({
-      ga_hash: gaHash,
       code: codeHex,
+      ga_hash: gaHash,
       time: 0
     } as GAAuthValidateRequest)
     .accept('json');
 
-  return certificate;
+  const certificate = JSON.parse(certificateString.text) as ICertificate;
+
+  return new Certificate(certificate);
 }

@@ -8,31 +8,31 @@ export interface EmailAuthInitRequest {
 }
 
 export interface EmailAuthValidate {
-  email_hash: string,
+  email_hash: string, // eslint-disable-line
   code: string,
 }
 
 export interface GAAuthValidateRequest {
-  ga_hash: string,
+  ga_hash: string, // eslint-disable-line
   code: string,
   time: number
 }
 
 export interface OAuthAuthValidate {
-  provider: string,
   email: string,
+  provider: string,
   token: string
 }
 
 export interface UsageLinkRequest {
-  keygen_id: string,
-  ownership_proof: string
+  keygen_id: string,      // eslint-disable-line
+  ownership_proof: string // eslint-disable-line
 }
 
 export interface UsageValidateRequest {
-  keygen_id: string,
-  credential_hash: string,
-  usage_certification: string
+  keygen_id: string,          // eslint-disable-line
+  credential_hash: string,    // eslint-disable-line
+  usage_certification: string // eslint-disable-line
 }
 
 export interface ICertificate {
@@ -56,7 +56,7 @@ export class Certificate implements ICertificate {
     });
   }
 
-  public validate(): boolean {
+  public validate (): boolean {
     return true;
   }
 }

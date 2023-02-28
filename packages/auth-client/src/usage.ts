@@ -1,35 +1,44 @@
-// [object Object]
+// Copyright 2021-2022 @choko-wallet/auth-client authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { u8aToHex } from '@skyekiwi/util';
 import superagent from 'superagent';
 
 import { AUTH_SERVER_URL } from './config';
-import { Certificate } from './types';
+import { Certificate, ICertificate } from './types';
 
-export async function linkUsage (keygen_id: Uint8Array, ownership_proof: Certificate) {
-  if (keygen_id.length !== 32) {
+export async function linkUsage (
+  keygenId: Uint8Array,
+  ownershipProof: Certificate
+): Promise<string> {
+  if (keygenId.length !== 32) { // eslint-disable-line
     throw new Error('invalid keygen_id length');
   }
 
-  const certification =
+  const res =
         await superagent.post(`${AUTH_SERVER_URL}/usage/link`)
           .send({
-            keygen_id: u8aToHex(keygen_id),
-            ownership_proof: ownership_proof.serialize()
+            keygen_id: u8aToHex(keygenId),               // eslint-disable-line
+            ownership_proof: ownershipProof.serialize()  // eslint-disable-line
           }).accept('json');
 
-  return certification;
+  return res.text;
 }
 
-export async function validateUsage (keygen_id: Uint8Array, credential_hash: Uint8Array, usage_certification: Certificate) {
-  const certificate =
+export async function validateUsage (
+  keygenId: Uint8Array,
+  credentialHash: Uint8Array,
+  usageCertification: Certificate
+): Promise<Certificate> {
+  const certificateString =
         await superagent.post(`${AUTH_SERVER_URL}/usage/validate`)
           .send({
-            keygen_id: u8aToHex(keygen_id),
-            credential_hash: u8aToHex(credential_hash),
-            usage_certification: usage_certification.serialize()
+            keygen_id: u8aToHex(keygenId),                       // eslint-disable-line
+            credential_hash: u8aToHex(credentialHash),           // eslint-disable-line
+            usage_certification: usageCertification.serialize()  // eslint-disable-line
           }).accept('json');
 
-  return certificate;
+  const certificate = JSON.parse(certificateString.text) as ICertificate;
+
+  return new Certificate(certificate);
 }

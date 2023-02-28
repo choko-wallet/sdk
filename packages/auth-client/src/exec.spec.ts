@@ -10,8 +10,9 @@ describe('auth-client/email', () => {
 
     console.log(res);
 
-    const res2 = await validateProofOfOwnership("test@skye.kiwi", new Uint8Array([9,2,0,5,2,1]));
-    console.log(res2)
+    const res2 = await validateProofOfOwnership('test@skye.kiwi', new Uint8Array([9, 2, 0, 5, 2, 1]));
+
+    console.log(res2);
   });
 });
 
