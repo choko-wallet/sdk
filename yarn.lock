@@ -4148,6 +4148,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"auth-client@workspace:packages/auth-client":
+  version: 0.0.0-use.local
+  resolution: "auth-client@workspace:packages/auth-client"
+  dependencies:
+    blakejs: ^1.2.1
+    superagent: ^8.0.9
+  languageName: unknown
+  linkType: soft
+
 "available-typed-arrays@npm:^1.0.5":
   version: 1.0.5
   resolution: "available-typed-arrays@npm:1.0.5"
@@ -4397,6 +4406,13 @@ __metadata:
     inherits: ^2.0.4
     readable-stream: ^3.4.0
   checksum: 9e8521fa7e83aa9427c6f8ccdcba6e8167ef30cc9a22df26effcc5ab682ef91d2cbc23a239f945d099289e4bbcfae7a192e9c28c84c6202e710a0dfec3722662
+  languageName: node
+  linkType: hard
+
+"blakejs@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "blakejs@npm:1.2.1"
+  checksum: d699ba116cfa21d0b01d12014a03e484dd76d483133e6dc9eb415aa70a119f08beb3bcefb8c71840106a00b542cba77383f8be60cd1f0d4589cb8afb922eefbe
   languageName: node
   linkType: hard
 
@@ -11117,7 +11133,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"superagent@npm:^8.0.4":
+"superagent@npm:^8.0.4, superagent@npm:^8.0.9":
   version: 8.0.9
   resolution: "superagent@npm:8.0.9"
   dependencies:

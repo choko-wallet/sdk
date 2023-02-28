@@ -12,7 +12,8 @@ module.exports = Object.assign({}, config, {
     '@choko-wallet/known-networks(.*)$': '<rootDir>/packages/known-networks/src/$1',
     '@choko-wallet/mpc(.*)$': '<rootDir>/packages/mpc/src/$1',
     '@choko-wallet/request-handler(.*)$': '<rootDir>/packages/request-handler/src/$1',
-    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1'
+    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1',
+    '@choko-wallet/auth-client(.*)$': '<rootDir>/packages/auth-client/src/$1'
   },
   modulePathIgnorePatterns: [
     '<rootDir>/packages/abi/build',
@@ -22,7 +23,8 @@ module.exports = Object.assign({}, config, {
     '<rootDir>/packages/known-networks/build',
     '<rootDir>/packages/mpc/build',
     '<rootDir>/packages/request-handler/build',
-    '<rootDir>/packages/sdk/build'
+    '<rootDir>/packages/sdk/build',
+    '<rootDir>/packages/auth-client/build'
   ],
   testTimeout: 3_000_000,
   transformIgnorePatterns: [
