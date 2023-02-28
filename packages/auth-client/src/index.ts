@@ -1,7 +1,10 @@
-export { initProofOfOwnership as initEmailProofOfOwnership, validateProofOfOwnership as validateEmailProofOfOwnership } from './email'
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
 
-export { initProofOfOwnership as initGAProofOfOwnership, validateProofOfOwnership as validateGAProofOfOwnership } from './ga'
+export { initProofOfOwnership as initEmailProofOfOwnership, validateProofOfOwnership as validateEmailProofOfOwnership } from './email';
 
-export { validateProofOfOwnership as validateOAuthProofOfOwnership } from './oauth'
+export { initProofOfOwnership as initGAProofOfOwnership, validateProofOfOwnership as validateGAProofOfOwnership } from './ga';
 
-export { linkUsage, validateUsage } from './usage'
+export { validateProofOfOwnership as validateOAuthProofOfOwnership } from './oauth';
+
+export { linkUsage, validateUsage } from './usage';

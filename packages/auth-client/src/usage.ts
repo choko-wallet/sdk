@@ -1,27 +1,35 @@
-import superagent from "superagent";
-import blake from 'blakejs'
-import { AUTH_SERVER_URL, KEYGEN_ID_LEN } from "./config";
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
 
-export function generateKeygenID() {
-    return Array.from({length: KEYGEN_ID_LEN}, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join("")
-}
-export async function linkUsage(keygen_id: string, ownership_proof: any) {
-    const certification = 
+import { u8aToHex } from '@skyekiwi/util';
+import superagent from 'superagent';
+
+import { AUTH_SERVER_URL } from './config';
+import { Certificate } from './types';
+
+export async function linkUsage (keygen_id: Uint8Array, ownership_proof: Certificate) {
+  if (keygen_id.length !== 32) {
+    throw new Error('invalid keygen_id length');
+  }
+
+  const certification =
         await superagent.post(`${AUTH_SERVER_URL}/usage/link`)
-            .send({
-                keygen_id: keygen_id,
-                ownership_proof: JSON.stringify(ownership_proof)
-            }).accept("json");
-    return certification
+          .send({
+            keygen_id: u8aToHex(keygen_id),
+            ownership_proof: ownership_proof.serialize()
+          }).accept('json');
+
+  return certification;
 }
 
-export async function validateUsage(keygen_id: string, credential_hash: string, usage_certification: any) {
-    const certificate =
+export async function validateUsage (keygen_id: Uint8Array, credential_hash: Uint8Array, usage_certification: Certificate) {
+  const certificate =
         await superagent.post(`${AUTH_SERVER_URL}/usage/validate`)
-            .send({
-                keygen_id: keygen_id,
-                credential_hash: credential_hash,
-                usage_certification: JSON.stringify(usage_certification)
-            }).accept('json');
-    return certificate
+          .send({
+            keygen_id: u8aToHex(keygen_id),
+            credential_hash: u8aToHex(credential_hash),
+            usage_certification: usage_certification.serialize()
+          }).accept('json');
+
+  return certificate;
 }
