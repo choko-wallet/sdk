@@ -22,6 +22,6 @@
   "dependencies": {
     "@choko-wallet/core": "0.1.10-4",
     "@skyekiwi/util": "1.0.2-5",
-    "tweetnacl": "^1.0.3"
+    "@skyekiwi/crypto": "1.0.2-5"
   }
 }
