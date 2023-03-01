@@ -1525,6 +1525,7 @@ __metadata:
   dependencies:
     "@choko-wallet/core": 0.1.10-1
     "@skyekiwi/util": 1.0.2-5
+    ethers: ^5.7.2
     tweetnacl: ^1.0.3
   languageName: unknown
   linkType: soft
