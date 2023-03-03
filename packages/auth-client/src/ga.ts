@@ -8,13 +8,13 @@ import superagent from 'superagent';
 import { AUTH_SERVER_URL } from './config';
 import { Certificate, GAAuthValidateRequest, ICertificate } from './types';
 
-export async function initProofOfOwnership (): Promise<string> {
+export async function initGAProofOfOwnership (): Promise<string> {
   const res = await superagent.post(`${AUTH_SERVER_URL}/auth/ga/init`);
 
   return res.text;
 }
 
-export async function validateProofOfOwnership (gaToken: string, code: Uint8Array): Promise<Certificate> {
+export async function validateGAProofOfOwnership (gaToken: string, code: Uint8Array): Promise<Certificate> {
   const gaHash = u8aToHex(blake2s(gaToken));
   const codeHex = u8aToHex(code);
 

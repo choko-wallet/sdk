@@ -8,7 +8,7 @@ import superagent from 'superagent';
 import { AUTH_SERVER_URL } from './config';
 import { Certificate, EmailAuthInitRequest, EmailAuthValidate, ICertificate } from './types';
 
-export async function initProofOfOwnership (email: string): Promise<string> {
+export async function initEmailProofOfOwnership (email: string): Promise<string> {
   const res = await superagent
     .post(`${AUTH_SERVER_URL}/auth/email/init`)
     .send({
@@ -18,7 +18,7 @@ export async function initProofOfOwnership (email: string): Promise<string> {
   return res.text;
 }
 
-export async function validateProofOfOwnership (email: string, code: Uint8Array): Promise<Certificate> {
+export async function validateEmailProofOfOwnership (email: string, code: Uint8Array): Promise<Certificate> {
   if (code.length !== 6) {
     throw new Error('invalid code length');
   }
