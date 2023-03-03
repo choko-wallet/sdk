@@ -1,0 +1,28 @@
+{
+  "name": "@choko-wallet/auth-client",
+  "version": "0.1.10-1",
+  "type": "module",
+  "description": "auth service client",
+  "main": "index.js",
+  "sideEffects": [
+    "./detectPackage.js",
+    "./detectPackage.cjs"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "maintainers": [],
+  "contributors": [],
+  "author": "Choko Wallet <contact@choko.app>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/choko-wallet/sdk"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.2.0",
+    "@skyekiwi/crypto": "1.0.2-5",
+    "@skyekiwi/util": "1.0.2-5",
+    "superagent": "^8.0.9"
+  }
+}

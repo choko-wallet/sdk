@@ -1495,6 +1495,17 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@choko-wallet/auth-client@workspace:packages/auth-client":
+  version: 0.0.0-use.local
+  resolution: "@choko-wallet/auth-client@workspace:packages/auth-client"
+  dependencies:
+    "@noble/hashes": ^1.2.0
+    "@skyekiwi/crypto": 1.0.2-5
+    "@skyekiwi/util": 1.0.2-5
+    superagent: ^8.0.9
+  languageName: unknown
+  linkType: soft
+
 "@choko-wallet/core@0.1.10-5, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
@@ -2296,7 +2307,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.2.0":
+"@noble/hashes@npm:1.2.0, @noble/hashes@npm:^1.2.0":
   version: 1.2.0
   resolution: "@noble/hashes@npm:1.2.0"
   checksum: 8ca080ce557b8f40fb2f78d3aedffd95825a415ac8e13d7ffe3643f8626a8c2d99a3e5975b555027ac24316d8b3c02a35b8358567c0c23af681e6573602aa434
@@ -3494,16 +3505,16 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*, @types/node@npm:>=13.7.0":
-  version: 18.14.1
-  resolution: "@types/node@npm:18.14.1"
-  checksum: 58556bbdb0050e44a4934742c1da2530812782c06d266a758e669e44c5aa196166c5fce45fdb03f016876717e3840478b3220129bb77367f979607564047f0a3
+  version: 18.14.5
+  resolution: "@types/node@npm:18.14.5"
+  checksum: 415fb0edc132baa9580f1b7a381a3f10b662f5d7a7d11641917fa0961788ccede3272badc414aadc47306e9fc35c5f6c59159ac470b46d3f3a15fb0446224c8c
   languageName: node
   linkType: hard
 
 "@types/node@npm:^16.11.11":
-  version: 16.18.12
-  resolution: "@types/node@npm:16.18.12"
-  checksum: fc3271182414f8593018ef8f00b4718116a92f463f619081bd399d9460e7861e1dd7eebc7cf94c23567e418ff397babed077011711aae8d47171b5a81c5bd71d
+  version: 16.18.14
+  resolution: "@types/node@npm:16.18.14"
+  checksum: 7865c1c3e7c7d2fef6103c6dfa181755dc48365024253d6acc460e884508b5937a222aa8bd04835988ff0bdc47867e2ada78859c0a7f9c65b44884316f3b469c
   languageName: node
   linkType: hard
 
@@ -4623,9 +4634,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001449":
-  version: 1.0.30001457
-  resolution: "caniuse-lite@npm:1.0.30001457"
-  checksum: f311a7c5098681962402a86a0a367014ee91c3135395ee68bbfaf45caf0e36d581e42d7c5b1526ce99484a228e6cf5cf0e400678292c65f5a21512a3fc7a5fb6
+  version: 1.0.30001460
+  resolution: "caniuse-lite@npm:1.0.30001460"
+  checksum: dad91eb82aa65aecf33ad6a04ad620b9df6f0152020dc6c1874224e8c6f4aa50695f585201b3dfcd2760b3c43326a86c9505cc03af856698fbef67b267ef786f
   languageName: node
   linkType: hard
 
@@ -4995,11 +5006,11 @@ __metadata:
   linkType: hard
 
 "core-js-compat@npm:^3.25.1":
-  version: 3.28.0
-  resolution: "core-js-compat@npm:3.28.0"
+  version: 3.29.0
+  resolution: "core-js-compat@npm:3.29.0"
   dependencies:
     browserslist: ^4.21.5
-  checksum: 41d1d58c99ce7ee7abd8cf070f4c07a8f2655dbed1777d90a26246dddd7fac68315d53d2192584c8621a5328e6fe1a10da39b6bf2666e90fd5c2ff3b8f24e874
+  checksum: ca5d370296c15ebd5f961dae6b6a24a153a84937bff58543099b7f1c407e8d5bbafafa7ca27e65baad522ece762d6356e1d6ea9efa99815f6fefd150fac7e8a5
   languageName: node
   linkType: hard
 
@@ -5523,9 +5534,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.284":
-  version: 1.4.311
-  resolution: "electron-to-chromium@npm:1.4.311"
-  checksum: 663fde5d90293d19c05b0dc65996e1ba6f3ee89d6365de3503de6a96c21439e18ea579fdd7d718e260708aa871ef333de934a4024d54fd109959ac0bca9d1400
+  version: 1.4.317
+  resolution: "electron-to-chromium@npm:1.4.317"
+  checksum: 7b7765cdc28fe107f40c21952efd2dd62952d625a28b0700b7302b53b347f5f3c22ab7fae56088b6e32af0de4512a430bd5b1fd2edcc25fd7c5a7619987b38c8
   languageName: node
   linkType: hard
 
@@ -6059,11 +6070,11 @@ __metadata:
   linkType: hard
 
 "esquery@npm:^1.4.0":
-  version: 1.4.2
-  resolution: "esquery@npm:1.4.2"
+  version: 1.5.0
+  resolution: "esquery@npm:1.5.0"
   dependencies:
     estraverse: ^5.1.0
-  checksum: 2f4ad89c5aafaca61cc2c15e256190f0d6deb4791cae6552d3cb4b1eb8867958cdf27a56aaa3272ff17435e3eaa19ee0d4129fac336ca6373d7354d7b5da7966
+  checksum: aefb0d2596c230118656cd4ec7532d447333a410a48834d80ea648b1e7b5c9bc9ed8b5e33a89cb04e487b60d622f44cf5713bf4abed7c97343edefdc84a35900
   languageName: node
   linkType: hard
 
@@ -7366,13 +7377,13 @@ __metadata:
   linkType: hard
 
 "is-array-buffer@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "is-array-buffer@npm:3.0.1"
+  version: 3.0.2
+  resolution: "is-array-buffer@npm:3.0.2"
   dependencies:
     call-bind: ^1.0.2
-    get-intrinsic: ^1.1.3
+    get-intrinsic: ^1.2.0
     is-typed-array: ^1.1.10
-  checksum: f26ab87448e698285daf707e52a533920449f7abf63714140ffab9d5571aa5a71ac2fa2677e8b793ad0d5d3e40078d4d2c8a0ab39c957e3cfc6513bb6c9dfdc9
+  checksum: dcac9dda66ff17df9cabdc58214172bf41082f956eab30bb0d86bc0fab1e44b690fc8e1f855cf2481245caf4e8a5a006a982a71ddccec84032ed41f9d8da8c14
   languageName: node
   linkType: hard
 
@@ -8449,7 +8460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json5@npm:^1.0.1":
+"json5@npm:^1.0.2":
   version: 1.0.2
   resolution: "json5@npm:1.0.2"
   dependencies:
@@ -8832,9 +8843,9 @@ __metadata:
   linkType: hard
 
 "lru-cache@npm:^7.7.1":
-  version: 7.17.0
-  resolution: "lru-cache@npm:7.17.0"
-  checksum: 28c2a98ad313b8d61beac1f08257b6f0ca990e39d24a9bc831030b6e209447cfb11c6d9d1a774282189bfc9609d1dfd17ebe485228dd68f7b96b6b9b7740894e
+  version: 7.18.1
+  resolution: "lru-cache@npm:7.18.1"
+  checksum: ab0ec1360c552f1ffa54b1eaf0026126c5116a07bee156b92d1e971f4c8c88e9160f0fad4ab6fed4e0fdea84f25a4590ece085bc57ed9ab1d90b17f0b138c556
   languageName: node
   linkType: hard
 
@@ -9149,9 +9160,9 @@ __metadata:
   linkType: hard
 
 "minipass@npm:^4.0.0":
-  version: 4.2.1
-  resolution: "minipass@npm:4.2.1"
-  checksum: 727641018e2b2dcd8fb6239b9220b4f0ef1b43d279dcb7f53840f7c43d005a36f0cdcfe2ffbc18ce32fae2ea484d3e7d3cb29cbe99c9274b0365bbb74661266c
+  version: 4.2.4
+  resolution: "minipass@npm:4.2.4"
+  checksum: c664f2ae4401408d1e7a6e4f50aca45f87b1b0634bc9261136df5c378e313e77355765f73f59c4a5abcadcdf43d83fcd3eb14e4a7cdcce8e36508e2290345753
   languageName: node
   linkType: hard
 
@@ -11117,7 +11128,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"superagent@npm:^8.0.4":
+"superagent@npm:^8.0.4, superagent@npm:^8.0.9":
   version: 8.0.9
   resolution: "superagent@npm:8.0.9"
   dependencies:
@@ -11404,14 +11415,14 @@ __metadata:
   linkType: hard
 
 "tsconfig-paths@npm:^3.10.1, tsconfig-paths@npm:^3.14.1":
-  version: 3.14.1
-  resolution: "tsconfig-paths@npm:3.14.1"
+  version: 3.14.2
+  resolution: "tsconfig-paths@npm:3.14.2"
   dependencies:
     "@types/json5": ^0.0.29
-    json5: ^1.0.1
+    json5: ^1.0.2
     minimist: ^1.2.6
     strip-bom: ^3.0.0
-  checksum: 8afa01c673ebb4782ba53d3a12df97fa837ce524f8ad38ee4e2b2fd57f5ac79abc21c574e9e9eb014d93efe7fe8214001b96233b5c6ea75bd1ea82afe17a4c6d
+  checksum: a6162eaa1aed680537f93621b82399c7856afd10ec299867b13a0675e981acac4e0ec00896860480efc59fc10fd0b16fdc928c0b885865b52be62cadac692447
   languageName: node
   linkType: hard
 
