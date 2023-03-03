@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { hexToU8a } from '@skyekiwi/util';
-import { joinSignature } from 'ethers/lib/utils';
 
 import { clientNode, fullNode1, fullNode2 } from './fixtures';
 
@@ -158,22 +157,26 @@ export const extractPublicKey = (localKey: SerializedLocalKey): Uint8Array => {
   /* eslint-enable */
 };
 
-export const extractSignature = (sig: SerializedSignature): string => {
+export const extractSignature = (sig: SerializedSignature): Uint8Array => {
   /* eslint-disable */
   const obj = JSON.parse(sig);
 
   if (obj.r && obj.r.scalar &&
     obj.s && obj.s.scalar &&
     obj.recid) {
-    const r = obj.r.scalar;
-    const s = obj.s.scalar;
+    const r =  hexToU8a( obj.r.scalar );
+    const s = hexToU8a( obj.s.scalar );
     const recid = obj.recid;
 
-    return joinSignature({
-      r: '0x' + r,
-      s: '0x' + s,
-      recoveryParam: recid
-    });
+    // signature.r,
+    //      signature.s,
+    //      (signature.recoveryParam ? "0x1c": "0x1b")
+    const signature = new Uint8Array(65);
+    signature.set(r, 0);
+    signature.set(s, 32);
+    signature.set(recid, 64);
+    
+    return signature;
   } else {
     throw new Error('invalid signature');
   }

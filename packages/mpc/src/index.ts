@@ -1,7 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/mpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { randomBytes } from 'tweetnacl';
+import { secureGenerateRandomKey } from '@skyekiwi/crypto';
 
 import { defaultAccountOption, UserAccount } from '@choko-wallet/core';
 
@@ -13,7 +13,7 @@ const runKeygenRequest = async (
   enableLog: boolean,
   existingKey?: Uint8Array
 ): Promise<SerializedLocalKey> => {
-  const payloadId = randomBytes(32);
+  const payloadId = secureGenerateRandomKey();
   const keygenRequst = MpcRequest.newKeyGenRequest(payloadId, existingKey);
 
   return await wasmRunKeygen(
@@ -31,7 +31,7 @@ const runSignRequest = async (
   localKey: SerializedLocalKey,
   enableLog: boolean
 ): Promise<SerializedSignature> => {
-  const payloadId = randomBytes(32);
+  const payloadId = secureGenerateRandomKey();
   const signRequet = MpcRequest.newSignRequest(payloadId, message, keygenId);
 
   return await wasmRunSign(
