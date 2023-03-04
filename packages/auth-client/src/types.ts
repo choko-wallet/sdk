@@ -72,3 +72,25 @@ export class Certificate implements ICertificate {
     return true;
   }
 }
+
+export interface IAuthHeader {
+  proof: Certificate
+}
+
+export class AuthHeader implements IAuthHeader {
+  proof: Certificate
+
+  constructor (c: IAuthHeader) {
+    this.proof = c.proof;
+  }
+
+  public serialize (): string {
+    return JSON.stringify({
+      proof: this.proof.serialize()
+    });
+  }
+
+  public validate (): boolean {
+    return true;
+  }
+}
