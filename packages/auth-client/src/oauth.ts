@@ -4,7 +4,7 @@
 import superagent from 'superagent';
 
 import { AUTH_SERVER_URL } from './config';
-import { Certificate, ICertificate, OAuthAuthValidate } from './types';
+import { Certificate, OAuthAuthValidate } from './types';
 
 export async function validateOAuthProofOfOwnership (provider: string, email: string, token: string): Promise<Certificate> {
   const certificateString = await superagent
@@ -12,7 +12,5 @@ export async function validateOAuthProofOfOwnership (provider: string, email: st
     .send({ email, provider, token } as OAuthAuthValidate)
     .accept('json');
 
-  const certificate = JSON.parse(certificateString.text) as ICertificate;
-
-  return new Certificate(certificate);
+  return Certificate.fromString(certificateString.text);
 }
