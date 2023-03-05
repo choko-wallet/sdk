@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 
 import { encodeContractCall } from '@choko-wallet/abi';
 import { txEncodedBatchedTransactions } from '@choko-wallet/account-abstraction';
-import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
+import { DappDescriptor, defaultAccountOption, UserAccount } from '@choko-wallet/core';
 import { SignTxType } from '@choko-wallet/core/types';
 import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
@@ -16,6 +16,8 @@ import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload } from '../signTx
 const seed = 'humor cook snap sunny ticket distance leaf unusual join business obey below';
 const daiContractAddress = '0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844';
 
+const option = defaultAccountOption;
+
 describe('@choko-wallet/request-handler - eth - aaTx', function () {
   const dapp = new DappDescriptor({
     activeNetwork: knownNetworks[u8aToHex(xxHash('goerli'))],
@@ -23,10 +25,7 @@ describe('@choko-wallet/request-handler - eth - aaTx', function () {
     infoName: 'Test',
     version: 0
   });
-  const account = new UserAccount(new AccountOption({
-    hasEncryptedPrivateKeyExported: false,
-    localKeyEncryptionStrategy: 0
-  }));
+  const account = new UserAccount(option);
 
   it('e2e - signTx - ethereum AA contract call', async () => {
     account.unlock(seed);

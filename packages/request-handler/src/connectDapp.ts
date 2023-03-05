@@ -269,7 +269,8 @@ export class ConnectDappDescriptor implements IRequestHandlerDescriptor {
 
     let err = RequestError.NoError;
 
-    if (account.isLocked) {
+    // Either UNLOCKED or MPC Request
+    if (account.isLocked && account.option.accountType !== 1) {
       err = RequestError.AccountLocked;
     }
 

@@ -1,6 +1,8 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { BigNumberish } from 'ethers';
+
 // Base Types
 export type Version = number;
 export type Color = string;
@@ -32,3 +34,14 @@ export enum SignTxType {
 const CURRENT_VERSION = 0;
 
 export { CURRENT_VERSION };
+
+export interface IMiniEthTransaction {
+  data: string,
+  to: string,
+  value: BigNumberish,
+  gasLimit?: BigNumberish,
+}
+export interface ITxResponse {
+  txHash: Uint8Array,
+  blockNumber: number,
+}

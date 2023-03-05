@@ -19,6 +19,9 @@ export interface IUserAccount {
   entropy?: Uint8Array;
   encryptedEntropy?: Uint8Array;
 
+  mpcKeygenId?: Uint8Array;
+  mpcLocalKey?: string;
+
   option: AccountOption;
 
   // DERIVED
@@ -33,6 +36,9 @@ export interface IUserAccount {
 export class UserAccount implements IUserAccount {
   entropy?: Uint8Array;
   encryptedEntropy?: Uint8Array;
+
+  mpcKeygenId?: Uint8Array;
+  mpcLocalKey?: string;
 
   option: AccountOption;
 
@@ -90,7 +96,7 @@ export class UserAccount implements IUserAccount {
       const t = type as KeypairType;
 
       if (t === 'ethereum') {
-        const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
+        const ethersJsWallet = ethers.Wallet.fromPhrase(seed);
         const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
         const kr = (new Keyring({ type: t })).addFromSeed(privateKey);
 
@@ -105,6 +111,11 @@ export class UserAccount implements IUserAccount {
     });
 
     this.aaWalletAddress = await this.getAAWwalletAddress();
+  }
+
+  public noteMpcWallet (keygenId: Uint8Array, localKey: string) {
+    this.mpcKeygenId = keygenId;
+    this.mpcLocalKey = localKey;
   }
 
   public async getAAWwalletAddress (index = 0): Promise<string> {

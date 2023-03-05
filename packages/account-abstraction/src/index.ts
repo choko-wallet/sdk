@@ -5,12 +5,14 @@ import type { UnsignedTransaction } from 'ethers';
 
 import { AddressZero } from '@ethersproject/constants';
 import { JsonRpcProvider } from '@ethersproject/providers';
-import { hexToU8a, sleep } from '@skyekiwi/util';
+import { hexToU8a, sleep, u8aToHex } from '@skyekiwi/util';
 import { ethers, utils, Wallet } from 'ethers';
 import superagent from 'superagent';
 
 import { encodeContractCall, encodeTransaction, loadAbi } from '@choko-wallet/abi';
 import { chainIdToProvider, entropyToMnemonic, UserAccount } from '@choko-wallet/core';
+import { Signer } from '@choko-wallet/core/signer';
+import { SignMessageType } from '@choko-wallet/core/types';
 
 import { biconomyFixtures, biconomyServicesUrl } from './fixtures';
 import { BiconomyUserOperation, IWalletTransaction } from './types';
@@ -74,13 +76,13 @@ const isSmartWalletDeployed = async (chainId: number, eoaAddress: string): Promi
 };
 
 // returns if we have sent a deployment tx
-const deployAAContractIfNeeded = async (chainId: number, unlockedUserAccount: UserAccount): Promise<boolean> => {
+const deployAAContractIfNeeded = async (chainId: number, signer: Signer): Promise<boolean> => {
   const provider = chainIdToProvider[chainId];
-  const eoaAddress = unlockedUserAccount.getAddress('ethereum');
+  const eoaAddress = signer.getEthereumAddress();
 
   if (!(await isSmartWalletDeployed(chainId, eoaAddress))) {
     await sendBiconomyTxPayload(
-      provider, {}, unlockedUserAccount, false
+      provider, {}, signer, false
     );
 
     await sleep(10000);
@@ -100,12 +102,11 @@ const callDataExecTransaction = async (
   provider: JsonRpcProvider,
 
   smartWalletAddress: string,
-  unlockedUserAccount: UserAccount,
+  signer: Signer,
 
   tx: IWalletTransaction,
   batchId = 0
 ): Promise<string> => {
-  const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
   const chainId = await getChainIdFromProvider(provider);
 
   const smartWalletContract = new ethers.Contract(
@@ -116,7 +117,7 @@ const callDataExecTransaction = async (
   /* eslint-disable sort-keys */
   const transactionWithAllParams: IWalletTransaction = {
     to: tx.to,
-    value: tx.value || ethers.utils.parseEther('0'),
+    value: tx.value || ethers.utils.parseEther('0').toString(),
     data: tx.data || '0x',
 
     operation: tx.operation || 0,
@@ -138,23 +139,8 @@ const callDataExecTransaction = async (
     refundReceiver: transactionWithAllParams.refundReceiver
   };
 
-  const siganture = await wallet._signTypedData(
-    { verifyingContract: smartWalletAddress, chainId: chainId },
-    {
-      WalletTx: [
-        { type: 'address', name: 'to' },
-        { type: 'uint256', name: 'value' },
-        { type: 'bytes', name: 'data' },
-        { type: 'uint8', name: 'operation' },
-        { type: 'uint256', name: 'targetTxGas' },
-        { type: 'uint256', name: 'baseGas' },
-        { type: 'uint256', name: 'gasPrice' },
-        { type: 'address', name: 'gasToken' },
-        { type: 'address', name: 'refundReceiver' },
-        { type: 'uint256', name: 'nonce' }
-      ]
-    }, transactionWithAllParams
-  );
+  console.log(transactionWithAllParams);
+  const siganture = await signer.signAAWalletCalldata(smartWalletAddress, chainId, transactionWithAllParams);
 
   const execTransactionCalldata = encodeContractCall('aa-wallet', 'execTransaction', [
     {
@@ -205,15 +191,14 @@ const txEncodedBatchedTransactions = (
 const sendBiconomyTxPayload = async (
   provider: JsonRpcProvider,
   op: Partial<IWalletTransaction>,
-  unlockedUserAccount: UserAccount,
+  signer: Signer,
 
   isBatchedTx = false,
 
   index = 0,
   batchId = 0
 ): Promise<Uint8Array> => {
-  const wallet = unlockedUserAccountToEthersJsWallet(unlockedUserAccount, provider);
-  const eoaAddress = unlockedUserAccount.getAddress('ethereum');
+  const eoaAddress = signer.getEthereumAddress();
   const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
   const chainId = await getChainIdFromProvider(provider);
 
@@ -250,9 +235,9 @@ const sendBiconomyTxPayload = async (
   userOp.paymasterAndData = await fetchPaymasterAndData(userOp);
 
   const hash = getRequestId(userOp, biconomyFixtures[chainId].entryPointAddress, chainId);
-  const sig = await wallet.signMessage(utils.arrayify(hash));
+  const sig = await signer.signMessage(utils.arrayify(hash), SignMessageType.EthereumPersonalSign);
 
-  userOp.signature = sig;
+  userOp.signature = `0x${u8aToHex(sig)}`;
 
   // The below code block is used to send the payload directly
   // const calldata = encodeContractCall('aa-entryPoint', 'handleOps', [[userOp], wallet.address]);

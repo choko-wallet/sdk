@@ -4,7 +4,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { hexToU8a } from '@skyekiwi/util';
 
-import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
+import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { SignTxType } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
@@ -24,11 +24,10 @@ const getPolkadotEncodedTx = async (): Promise<Uint8Array> => {
   return hexToU8a(tx.toHex().substring(2));
 };
 
+const option = defaultAccountOption;
+
 describe('@choko-wallet/request-handler - signTx', function () {
-  const account = new UserAccount(new AccountOption({
-    hasEncryptedPrivateKeyExported: false,
-    localKeyEncryptionStrategy: 0
-  }));
+  const account = new UserAccount(option);
   const dapp = new DappDescriptor({
     activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
     displayName: 'Jest Testing',

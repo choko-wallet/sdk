@@ -1,7 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { AccountOption, DappDescriptor, RequestError, UserAccount } from '@choko-wallet/core';
+import { DappDescriptor, defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
 import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, ConnectDappResponse, ConnectDappResponsePayload } from '../connectDapp';
@@ -9,10 +9,7 @@ import { ConnectDappDescriptor, ConnectDappRequest, ConnectDappRequestPayload, C
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
 describe('@choko-wallet/request-handler - connectDapp', function () {
-  const option = new AccountOption({
-    hasEncryptedPrivateKeyExported: false,
-    localKeyEncryptionStrategy: 0
-  });
+  const option = defaultAccountOption;
 
   const account = new UserAccount(option);
   const dapp = new DappDescriptor({

@@ -10,11 +10,12 @@ import Keyring from '@polkadot/keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { hexToU8a, padSize, sleep, u8aToHex, unpadSize } from '@skyekiwi/util';
+import { padSize, sleep, u8aToHex, unpadSize } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { biconomyFixtures, callDataExecTransaction, sendBiconomyTxPayload, unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
+import { biconomyFixtures, callDataExecTransaction, sendBiconomyTxPayload } from '@choko-wallet/account-abstraction';
 import { chainIdToProvider, DappDescriptor, deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
+import { Signer } from '@choko-wallet/core/signer';
 import { CURRENT_VERSION, SignTxType } from '@choko-wallet/core/types';
 
 export const signTxHash: HexString = u8aToHex(xxHash('signTx'));
@@ -343,14 +344,16 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     this.version = CURRENT_VERSION;
   }
 
-  public async requestHandler (request: SignTxRequest, account: UserAccount): Promise<SignTxResponse> {
+  public async requestHandler (request: SignTxRequest, account: UserAccount, mpcSignFn?: (msg: Uint8Array, account: UserAccount) => Promise<Uint8Array>): Promise<SignTxResponse> {
     await cryptoWaitReady();
 
     let err = RequestError.NoError;
 
-    if (account.isLocked) {
+    if (account.isLocked && account.option.accountType !== 1) {
       err = RequestError.AccountLocked;
     }
+
+    const signer = new Signer(account, mpcSignFn);
 
     let txHash: Uint8Array = new Uint8Array(32);
     let blockNumber = 0;
@@ -392,20 +395,15 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           [txHash, blockNumber] = await sendTx(api.tx(request.payload.encoded), kr);
           await provider.disconnect();
         } else {
-          const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
-          const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
-
           const deserializedTx = ethers.utils.parseTransaction('0x' + u8aToHex(request.payload.encoded));
-          const txResponse = await wallet.sendTransaction({
+          const txResponse = await signer.sendTransaction({
             data: deserializedTx.data,
             to: deserializedTx.to,
-            value: deserializedTx.value
-          });
+            value: deserializedTx.value.toString()
+          }, request.dappOrigin.activeNetwork.chainId);
 
-          const txResult = await txResponse.wait();
-
-          txHash = hexToU8a(txResult.transactionHash.substring(2));
-          blockNumber = txResult.blockNumber;
+          txHash = txResponse.txHash;
+          blockNumber = txResponse.blockNumber;
         }
 
         response = new SignTxResponse({
@@ -433,9 +431,6 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
             throw new Error('GasLimit must be set on AA transactions');
           }
 
-          const provider = chainIdToProvider[request.dappOrigin.activeNetwork.chainId];
-          const wallet = unlockedUserAccountToEthersJsWallet(account, provider);
-
           const tx: IWalletTransaction = {
             data: deserializedTx.data,
             operation: request.payload.signTxType === SignTxType.AACall ? 0 : 1,
@@ -451,28 +446,23 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           }
 
           const callData = await callDataExecTransaction(
-            provider, aaWalletAddress, account, tx, 0
+            chainIdToProvider[request.dappOrigin.activeNetwork.chainId], aaWalletAddress, signer, tx, 0
           );
 
-          const txResponse = await wallet.sendTransaction({
+          const txResponse = await signer.sendTransaction({
             data: callData,
-            gasLimit: deserializedTx.gasLimit,
+            gasLimit: deserializedTx.gasLimit.toString(),
             to: aaWalletAddress,
-            value: deserializedTx.value
-          });
-
-          const txResult = await txResponse.wait();
-
-          txHash = hexToU8a(txResult.transactionHash.substring(2));
-          blockNumber = txResult.blockNumber;
+            value: deserializedTx.value.toString()
+          }, request.dappOrigin.activeNetwork.chainId);
 
           response = new SignTxResponse({
             dappOrigin: request.dappOrigin,
             error: err,
             payload: new SignTxResponsePayload({
-              blockNumber: blockNumber,
+              blockNumber: txResponse.blockNumber,
               gaslessTxId: gaslessTxId,
-              txHash: txHash
+              txHash: txResponse.txHash
             }),
             userOrigin: request.userOrigin
           });
@@ -496,7 +486,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
 
           gaslessTxId = await sendBiconomyTxPayload(
             chainIdToProvider[request.dappOrigin.activeNetwork.chainId],
-            tx, account, request.payload.signTxType === SignTxType.GaslessBatch
+            tx, signer, request.payload.signTxType === SignTxType.GaslessBatch
           );
 
           response = new SignTxResponse({

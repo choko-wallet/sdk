@@ -5,7 +5,7 @@ import { mnemonicToEntropy } from '@polkadot/util-crypto';
 import { ethers } from 'ethers';
 
 import { KeypairType } from './types';
-import { AccountOption, UserAccount } from '.';
+import { defaultAccountOption, UserAccount } from '.';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 const Tests = [
@@ -22,15 +22,11 @@ const Tests = [
     keyType: 'ethereum'
   }
 ];
-const option = new AccountOption({
-  hasEncryptedPrivateKeyExported: false,
-  localKeyEncryptionStrategy: 0 // password-v0
-});
 
 describe('UserAccount - @choko-wallet/core/account', function () {
   Tests.map((type) => {
     it(`UserAccount - constructor, init, lock/unlock - ${type.keyType}`, async () => {
-      const userAccount = new UserAccount(option);
+      const userAccount = new UserAccount(defaultAccountOption);
 
       try {
         await userAccount.init();
@@ -50,7 +46,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     });
 
     it(`UserAccount - serde - ${type.keyType}`, async () => {
-      const userAccount = new UserAccount(option);
+      const userAccount = new UserAccount(defaultAccountOption);
 
       userAccount.unlock(SEED);
       await userAccount.init();
@@ -75,7 +71,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     });
 
     it(`UserAccount - serdeWithEncryptedKey - ${type.keyType}`, async () => {
-      const userAccount = new UserAccount(option);
+      const userAccount = new UserAccount(defaultAccountOption);
 
       userAccount.unlock(SEED);
       await userAccount.init();
@@ -104,12 +100,12 @@ describe('UserAccount - @choko-wallet/core/account', function () {
   });
 
   test('ethersjs compatibility for account generation', async () => {
-    const userAccount = new UserAccount(option);
+    const userAccount = new UserAccount(defaultAccountOption);
 
     userAccount.unlock(SEED);
     await userAccount.init();
 
-    const ethersJsWallet = ethers.Wallet.fromMnemonic(SEED);
+    const ethersJsWallet = ethers.Wallet.fromPhrase(SEED);
 
     expect(ethersJsWallet.address).toEqual(userAccount.getAddress('ethereum'));
   });
