@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/mpc",
-  "version": "0.1.10-8",
+  "version": "0.1.10-9",
   "type": "module",
   "description": "mpc helper choko wallet",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.10-8",
+    "@choko-wallet/core": "0.1.10-9",
     "@skyekiwi/crypto": "1.0.2-5",
     "@skyekiwi/util": "1.0.2-5"
   }
