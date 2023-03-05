@@ -22,7 +22,7 @@
   "dependencies": {
     "@choko-wallet/core": "0.1.10-8",
     "@skyekiwi/util": "^1.0.1",
-    "ethers": "^5.7.2",
+    "ethers": "^6.0.8",
     "isomorphic-ws": "^5.0.0",
     "messaging-sdk": "^0.0.3",
     "superagent": "^8.0.4"

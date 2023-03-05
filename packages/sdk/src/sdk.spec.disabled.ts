@@ -27,7 +27,7 @@ const account = new UserAccount(defaultAccountOption);
 describe('@choko-wallet/sdk - request', function () {
   afterAll(() => {
     void provider.disconnect();
-  })
+  });
 
   it('e2e - connectDapp', () => {
     let store: InMemoryStorage = loadStorage();

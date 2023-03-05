@@ -27,7 +27,7 @@
     "@polkadot/util-crypto": "^10.1.11",
     "@skyekiwi/crypto": "1.0.2-5",
     "@skyekiwi/util": "1.0.2-5",
-    "ethers": "^5.7.2"
+    "ethers": "^6.0.8"
   },
   "devDependencies": {
     "tweetnacl": "^1.0.3"
