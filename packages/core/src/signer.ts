@@ -1,10 +1,14 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { _TypedDataEncoder, hashMessage } from '@ethersproject/hash';
+import { keccak256 } from '@ethersproject/keccak256';
+import { resolveProperties } from '@ethersproject/properties';
+import { serialize, UnsignedTransaction } from '@ethersproject/transactions';
 import Keyring from '@polkadot/keyring';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { hexToU8a, u8aToHex } from '@skyekiwi/util';
-import { ethers, Transaction, TypedDataEncoder, VoidSigner } from 'ethers';
+import { hexToU8a } from '@skyekiwi/util';
+import { ethers, VoidSigner } from 'ethers';
 
 import { unlockedUserAccountToEthersJsWallet } from '@choko-wallet/account-abstraction';
 import { IWalletTransaction } from '@choko-wallet/account-abstraction/types';
@@ -50,7 +54,7 @@ export class Signer {
         }
 
         case SignMessageType.EthereumPersonalSign: {
-          const wallet = ethers.Wallet.fromPhrase(entropyToMnemonic(this.account.entropy));
+          const wallet = ethers.Wallet.fromMnemonic(entropyToMnemonic(this.account.entropy));
 
           signature = hexToU8a((await wallet.signMessage(message)).slice(2));
           break;
@@ -76,7 +80,7 @@ export class Signer {
             throw new Error('necessary MPC sign info is mssing');
           }
 
-          const hash = hexToU8a(ethers.hashMessage(message).substring(2));
+          const hash = hexToU8a(hashMessage(message).substring(2));
 
           return await this.mpcSignFunc(hash, this.account);
         }
@@ -89,7 +93,7 @@ export class Signer {
   public async signAAWalletCalldata (smartWalletAddress: string, chainId: number, tx: IWalletTransaction): Promise<Uint8Array> {
     tx.nonce = tx.nonce.toString();
     /* eslint-disable */
-    const rawHash = TypedDataEncoder.hash(
+    const rawHash = _TypedDataEncoder.hash(
       { verifyingContract: smartWalletAddress, chainId: chainId },
       {
         WalletTx: [
@@ -126,9 +130,8 @@ export class Signer {
     /* eslint-enable */
 
     const pop = await dummySigner.populateTransaction(tx);
-
-    const builtTx = Transaction.from(pop);
-    const hash = hexToU8a(builtTx.unsignedHash.substring(2));
+    const popTx = await resolveProperties(pop) as UnsignedTransaction;
+    const hash = hexToU8a(keccak256(serialize(popTx)).substring(2));
 
     if (!this.account.isLocked) {
       const wallet = unlockedUserAccountToEthersJsWallet(this.account, provider);
@@ -142,9 +145,7 @@ export class Signer {
 
       const signature = await this.mpcSignFunc(hash, this.account);
 
-      builtTx.signature = `0x${u8aToHex(signature)}`;
-
-      return builtTx.serialized;
+      return serialize(popTx, signature);
     } else {
       throw new Error('account must be either an mpc account or an unlocked account');
     }

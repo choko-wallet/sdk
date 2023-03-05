@@ -96,7 +96,7 @@ export class UserAccount implements IUserAccount {
       const t = type as KeypairType;
 
       if (t === 'ethereum') {
-        const ethersJsWallet = ethers.Wallet.fromPhrase(seed);
+        const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
         const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
         const kr = (new Keyring({ type: t })).addFromSeed(privateKey);
 

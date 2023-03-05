@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.10-8",
-    "ethers": "^6.0.8"
+    "ethers": "^5.7.2"
   }
 }

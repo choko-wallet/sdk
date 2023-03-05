@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
@@ -26,7 +22,7 @@ const account = new UserAccount(defaultAccountOption);
 // This test needs to run inside the DOM env of Jest. Disabled by default.
 describe('@choko-wallet/sdk - request', function () {
   afterAll(() => {
-    void provider.disconnect();
+    provider.disconnect().catch(console.error);
   });
 
   it('e2e - connectDapp', () => {

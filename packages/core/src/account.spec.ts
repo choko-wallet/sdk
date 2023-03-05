@@ -105,7 +105,7 @@ describe('UserAccount - @choko-wallet/core/account', function () {
     userAccount.unlock(SEED);
     await userAccount.init();
 
-    const ethersJsWallet = ethers.Wallet.fromPhrase(SEED);
+    const ethersJsWallet = ethers.Wallet.fromMnemonic(SEED);
 
     expect(ethersJsWallet.address).toEqual(userAccount.getAddress('ethereum'));
   });
