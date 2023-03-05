@@ -6,7 +6,7 @@ import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
+import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { KeypairType, SignMessageType } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
@@ -16,10 +16,7 @@ import { SignMessageDescriptor, SignMessageRequest, SignMessageRequestPayload, S
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 
 describe('@choko-wallet/request-handler - signMessage', function () {
-  const account = new UserAccount(new AccountOption({
-    hasEncryptedPrivateKeyExported: false,
-    localKeyEncryptionStrategy: 0
-  }));
+  const account = new UserAccount(defaultAccountOption);
   const dapp = new DappDescriptor({
     activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
     displayName: 'Jest Testing',
@@ -80,10 +77,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     it(`e2e - signMessage - ${SignMessageType[type]}`, async () => {
       const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-      const account = new UserAccount(new AccountOption({
-        hasEncryptedPrivateKeyExported: false,
-        localKeyEncryptionStrategy: 0
-      }));
+      const account = new UserAccount(defaultAccountOption);
 
       account.unlock(SEED);
       await account.init();
@@ -128,10 +122,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
   test('ethereum personal sign compatibility', async () => {
     const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-    const account = new UserAccount(new AccountOption({
-      hasEncryptedPrivateKeyExported: false,
-      localKeyEncryptionStrategy: 0
-    }));
+    const account = new UserAccount(defaultAccountOption);
 
     account.unlock(SEED);
     await account.init();

@@ -3,13 +3,11 @@
 
 import type { HexString, Version } from '@choko-wallet/core/types';
 
-import Keyring from '@polkadot/keyring';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
-import { ethers } from 'ethers';
+import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 
 import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
+import { Signer } from '@choko-wallet/core/signer';
 import { CURRENT_VERSION, SignMessageType } from '@choko-wallet/core/types';
 
 export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
@@ -356,46 +354,25 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
     this.version = CURRENT_VERSION;
   }
 
-  public async requestHandler (request: SignMessageRequest, account: UserAccount): Promise<SignMessageResponse> {
+  public async requestHandler (request: SignMessageRequest, account: UserAccount, mpcSignFn?: (msg: Uint8Array, account: UserAccount) => Promise<Uint8Array>): Promise<SignMessageResponse> {
     await cryptoWaitReady();
 
     let err = RequestError.NoError;
 
-    if (account.isLocked) {
+    if (account.isLocked && account.option.accountType !== 1) {
       err = RequestError.AccountLocked;
     }
 
-    let signature: Uint8Array;
+    const signer = new Signer(account, mpcSignFn);
 
-    switch (request.payload.signMessageType) {
-      case SignMessageType.RawSr25519: {
-        const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(entropyToMnemonic(account.entropy));
-
-        signature = kr.sign(request.payload.message);
-        break;
-      }
-
-      case SignMessageType.RawEd25519: {
-        const kr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(entropyToMnemonic(account.entropy));
-
-        signature = kr.sign(request.payload.message);
-        break;
-      }
-
-      case SignMessageType.EthereumPersonalSign: {
-        const wallet = ethers.Wallet.fromMnemonic(entropyToMnemonic(account.entropy));
-
-        signature = hexToU8a((await wallet.signMessage(request.payload.message)).slice(2));
-        break;
-      }
-    }
+    const signature = await signer.signMessage(request.payload.message, request.payload.signMessageType);
 
     const response = new SignMessageResponse({
       dappOrigin: request.dappOrigin,
       error: err,
       payload: new SignMessageResponsePayload({
         signMessageType: request.payload.signMessageType,
-        signature: signature
+        signature
       }),
       userOrigin: request.userOrigin
     });

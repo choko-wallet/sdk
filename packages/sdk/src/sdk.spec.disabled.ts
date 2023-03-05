@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
@@ -11,7 +7,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { hexToU8a } from '@skyekiwi/util';
 import { TextDecoder, TextEncoder } from 'util';
 
-import { AccountOption, UserAccount } from '@choko-wallet/core';
+import { defaultAccountOption, UserAccount } from '@choko-wallet/core';
 import { SignMessageType, SignTxType } from '@choko-wallet/core/types';
 
 import { buildConnectDappUrl, buildSignMessageUrl, buildSignTxUrl, configSDK, loadStorage, storeUserAccount } from '.';
@@ -21,25 +17,19 @@ global.TextDecoder = TextDecoder;
 
 const provider = new WsProvider('wss://staging.rpc.skye.kiwi');
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
-const account = new UserAccount(new AccountOption({
-  hasEncryptedPrivateKeyExported: false,
-  localKeyEncryptionStrategy: 0
-}));
+const account = new UserAccount(defaultAccountOption);
 
 // This test needs to run inside the DOM env of Jest. Disabled by default.
 describe('@choko-wallet/sdk - request', function () {
   afterAll(() => {
-    void provider.disconnect();
-  })
+    provider.disconnect().catch(console.error);
+  });
 
   it('e2e - connectDapp', () => {
     let store: InMemoryStorage = loadStorage();
 
     store = configSDK({
-      accountOption: {
-        hasEncryptedPrivateKeyExported: false,
-        localKeyEncryptionStrategy: 0
-      },
+      accountOption: defaultAccountOption,
 
       activeNetworkHash: '847e7b7fa160d85f',
 
@@ -60,10 +50,7 @@ describe('@choko-wallet/sdk - request', function () {
     account.lock();
 
     let store = configSDK({
-      accountOption: {
-        hasEncryptedPrivateKeyExported: false,
-        localKeyEncryptionStrategy: 0
-      },
+      accountOption: defaultAccountOption,
 
       activeNetworkHash: '847e7b7fa160d85f',
 
@@ -91,10 +78,7 @@ describe('@choko-wallet/sdk - request', function () {
     account.lock();
 
     let store = configSDK({
-      accountOption: {
-        hasEncryptedPrivateKeyExported: false,
-        localKeyEncryptionStrategy: 0
-      },
+      accountOption: defaultAccountOption,
 
       activeNetworkHash: '847e7b7fa160d85f',
 

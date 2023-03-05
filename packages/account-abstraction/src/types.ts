@@ -17,7 +17,7 @@ export interface IWalletTransaction extends IMetaTransaction {
   gasToken?: string
   tokenGasPriceFactor?: string | number
   refundReceiver?: string
-  nonce?: number
+  nonce?: string | number
 }
 
 export type BiconomyUserOperation = {

@@ -4,6 +4,7 @@
 import { CURRENT_VERSION, Version } from './types';
 
 export interface IAccountOption {
+  accountType: 0 | 1, // 0 = plain seed, 1 = mpc
   hasEncryptedPrivateKeyExported: boolean;
   // whether the user had exported the private key to email
   // set to be true when
@@ -15,11 +16,13 @@ export interface IAccountOption {
 }
 
 export class AccountOption implements IAccountOption {
+  accountType: 0 | 1; // 0 = plain seed, 1 = mpc
   hasEncryptedPrivateKeyExported: boolean;
   localKeyEncryptionStrategy: number;
   version?: Version;
 
   constructor (option: IAccountOption) {
+    this.accountType = option.accountType;
     this.hasEncryptedPrivateKeyExported = option.hasEncryptedPrivateKeyExported;
     this.localKeyEncryptionStrategy = option.localKeyEncryptionStrategy;
     this.version = option.version ? option.version : CURRENT_VERSION;
@@ -38,7 +41,8 @@ export class AccountOption implements IAccountOption {
       * @returns {number} size of the serializedLength
     */
   public static serializedLength (): number {
-    return 1 + // hasEncryptedPrivateKeyExported
+    return 1 + // accountType
+        1 + // hasEncryptedPrivateKeyExported
         1 + // localKeyEncryptionStrategy
         1; // version
   }
@@ -50,9 +54,10 @@ export class AccountOption implements IAccountOption {
   public serialize (): Uint8Array {
     const res = new Uint8Array(AccountOption.serializedLength());
 
-    res.set([this.hasEncryptedPrivateKeyExported ? 1 : 0], 0);
-    res.set([this.localKeyEncryptionStrategy], 1);
-    res.set([this.version], 2);
+    res.set([this.accountType], 0);
+    res.set([this.hasEncryptedPrivateKeyExported ? 1 : 0], 1);
+    res.set([this.localKeyEncryptionStrategy], 2);
+    res.set([this.version], 3);
 
     return res;
   }
@@ -67,19 +72,30 @@ export class AccountOption implements IAccountOption {
       throw new Error('invalid data length - AccountOption.deserialize');
     }
 
-    const hasEncryptedPrivateKeyExported = data[0] === 1;
-    const localKeyEncryptionStrategy = data[1];
+    const accountType = data[0];
+
+    if (accountType !== 0 && accountType !== 1) {
+      throw new Error('invalid account type - AccountOption.deserialize');
+    }
+
+    const hasEncryptedPrivateKeyExported = data[1] === 1;
+    const localKeyEncryptionStrategy = data[2];
     const version = data[3];
 
     return new AccountOption({
-      hasEncryptedPrivateKeyExported: hasEncryptedPrivateKeyExported,
-      localKeyEncryptionStrategy: localKeyEncryptionStrategy,
-      version: version
+      accountType, hasEncryptedPrivateKeyExported, localKeyEncryptionStrategy, version
     });
   }
 }
 
 export const defaultAccountOption = new AccountOption({
+  accountType: 0,
+  hasEncryptedPrivateKeyExported: false,
+  localKeyEncryptionStrategy: 0
+});
+
+export const defaultMpcAccountOption = new AccountOption({
+  accountType: 1,
   hasEncryptedPrivateKeyExported: false,
   localKeyEncryptionStrategy: 0
 });

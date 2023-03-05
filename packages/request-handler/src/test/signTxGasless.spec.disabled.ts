@@ -6,7 +6,7 @@ import { ethers } from 'ethers';
 
 import { encodeContractCall } from '@choko-wallet/abi';
 import { txEncodedBatchedTransactions } from '@choko-wallet/account-abstraction';
-import { AccountOption, DappDescriptor, UserAccount } from '@choko-wallet/core';
+import { DappDescriptor, defaultAccountOption, UserAccount } from '@choko-wallet/core';
 import { SignTxType } from '@choko-wallet/core/types';
 import { xxHash } from '@choko-wallet/core/util';
 import { knownNetworks } from '@choko-wallet/known-networks';
@@ -26,10 +26,9 @@ describe('@choko-wallet/request-handler - eth - gasless', function () {
     infoName: 'Test',
     version: 0
   });
-  const account = new UserAccount(new AccountOption({
-    hasEncryptedPrivateKeyExported: false,
-    localKeyEncryptionStrategy: 0
-  }));
+
+  const option = defaultAccountOption;
+  const account = new UserAccount(option);
 
   it('e2e - signTx - ethereum gasless contract call', async () => {
     account.unlock(seed);

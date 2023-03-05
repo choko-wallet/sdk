@@ -7,7 +7,7 @@ import { cryptoWaitReady } from '@polkadot/util-crypto';
 import { AsymmetricEncryption } from '@skyekiwi/crypto';
 import { randomBytes } from 'tweetnacl';
 
-import { AccountOption, RequestError, UserAccount } from '@choko-wallet/core';
+import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
 
@@ -20,11 +20,10 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
     await cryptoWaitReady();
   });
 
+  const option = defaultAccountOption;
+
   ['sr25519', 'ed25519', 'ethereum'].map((keyType, index) => {
-    const account = new UserAccount(new AccountOption({
-      hasEncryptedPrivateKeyExported: false,
-      localKeyEncryptionStrategy: 0
-    }));
+    const account = new UserAccount(option);
     const dapp = new DappDescriptor({
       activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi
       displayName: 'Jest Testing',
@@ -92,10 +91,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
     it(`e2e - decryptMessage - ${keyType}`, async () => {
       const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-      const account = new UserAccount(new AccountOption({
-        hasEncryptedPrivateKeyExported: false,
-        localKeyEncryptionStrategy: 0
-      }));
+      const account = new UserAccount(option);
 
       account.unlock(SEED);
       await account.init();
