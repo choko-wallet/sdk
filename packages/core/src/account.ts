@@ -5,10 +5,11 @@ import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyri
 import { ethereumEncode, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { initWASMInterface, SymmetricEncryption } from '@skyekiwi/crypto';
-import { hexToU8a } from '@skyekiwi/util';
+import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
 import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
+import { linkUsage, validateOAuthProofOfOwnership } from '@choko-wallet/auth-client';
 
 import { chainIdToProvider } from './etherProviders';
 import { KeypairType } from './types';
@@ -298,5 +299,21 @@ export class UserAccount implements IUserAccount {
     userAccount.encryptedEntropy = data.slice(UserAccount.serializedLength(), UserAccount.serializedLength() + 16 + 16 + 24);
 
     return userAccount;
+  }
+
+  public async getMpcOAuthUsageCertificate (provider: string, email: string, token: string): Promise<string> {
+    if (!this.mpcKeygenId) {
+      throw new Error('mpc keygenId missing');
+    }
+
+    const ownershipProof = await validateOAuthProofOfOwnership(provider, email, token);
+    const userCertificatte = await linkUsage(this.mpcKeygenId, ownershipProof);
+
+    return JSON.stringify({
+      proof: {
+        payload: u8aToHex(userCertificatte.payload),
+        signature: u8aToHex(userCertificatte.signature)
+      }
+    });
   }
 }

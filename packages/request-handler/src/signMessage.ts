@@ -354,7 +354,10 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
     this.version = CURRENT_VERSION;
   }
 
-  public async requestHandler (request: SignMessageRequest, account: UserAccount, mpcSignFn?: (msg: Uint8Array, account: UserAccount) => Promise<Uint8Array>): Promise<SignMessageResponse> {
+  public async requestHandler (request: SignMessageRequest, account: UserAccount,
+    mpcSignFn?: (msg: Uint8Array, account: UserAccount, auth?: string) => Promise<Uint8Array>,
+    auth?: string
+  ): Promise<SignMessageResponse> {
     await cryptoWaitReady();
 
     let err = RequestError.NoError;
@@ -365,7 +368,7 @@ export class SignMessageDescriptor implements IRequestHandlerDescriptor {
 
     const signer = new Signer(account, mpcSignFn);
 
-    const signature = await signer.signMessage(request.payload.message, request.payload.signMessageType);
+    const signature = await signer.signMessage(request.payload.message, request.payload.signMessageType, auth);
 
     const response = new SignMessageResponse({
       dappOrigin: request.dappOrigin,

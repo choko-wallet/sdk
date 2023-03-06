@@ -191,12 +191,14 @@ const txEncodedBatchedTransactions = (
 const sendBiconomyTxPayload = async (
   provider: JsonRpcProvider,
   op: Partial<IWalletTransaction>,
+
   signer: Signer,
 
   isBatchedTx = false,
 
   index = 0,
-  batchId = 0
+  batchId = 0,
+  auth?: string
 ): Promise<Uint8Array> => {
   const eoaAddress = signer.getEthereumAddress();
   const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
@@ -235,7 +237,7 @@ const sendBiconomyTxPayload = async (
   userOp.paymasterAndData = await fetchPaymasterAndData(userOp);
 
   const hash = getRequestId(userOp, biconomyFixtures[chainId].entryPointAddress, chainId);
-  const sig = await signer.signMessage(utils.arrayify(hash), SignMessageType.EthereumPersonalSign);
+  const sig = await signer.signMessage(utils.arrayify(hash), SignMessageType.EthereumPersonalSign, auth);
 
   userOp.signature = `0x${u8aToHex(sig)}`;
 

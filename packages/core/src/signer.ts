@@ -19,11 +19,11 @@ import { IMiniEthTransaction, ITxResponse, SignMessageType } from './types';
 
 export class Signer {
   account: UserAccount
-  mpcSignFunc?: (msg: Uint8Array, account: UserAccount) => Promise<Uint8Array>
+  mpcSignFunc?: (msg: Uint8Array, account: UserAccount, auth: string) => Promise<Uint8Array>
 
   constructor (
     account: UserAccount,
-    mpcSignFunc?: (msg: Uint8Array, account: UserAccount) => Promise<Uint8Array>
+    mpcSignFunc?: (msg: Uint8Array, account: UserAccount, auth: string) => Promise<Uint8Array>
   ) {
     this.account = account;
     this.mpcSignFunc = mpcSignFunc;
@@ -33,7 +33,7 @@ export class Signer {
     return this.account.getAddress('ethereum');
   }
 
-  public async signMessage (message: Uint8Array, signType: SignMessageType): Promise<Uint8Array> {
+  public async signMessage (message: Uint8Array, signType: SignMessageType, auth?: string): Promise<Uint8Array> {
     // if we have a regular seed account
     if (!this.account.isLocked) {
       let signature: Uint8Array;
@@ -82,7 +82,7 @@ export class Signer {
 
           const hash = hexToU8a(hashMessage(message).substring(2));
 
-          return await this.mpcSignFunc(hash, this.account);
+          return await this.mpcSignFunc(hash, this.account, auth);
         }
       }
     } else {
@@ -90,7 +90,7 @@ export class Signer {
     }
   }
 
-  public async signAAWalletCalldata (smartWalletAddress: string, chainId: number, tx: IWalletTransaction): Promise<Uint8Array> {
+  public async signAAWalletCalldata (smartWalletAddress: string, chainId: number, tx: IWalletTransaction, auth?: string): Promise<Uint8Array> {
     tx.nonce = tx.nonce.toString();
     /* eslint-disable */
     const rawHash = _TypedDataEncoder.hash(
@@ -114,10 +114,10 @@ export class Signer {
 
     const hash = hexToU8a(rawHash.substring(2));
 
-    return await this.signMessage(hash, SignMessageType.EthereumPersonalSign);
+    return await this.signMessage(hash, SignMessageType.EthereumPersonalSign, auth);
   }
 
-  public async signEthTx (tx: IMiniEthTransaction, chainId: number): Promise<string> {
+  public async signEthTx (tx: IMiniEthTransaction, chainId: number, auth?: string): Promise<string> {
     const provider = chainIdToProvider[chainId];
 
     if (!provider) {
@@ -143,7 +143,7 @@ export class Signer {
         throw new Error('necessary MPC sign info is mssing');
       }
 
-      const signature = await this.mpcSignFunc(hash, this.account);
+      const signature = await this.mpcSignFunc(hash, this.account, auth);
 
       return serialize(popTx, signature);
     } else {
@@ -151,9 +151,9 @@ export class Signer {
     }
   }
 
-  public async sendTransaction (tx: IMiniEthTransaction, chainId: number): Promise<ITxResponse> {
+  public async sendTransaction (tx: IMiniEthTransaction, chainId: number, auth?: string): Promise<ITxResponse> {
     const provider = chainIdToProvider[chainId];
-    const signedTx = await this.signEthTx(tx, chainId);
+    const signedTx = await this.signEthTx(tx, chainId, auth);
     const result = await provider.sendTransaction(signedTx);
 
     return {

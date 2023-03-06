@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@choko-wallet/account-abstraction": "0.1.10-9",
+    "@choko-wallet/auth-client": "0.1.10-9",
     "@choko-wallet/known-networks": "0.1.10-9",
     "@polkadot/util-crypto": "^10.1.11",
     "@skyekiwi/crypto": "1.0.2-5",

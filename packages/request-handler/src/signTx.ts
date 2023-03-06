@@ -344,7 +344,10 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     this.version = CURRENT_VERSION;
   }
 
-  public async requestHandler (request: SignTxRequest, account: UserAccount, mpcSignFn?: (msg: Uint8Array, account: UserAccount) => Promise<Uint8Array>): Promise<SignTxResponse> {
+  public async requestHandler (request: SignTxRequest, account: UserAccount,
+    mpcSignFn?: (msg: Uint8Array, account: UserAccount, auth?: string) => Promise<Uint8Array>,
+    auth?: string
+  ): Promise<SignTxResponse> {
     await cryptoWaitReady();
 
     let err = RequestError.NoError;
@@ -400,7 +403,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
             data: deserializedTx.data,
             to: deserializedTx.to,
             value: deserializedTx.value.toString()
-          }, request.dappOrigin.activeNetwork.chainId);
+          }, request.dappOrigin.activeNetwork.chainId, auth);
 
           txHash = txResponse.txHash;
           blockNumber = txResponse.blockNumber;
@@ -454,7 +457,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
             gasLimit: deserializedTx.gasLimit.toString(),
             to: aaWalletAddress,
             value: deserializedTx.value.toString()
-          }, request.dappOrigin.activeNetwork.chainId);
+          }, request.dappOrigin.activeNetwork.chainId, auth);
 
           response = new SignTxResponse({
             dappOrigin: request.dappOrigin,

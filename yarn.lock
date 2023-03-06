@@ -1495,7 +1495,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/auth-client@workspace:packages/auth-client":
+"@choko-wallet/auth-client@0.1.10-9, @choko-wallet/auth-client@workspace:packages/auth-client":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/auth-client@workspace:packages/auth-client"
   dependencies:
@@ -1511,6 +1511,7 @@ __metadata:
   resolution: "@choko-wallet/core@workspace:packages/core"
   dependencies:
     "@choko-wallet/account-abstraction": 0.1.10-9
+    "@choko-wallet/auth-client": 0.1.10-9
     "@choko-wallet/known-networks": 0.1.10-9
     "@polkadot/util-crypto": ^10.1.11
     "@skyekiwi/crypto": 1.0.2-5
