@@ -195,10 +195,10 @@ const sendBiconomyTxPayload = async (
   signer: Signer,
 
   isBatchedTx = false,
+  auth?: string,
 
   index = 0,
-  batchId = 0,
-  auth?: string
+  batchId = 0
 ): Promise<Uint8Array> => {
   const eoaAddress = signer.getEthereumAddress();
   const smartWalletAddress = await getSmartWalletAddress(provider, eoaAddress, index);
