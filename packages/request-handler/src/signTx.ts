@@ -363,8 +363,6 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
     let gaslessTxId: Uint8Array = new Uint8Array(32);
     let response: SignTxResponse;
 
-    const mnemonic = entropyToMnemonic(account.entropy);
-
     switch (request.payload.signTxType) {
       case SignTxType.Ordinary:
         if (request.dappOrigin.activeNetwork.networkType === 'polkadot') {
@@ -372,6 +370,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           const api = await ApiPromise.create({ provider: provider });
 
           // TODO: we use sr25519 by default on Polkadot
+          const mnemonic = entropyToMnemonic(account.entropy);
           const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(mnemonic);
 
           const sendTx = (ext: SubmittableExtrinsic, kr: KeyringPair): Promise<[Uint8Array, number]> => {
