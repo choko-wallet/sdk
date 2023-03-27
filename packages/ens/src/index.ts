@@ -1,30 +1,54 @@
-import ethers from 'ethers'
-import { serialize, UnsignedTransaction } from "@ethersproject/transactions";
-import { resolveProperties } from "@ethersproject/properties";
+// Copyright 2021-2023 @choko-wallet/ens authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import { JsonRpcProvider } from '@ethersproject/providers';
+import * as ethers from 'ethers';
 
 // We assume that the you have the ownership of this ENS name
-const ROOT_ENS_NAME = "chokotest.eth"
-const ROOT_ENS_NAME_HASH = ethers.utils.namehash(ROOT_ENS_NAME)
-const ENS_REGISTRY_ADDRESS = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e"
+const ROOT_ENS_NAME = 'choko.app';
+const ROOT_ENS_NAME_HASH = ethers.utils.namehash(ROOT_ENS_NAME);
+const ENS_REGISTRY_ADDRESS = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
 const ENS_ABI = [
-    "function setSubnodeOwner(bytes32 node, bytes32 label, address owner)",
-    "function owner(bytes32 node) external view returns (address)",
-    "function setOwner(bytes32 node, address owner)"
-]
+  'function setSubnodeOwner(bytes32 node, bytes32 label, address owner)',
+  'function owner(bytes32 node) external view returns (address)',
+  'function setOwner(bytes32 node, address owner)',
+  'function setResolver(bytes32 node, address resolver)'
+];
 
-export async function registerENSName (provider: ethers.providers.Provider, newName: string, owner: string, transactionOption: any): Promise<string> {
-    const subNode = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(newName))
+const GOERLI_PUBLIC_RESOLVER = '0xd7a4f6473f32ac2af804b3686ae8f1932bc35750';
+const RESOLVER_ABI = [
+  'function setAddr(bytes32 node, address a)'
+];
 
-    const ens = new ethers.Contract(ENS_REGISTRY_ADDRESS, ENS_ABI, provider);
-    const populatedTx = await ens.populateTransaction.setSubnodeOwner(ROOT_ENS_NAME_HASH, subNode, owner, transactionOption)
-    const unsignedTx = await resolveProperties(populatedTx)
-    if (unsignedTx.from != null) {
-        delete unsignedTx.from;
-    }
-    
-    return serialize(<UnsignedTransaction>unsignedTx)
-}
+const encodeRegisterSubdomain = (subDomain: string, subDomainOwner: string): string => {
+  const subNode = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(subDomain));
+  const abiInterface = new ethers.utils.Interface(ENS_ABI);
 
-export async function resolveENSAddress (provider: ethers.providers.Provider, ensName: string): Promise<string> {
-    return await provider.resolveName(ensName);
-}
+  return abiInterface.encodeFunctionData('setSubnodeOwner', [
+    ROOT_ENS_NAME_HASH, subNode, subDomainOwner
+  ]);
+};
+
+const encodeSetResolve = (wholeName: string, resolver: string): string => {
+  const node = ethers.utils.namehash(wholeName);
+  const abiInterface = new ethers.utils.Interface(ENS_ABI);
+
+  return abiInterface.encodeFunctionData('setResolver', [
+    node, resolver
+  ]);
+};
+
+const encodeSetEthAddr = (wholeName: string, addr: string): string => {
+  const node = ethers.utils.namehash(wholeName);
+  const abiInterface = new ethers.utils.Interface(RESOLVER_ABI);
+
+  return abiInterface.encodeFunctionData('setAddr', [
+    node, addr
+  ]);
+};
+
+const resolveENSAddress = async (provider: JsonRpcProvider, ensName: string): Promise<string> => {
+  return await provider.resolveName(ensName);
+};
+
+export { encodeRegisterSubdomain, resolveENSAddress, ENS_REGISTRY_ADDRESS, encodeSetResolve, encodeSetEthAddr, GOERLI_PUBLIC_RESOLVER };

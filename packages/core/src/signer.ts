@@ -139,9 +139,9 @@ export class Signer {
       return await wallet.signTransaction(tx);
     } else if (this.account.option.accountType === 1) {
       // if we are in an mpc wallet
-      if (!this.account.mpcKeygenId || !this.account.mpcLocalKey) {
-        throw new Error('necessary MPC sign info is mssing');
-      }
+      // if (!this.account.mpcKeygenId || !this.account.mpcLocalKey) {
+      //   throw new Error('necessary MPC sign info is mssing');
+      // }
 
       const signature = await this.mpcSignFunc(hash, this.account, auth);
 

@@ -14,6 +14,8 @@
       "@choko-wallet/account-abstraction/*": [ "packages/account-abstraction/src/*" ],
       "@choko-wallet/core": [ "packages/core/src" ],
       "@choko-wallet/core/*": [ "packages/core/src/*" ],
+      "@choko-wallet/ens": [ "packages/ens/src" ],
+      "@choko-wallet/ens/*": [ "packages/ens/src/*" ],
       "@choko-wallet/known-networks": [ "packages/known-networks/src" ],
       "@choko-wallet/known-networks/*": [ "packages/known-networks/src/*" ],
       "@choko-wallet/mpc": [ "packages/mpc/src" ],
