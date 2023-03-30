@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/auth-client",
-  "version": "0.1.10-15",
+  "version": "0.1.10-16",
   "type": "module",
   "description": "auth service client",
   "main": "index.js",
