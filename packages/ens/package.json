@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/ens",
-  "version": "0.1.10-17",
+  "version": "0.1.10-18",
   "type": "module",
   "description": "ens registar used by choko wallet",
   "main": "index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/abi",
-  "version": "0.1.10-17",
+  "version": "0.1.10-18",
   "type": "module",
   "description": "common abi used by choko wallet",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.10-17",
+    "@choko-wallet/core": "0.1.10-18",
     "ethers": "^5.7.2"
   }
 }
