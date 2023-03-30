@@ -1472,20 +1472,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@choko-wallet/abi@0.1.10-14, @choko-wallet/abi@workspace:packages/abi":
+"@choko-wallet/abi@0.1.10-16, @choko-wallet/abi@workspace:packages/abi":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/abi@workspace:packages/abi"
   dependencies:
-    "@choko-wallet/core": 0.1.10-14
+    "@choko-wallet/core": 0.1.10-16
     ethers: ^5.7.2
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/account-abstraction@0.1.10-14, @choko-wallet/account-abstraction@workspace:packages/account-abstraction":
+"@choko-wallet/account-abstraction@0.1.10-16, @choko-wallet/account-abstraction@workspace:packages/account-abstraction":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/account-abstraction@workspace:packages/account-abstraction"
   dependencies:
-    "@choko-wallet/core": 0.1.10-14
+    "@choko-wallet/core": 0.1.10-16
     "@skyekiwi/util": ^1.0.1
     "@types/superagent": ^4.1.16
     ethers: ^5.7.2
@@ -1495,7 +1495,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/auth-client@0.1.10-14, @choko-wallet/auth-client@workspace:packages/auth-client":
+"@choko-wallet/auth-client@0.1.10-16, @choko-wallet/auth-client@workspace:packages/auth-client":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/auth-client@workspace:packages/auth-client"
   dependencies:
@@ -1506,13 +1506,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/core@0.1.10-14, @choko-wallet/core@workspace:packages/core":
+"@choko-wallet/core@0.1.10-16, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
   dependencies:
-    "@choko-wallet/account-abstraction": 0.1.10-14
-    "@choko-wallet/auth-client": 0.1.10-14
-    "@choko-wallet/known-networks": 0.1.10-14
+    "@choko-wallet/account-abstraction": 0.1.10-16
+    "@choko-wallet/auth-client": 0.1.10-16
+    "@choko-wallet/known-networks": 0.1.10-16
     "@polkadot/util-crypto": ^10.1.11
     "@skyekiwi/crypto": 1.0.2-5
     "@skyekiwi/util": 1.0.2-5
@@ -1521,7 +1521,6 @@ __metadata:
     pako: ^2.0.4
   languageName: unknown
   linkType: soft
-
 "@choko-wallet/ens@workspace:packages/ens":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/ens@workspace:packages/ens"
@@ -1534,7 +1533,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/known-networks@workspace:packages/known-networks"
   dependencies:
-    "@choko-wallet/core": 0.1.10-14
+    "@choko-wallet/core": 0.1.10-16
     "@skyekiwi/util": 1.0.2-5
   languageName: unknown
   linkType: soft
@@ -1543,7 +1542,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/mpc@workspace:packages/mpc"
   dependencies:
-    "@choko-wallet/core": 0.1.10-14
+    "@choko-wallet/core": 0.1.10-16
     "@skyekiwi/crypto": 1.0.2-5
     "@skyekiwi/util": 1.0.2-5
   languageName: unknown
@@ -1553,9 +1552,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/request-handler@workspace:packages/request-handler"
   dependencies:
-    "@choko-wallet/abi": 0.1.10-14
-    "@choko-wallet/account-abstraction": 0.1.10-14
-    "@choko-wallet/core": 0.1.10-14
+    "@choko-wallet/abi": 0.1.10-16
+    "@choko-wallet/account-abstraction": 0.1.10-16
+    "@choko-wallet/core": 0.1.10-16
     "@polkadot/keyring": ^10.1.11
     "@polkadot/util-crypto": ^10.1.11
     "@skyekiwi/crypto": 1.0.2-5
@@ -1569,7 +1568,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/sdk@workspace:packages/sdk"
   dependencies:
-    "@choko-wallet/core": 0.1.10-14
+    "@choko-wallet/core": 0.1.10-16
   languageName: unknown
   linkType: soft
 

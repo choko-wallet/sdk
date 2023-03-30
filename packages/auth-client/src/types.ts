@@ -24,6 +24,11 @@ export interface OAuthAuthValidate {
   token: string
 }
 
+export interface OAuthAuthPreimage {
+  email: string,
+  provider: string,
+}
+
 export interface UsageLinkRequest {
   keygen_id: string,      // eslint-disable-line
   ownership_proof: string // eslint-disable-line

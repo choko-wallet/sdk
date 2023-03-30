@@ -5,6 +5,6 @@ export { initEmailProofOfOwnership, validateEmailProofOfOwnership } from './emai
 
 export { initGAProofOfOwnership, validateGAProofOfOwnership } from './ga';
 
-export { validateOAuthProofOfOwnership } from './oauth';
+export { validateOAuthProofOfOwnership, preimageOAuthProofOfOwnership, confirmOAuthProofOfOwnership } from './oauth';
 
 export { linkUsage, validateUsage } from './usage';

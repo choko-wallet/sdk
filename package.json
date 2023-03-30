@@ -28,6 +28,6 @@
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   },
-  "version": "0.1.10-14",
+  "version": "0.1.10-16",
   "packageManager": "yarn@3.0.1"
 }
