@@ -15,13 +15,20 @@ export async function validateOAuthProofOfOwnership (provider: string, email: st
   return Certificate.fromString(certificateString.text);
 }
 
+export async function confirmOAuthProofOfOwnership (provider: string, email: string, token: string, url = AUTH_SERVER_URL): Promise<boolean> {
+  const result = await superagent
+    .post(`${url}/auth/oauth/confirm`)
+    .send({ email, provider, token } as OAuthAuthValidate)
+    .accept('json');
+
+  return !result.error;
+}
+
 export async function preimageOAuthProofOfOwnership (provider: string, email: string, url = AUTH_SERVER_URL): Promise<boolean> {
   const result = await superagent
     .post(`${url}/auth/oauth/preimage`)
     .send({ email, provider } as OAuthAuthPreimage)
     .accept('json');
-
-  console.log(result.text);
 
   if (result.text === 'preimage_in_db') {
     return true;
