@@ -22,7 +22,7 @@ describe('@choko-wallet/request-handler - decryptMessage', function () {
 
   const option = defaultAccountOption;
 
-  ['sr25519', 'ed25519', 'ethereum'].map((keyType, index) => {
+  ['ethereum', 'ed25519'].map((keyType, index) => {
     const account = new UserAccount(option);
     const dapp = new DappDescriptor({
       activeNetwork: knownNetworks['847e7b7fa160d85f'], // skyekiwi

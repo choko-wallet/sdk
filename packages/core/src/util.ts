@@ -8,19 +8,15 @@ import { KeypairType } from './types';
 
 /**
   * convert KeypairType from number -> KeypairType (string)
-  * @param {number} keyType the number from 0 - 3 of the KeypairType
+  * @param {number} keyType the number from 0 - 1 of the KeypairType
   * @returns {KeypairType} the string format of KeypairType
 */
 export const keypairTypeNumberToString = (keyType: number): KeypairType => {
   switch (keyType) {
     case 0:
-      return 'sr25519';
+      return 'ethereum';
     case 1:
       return 'ed25519';
-    case 2:
-      return 'ecdsa';
-    case 3:
-      return 'ethereum';
     default:
       throw new Error('unknown key type - Util.mapKeyTypeToString');
   }
@@ -29,18 +25,14 @@ export const keypairTypeNumberToString = (keyType: number): KeypairType => {
 /**
   * convert KeypairType from KeypairType(string) -> number
   * @param {KeypairType} keyType the string format of KeypairType
-  * @returns {number} keyType the number from 0 - 3 of the KeypairType
+  * @returns {number} keyType the number from 0 - 1 of the KeypairType
 */
 export const keypairTypeStringToNumber = (keyType: KeypairType): number => {
   switch (keyType) {
-    case 'sr25519':
+    case 'ethereum':
       return 0;
     case 'ed25519':
       return 1;
-    case 'ecdsa':
-      return 2;
-    case 'ethereum':
-      return 3;
     default:
       throw new Error('unknown key type - Util.mapKeypairTypeToNumber');
   }

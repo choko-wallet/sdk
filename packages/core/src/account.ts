@@ -4,12 +4,11 @@
 import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
 import { ethereumEncode, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { initWASMInterface, SymmetricEncryption } from '@skyekiwi/crypto';
-import { hexToU8a, u8aToHex } from '@skyekiwi/util';
+import { SymmetricEncryption } from '@skyekiwi/crypto';
+import { hexToU8a } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
 import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
-import { linkUsage, validateOAuthProofOfOwnership } from '@choko-wallet/auth-client';
 
 import { chainIdToProvider } from './etherProviders';
 import { KeypairType } from './types';
@@ -20,7 +19,6 @@ export interface IUserAccount {
   entropy?: Uint8Array;
   encryptedEntropy?: Uint8Array;
 
-  mpcKeygenId?: Uint8Array;
   mpcLocalKey?: string;
 
   option: AccountOption;
@@ -38,7 +36,6 @@ export class UserAccount implements IUserAccount {
   entropy?: Uint8Array;
   encryptedEntropy?: Uint8Array;
 
-  mpcKeygenId?: Uint8Array;
   mpcLocalKey?: string;
 
   option: AccountOption;
@@ -89,67 +86,52 @@ export class UserAccount implements IUserAccount {
       throw new Error('account is locked - UserAccount.init');
     }
 
-    await initWASMInterface();
     const seed = entropyToMnemonic(this.entropy);
 
-    this.publicKeys = [];
-    ['sr25519', 'ed25519', 'ethereum'].map((type) => {
-      const t = type as KeypairType;
+    // secp256k1 ethereum style public key
+    const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
+    const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
+    const ethereumKr = (new Keyring({ type: 'ethereum' })).addFromSeed(privateKey);
 
-      if (t === 'ethereum') {
-        const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
-        const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
-        const kr = (new Keyring({ type: t })).addFromSeed(privateKey);
+    // Edward curve publicKey
+    const edKr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(seed);
 
-        this.publicKeys.push(kr.publicKey);
-      } else {
-        const kr = (new Keyring({ type: t })).addFromMnemonic(seed);
-
-        this.publicKeys.push(kr.publicKey);
-      }
-
-      return null;
-    });
+    this.publicKeys = [ethereumKr.publicKey, edKr.publicKey];
 
     this.aaWalletAddress = await this.getAAWwalletAddress();
   }
 
-  public noteMpcWallet (keygenId: Uint8Array, localKey: string) {
-    this.mpcKeygenId = keygenId;
+  public noteMpcWallet (localKey: string): void {
     this.mpcLocalKey = localKey;
   }
 
   public async getAAWwalletAddress (index = 0): Promise<string> {
     return await getSmartWalletAddress(
       chainIdToProvider[5], // we use goerli, AA address is the same cross-chains
-      ethereumEncode(this.publicKeys[2]),
+      this.getAddress('ethereum'),
       index
     );
   }
 
   public getPublicKey (keyType: KeypairType): Uint8Array {
-    if (this.publicKeys.length !== 3) {
+    if (this.publicKeys.length !== 2) {
       throw new Error('account not properly initiated - UserAccount.getAddress');
     }
 
     switch (keyType) {
-      case 'sr25519': return this.publicKeys[0];
+      case 'ethereum': return this.publicKeys[0];
       case 'ed25519': return this.publicKeys[1];
-      case 'ethereum': return this.publicKeys[2];
-      case 'ecdsa': return this.publicKeys[2];
     }
   }
 
   public getAddress (keyType: KeypairType): string {
-    if (this.publicKeys.length !== 3) {
+    if (this.publicKeys.length !== 2) {
       throw new Error('account not properly initiated - UserAccount.getAddress');
     }
 
     switch (keyType) {
-      case 'sr25519': return polkadotEncodeAddress(this.getPublicKey(keyType));
-      case 'ed25519': return polkadotEncodeAddress(this.getPublicKey(keyType));
       case 'ethereum': return ethereumEncode(this.getPublicKey(keyType));
-      case 'ecdsa': return polkadotEncodeAddress(this.getPublicKey(keyType));
+      case 'ed25519': return polkadotEncodeAddress(this.getPublicKey(keyType));
     }
   }
 
@@ -172,6 +154,7 @@ export class UserAccount implements IUserAccount {
 
     // entropy size + encryption overhead + nonce
     if (encryptedEntropy.length !== 16 + 16 + 24) {
+      // unexpected!!
       throw new Error('invalid encrypted private key length - UserAccount.encryptUserAccount');
     }
 
@@ -209,7 +192,7 @@ export class UserAccount implements IUserAccount {
     * @returns {number} size of the serializedLength
   */
   public static serializedLength (): number {
-    return 32 + 32 + 33 + // length of all publicKeys len
+    return 33 + 32 + // length of all publicKeys len
       // we pad all public keys to 33 bytes so that secp256k1 keys can fit as well
       +AccountOption.serializedLength();
   }
@@ -220,16 +203,15 @@ export class UserAccount implements IUserAccount {
    * @returns {Uint8Array} serialized user account
   */
   public serialize (): Uint8Array {
-    if (this.publicKeys.length !== 3) {
+    if (this.publicKeys.length !== 2) {
       throw new Error('account is not properly initialized - UserAccount.serialize');
     }
 
     const res = new Uint8Array(UserAccount.serializedLength());
 
-    res.set(this.publicKeys[0], 0); // sr25519
-    res.set(this.publicKeys[1], 32); // ed25519
-    res.set(this.publicKeys[2], 32 + 32); // secp256k1
-    res.set(this.option.serialize(), 32 + 32 + 33);
+    res.set(this.publicKeys[0], 0); // ethereum
+    res.set(this.publicKeys[1], 33); // ed25519
+    res.set(this.option.serialize(), 33 + 32);
 
     return res;
   }
@@ -245,11 +227,10 @@ export class UserAccount implements IUserAccount {
     }
 
     const publicKeys = [
-      data.slice(0, 32), // sr25519
-      data.slice(32, 32 + 32), // ed25519
-      data.slice(32 + 32, 32 + 32 + 33) // secp256k1
+      data.slice(0, 33), // ed25519
+      data.slice(33, 33 + 32) // secp256k1
     ];
-    const option = AccountOption.deserialize(data.slice(32 + 32 + 33, 32 + 32 + 33 + AccountOption.serializedLength()));
+    const option = AccountOption.deserialize(data.slice(33 + 32, 33 + 32 + AccountOption.serializedLength()));
 
     const userAccount = new UserAccount(option);
 
@@ -299,21 +280,5 @@ export class UserAccount implements IUserAccount {
     userAccount.encryptedEntropy = data.slice(UserAccount.serializedLength(), UserAccount.serializedLength() + 16 + 16 + 24);
 
     return userAccount;
-  }
-
-  public async getMpcOAuthUsageCertificate (provider: string, email: string, token: string): Promise<string> {
-    if (!this.mpcKeygenId) {
-      throw new Error('mpc keygenId missing');
-    }
-
-    const ownershipProof = await validateOAuthProofOfOwnership(provider, email, token);
-    const userCertificatte = await linkUsage(this.mpcKeygenId, ownershipProof);
-
-    return JSON.stringify({
-      proof: {
-        payload: u8aToHex(userCertificatte.payload),
-        signature: u8aToHex(userCertificatte.signature)
-      }
-    });
   }
 }
