@@ -39,13 +39,6 @@ export class Signer {
       let signature: Uint8Array;
 
       switch (signType) {
-        case SignMessageType.RawSr25519: {
-          const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(entropyToMnemonic(this.account.entropy));
-
-          signature = kr.sign(message);
-          break;
-        }
-
         case SignMessageType.RawEd25519: {
           const kr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(entropyToMnemonic(this.account.entropy));
 
@@ -65,21 +58,12 @@ export class Signer {
     } else if (this.account.option.accountType === 1) {
       // if we are in an mpc wallet
       switch (signType) {
-        case SignMessageType.RawSr25519: {
-          throw new Error('Sr25519 Sign not supported for MPC accounts yet');
-          break;
-        }
-
         case SignMessageType.RawEd25519: {
           throw new Error('Ed25519 Sign not supported for MPC accounts yet');
           break;
         }
 
         case SignMessageType.EthereumPersonalSign: {
-          if (!this.account.mpcKeygenId || !this.account.mpcLocalKey) {
-            throw new Error('necessary MPC sign info is mssing');
-          }
-
           const hash = hexToU8a(hashMessage(message).substring(2));
 
           return await this.mpcSignFunc(hash, this.account, auth);

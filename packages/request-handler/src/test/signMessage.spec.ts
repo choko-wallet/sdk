@@ -5,6 +5,7 @@ import Keyring from '@polkadot/keyring';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { u8aToHex } from '@skyekiwi/util';
 import { ethers } from 'ethers';
+import { hashMessage } from 'ethers/lib/utils';
 
 import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
@@ -34,7 +35,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
 
     const request = new SignMessageRequest({
       dappOrigin: dapp,
-      payload: new SignMessageRequestPayload({ message: msg, signMessageType: SignMessageType.RawSr25519 }),
+      payload: new SignMessageRequestPayload({ message: msg, signMessageType: SignMessageType.RawEd25519 }),
       userOrigin: account
     });
 
@@ -56,7 +57,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     const response = new SignMessageResponse({
       dappOrigin: dapp,
       payload: new SignMessageResponsePayload({
-        signMessageType: SignMessageType.RawSr25519, signature: new Uint8Array(64)
+        signMessageType: SignMessageType.RawEd25519, signature: new Uint8Array(64)
       }),
       userOrigin: account
     });
@@ -65,7 +66,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     const deserialized = SignMessageResponse.deserialize(serialized);
 
     expect(deserialized.payload).toEqual(new SignMessageResponsePayload({
-      signMessageType: SignMessageType.RawSr25519, signature: new Uint8Array(64)
+      signMessageType: SignMessageType.RawEd25519, signature: new Uint8Array(64)
     }));
     expect(deserialized.dappOrigin).toEqual(dapp);
     expect(deserialized.userOrigin).toEqual(account);
@@ -73,7 +74,7 @@ describe('@choko-wallet/request-handler - signMessage', function () {
     expect(deserialized.error).toEqual(RequestError.NoError);
   });
 
-  [SignMessageType.RawSr25519, SignMessageType.RawEd25519].map((type) => {
+  [SignMessageType.EthereumPersonalSign, SignMessageType.RawEd25519].map((type) => {
     it(`e2e - signMessage - ${SignMessageType[type]}`, async () => {
       const msg = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
@@ -108,12 +109,20 @@ describe('@choko-wallet/request-handler - signMessage', function () {
       const response = await signMessasge.requestHandler(request, account);
 
       // validate against raw sign
-      const kr = (new Keyring({ type: SignMessageType[type].slice(3).toLowerCase() as KeypairType }))
-        .addFromMnemonic(entropyToMnemonic(account.entropy));
+      if (type === SignMessageType.EthereumPersonalSign) {
+        const recovered = ethers.utils.recoverAddress(
+          hashMessage(msg), '0x' + u8aToHex(response.payload.signature)
+        );
 
-      const res = kr.verify(msg, response.payload.signature, kr.publicKey);
+        expect(recovered).toEqual(account.getAddress('ethereum'));
+      } else {
+        const k = (new Keyring({ type: 'ed25519' as KeypairType }))
+          .addFromMnemonic(entropyToMnemonic(account.entropy));
 
-      expect(res).toBe(true);
+        const r = k.verify(msg, response.payload.signature, k.publicKey);
+
+        expect(r).toBe(true);
+      }
     });
 
     return null;

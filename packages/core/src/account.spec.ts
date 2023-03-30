@@ -10,10 +10,6 @@ import { defaultAccountOption, UserAccount } from '.';
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 const Tests = [
   {
-    address: '5Deo86WWHTk26vXXywvocQXu3uE6dLcdj22ZF1jBNYhP2UJn',
-    keyType: 'sr25519'
-  },
-  {
     address: '5EM4ibUfzYuUZk2udLZGZi2fcUWTVkN32GhyxA2PFcWRUa5J',
     keyType: 'ed25519'
   },
@@ -64,10 +60,9 @@ describe('UserAccount - @choko-wallet/core/account', function () {
       await userAccount2.init();
 
       expect(userAccount2.isLocked).toEqual(false);
-      expect(userAccount2.publicKeys.length).toEqual(3);
+      expect(userAccount2.publicKeys.length).toEqual(2);
       expect(userAccount2.publicKeys[0]).toEqual(userAccount.publicKeys[0]);
       expect(userAccount2.publicKeys[1]).toEqual(userAccount.publicKeys[1]);
-      expect(userAccount2.publicKeys[2]).toEqual(userAccount.publicKeys[2]);
     });
 
     it(`UserAccount - serdeWithEncryptedKey - ${type.keyType}`, async () => {
@@ -87,7 +82,6 @@ describe('UserAccount - @choko-wallet/core/account', function () {
 
       expect(userAccount2.publicKeys[0]).toEqual(userAccount.publicKeys[0]);
       expect(userAccount2.publicKeys[1]).toEqual(userAccount.publicKeys[1]);
-      expect(userAccount2.publicKeys[2]).toEqual(userAccount.publicKeys[2]);
 
       userAccount2.decryptUserAccount(new Uint8Array(32));
       await userAccount2.init();

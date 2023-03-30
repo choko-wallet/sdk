@@ -369,9 +369,8 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           const provider = new WsProvider(request.dappOrigin.activeNetwork.defaultProvider);
           const api = await ApiPromise.create({ provider: provider });
 
-          // TODO: we use sr25519 by default on Polkadot
           const mnemonic = entropyToMnemonic(account.entropy);
-          const kr = (new Keyring({ type: 'sr25519' })).addFromMnemonic(mnemonic);
+          const kr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(mnemonic);
 
           const sendTx = (ext: SubmittableExtrinsic, kr: KeyringPair): Promise<[Uint8Array, number]> => {
             let blockNumber = 0;
@@ -503,7 +502,7 @@ export class SignTxDescriptor implements IRequestHandlerDescriptor {
           });
         }
 
-        await sleep(10000);
+        await sleep(1000);
 
         break;
     }

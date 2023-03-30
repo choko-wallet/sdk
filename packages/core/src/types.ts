@@ -12,13 +12,11 @@ export type Hash = Uint8Array;
 export type Address = string;
 export type HexString = string;
 export type AccountBalance = number;
-export type KeypairType = 'ed25519' | 'sr25519' | 'ecdsa' | 'ethereum';
+export type KeypairType = 'ed25519' | 'ethereum';
 
 export type NetworkType = 'polkadot' | 'ethereum';
-// export type SignMessageType = 'raw-sr25519' | 'raw-ed25519' | 'ethereum-personal';
 
 export enum SignMessageType {
-  RawSr25519,
   RawEd25519,
   EthereumPersonalSign,
 }

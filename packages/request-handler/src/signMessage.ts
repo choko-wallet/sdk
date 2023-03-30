@@ -105,8 +105,7 @@ export class SignMessageResponsePayload implements IPayload {
 
     res.set([this.signMessageType], 0);
 
-    if (this.signMessageType === SignMessageType.RawSr25519 ||
-        this.signMessageType === SignMessageType.RawEd25519) {
+    if (this.signMessageType === SignMessageType.RawEd25519) {
       if (this.signature.length !== 64) {
         throw new Error('invalid length');
       }
@@ -134,7 +133,7 @@ export class SignMessageResponsePayload implements IPayload {
     const signMessageType = data[0];
     let signature = data.slice(1, 1 + 65);
 
-    if (signMessageType === SignMessageType.RawSr25519 || signMessageType === SignMessageType.RawEd25519) {
+    if (signMessageType === SignMessageType.RawEd25519) {
       signature = signature.slice(1);
     }
 
