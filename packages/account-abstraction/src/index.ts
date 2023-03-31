@@ -81,9 +81,7 @@ const deployAAContractIfNeeded = async (chainId: number, signer: Signer): Promis
   const eoaAddress = signer.getEthereumAddress();
 
   if (!(await isSmartWalletDeployed(chainId, eoaAddress))) {
-    await sendBiconomyTxPayload(
-      provider, {}, signer, false
-    );
+    await sendBiconomyTxPayload(provider, {}, signer);
 
     await sleep(10000);
 
@@ -195,6 +193,8 @@ const sendBiconomyTxPayload = async (
   signer: Signer,
 
   isBatchedTx = false,
+  biconomyApiKey = 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428',
+
   auth?: string,
 
   index = 0,
@@ -234,7 +234,7 @@ const sendBiconomyTxPayload = async (
     signature: '0x'
   };
 
-  userOp.paymasterAndData = await fetchPaymasterAndData(userOp);
+  userOp.paymasterAndData = await fetchPaymasterAndData(userOp, biconomyApiKey);
 
   const hash = getRequestId(userOp, biconomyFixtures[chainId].entryPointAddress, chainId);
   const sig = await signer.signMessage(utils.arrayify(hash), SignMessageType.EthereumPersonalSign, auth);
@@ -261,7 +261,7 @@ const sendBiconomyTxPayload = async (
   const params = [
     hexifiedUserOp, biconomyFixtures[chainId].entryPointAddress, chainId,
     {
-      dappAPIKey: 'muxP6qjQy.9b9e49ba-4268-42fe-b5fe-f16de49dc0e9'
+      dappAPIKey: biconomyApiKey
     }
   ];
 
@@ -314,10 +314,10 @@ const fetchWalletNonce = async (eoaAddress: string, index: number, provider: Jso
   return (await smartWalletContract.getNonce(batchId));
 };
 
-const fetchPaymasterAndData = async (userOp: BiconomyUserOperation): Promise<string> => {
+const fetchPaymasterAndData = async (userOp: BiconomyUserOperation, biconomyApiKey: string): Promise<string> => {
   const paymasterData = await superagent
     .post(biconomyServicesUrl.biconomySigningService)
-    .set('x-api-key', 'RgL7oGCfN.4faeb81b-87a9-4d21-98c1-c28267ed4428')
+    .set('x-api-key', biconomyApiKey)
     .send({ userOp: userOp });
 
   if (paymasterData.body.code !== 200) {
