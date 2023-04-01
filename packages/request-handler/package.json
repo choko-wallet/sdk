@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/request-handler",
-  "version": "0.1.10-19",
+  "version": "0.1.10-20",
   "type": "module",
   "description": "wallet request handlers",
   "main": "index.js",
@@ -20,9 +20,9 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "@choko-wallet/abi": "0.1.10-19",
-    "@choko-wallet/account-abstraction": "0.1.10-19",
-    "@choko-wallet/core": "0.1.10-19",
+    "@choko-wallet/abi": "0.1.10-20",
+    "@choko-wallet/account-abstraction": "0.1.10-20",
+    "@choko-wallet/core": "0.1.10-20",
     "@polkadot/keyring": "^10.1.11",
     "@polkadot/util-crypto": "^10.1.11",
     "@skyekiwi/crypto": "1.0.2-5",
