@@ -5,8 +5,6 @@ import { JsonRpcProvider } from '@ethersproject/providers';
 import * as ethers from 'ethers';
 
 // We assume that the you have the ownership of this ENS name
-const ROOT_ENS_NAME = 'choko.app';
-const ROOT_ENS_NAME_HASH = ethers.utils.namehash(ROOT_ENS_NAME);
 const ENS_REGISTRY_ADDRESS = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
 const ENS_ABI = [
   'function setSubnodeOwner(bytes32 node, bytes32 label, address owner)',
@@ -20,12 +18,12 @@ const RESOLVER_ABI = [
   'function setAddr(bytes32 node, address a)'
 ];
 
-const encodeRegisterSubdomain = (subDomain: string, subDomainOwner: string): string => {
+const encodeRegisterSubdomain = (subDomain: string, rootDomain: string, subDomainOwner: string): string => {
   const subNode = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(subDomain));
   const abiInterface = new ethers.utils.Interface(ENS_ABI);
 
   return abiInterface.encodeFunctionData('setSubnodeOwner', [
-    ROOT_ENS_NAME_HASH, subNode, subDomainOwner
+    ethers.utils.namehash(rootDomain), subNode, subDomainOwner
   ]);
 };
 
