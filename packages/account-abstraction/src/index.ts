@@ -36,7 +36,7 @@ const getSmartWalletAddress = async (
   );
 
   /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call */
-  return await walletFactoryContract.getAddressForCounterfactualWallet(owner, index);
+  return await walletFactoryContract.getAddressForCounterFactualAccount(owner, index);
 };
 
 // generate call data to deploy a wallet

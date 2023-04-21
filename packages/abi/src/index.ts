@@ -5,11 +5,25 @@ import type { UnsignedTransaction } from 'ethers';
 import type { HexString } from '@choko-wallet/core/types';
 
 import { ethers } from 'ethers';
+import { ERC20_ABI } from './fixtures/erc20';
+import { ERC721_ABI } from './fixtures/erc721';
+import { ENS_ABI, RESOLVER_ABI } from './fixtures/ens';
+import { AAFACTORY_ABI, AAWALLET_ABI, MULTISEND_ABI } from './fixtures/aa';
 
-import { abis } from './abi';
+const abiNameMapping: { [key: string]: string[] | string } = {
+  'erc20': ERC20_ABI,
+  'erc721': ERC721_ABI,
+  
+  'ens': ENS_ABI,
+  'ens-resolver': RESOLVER_ABI,
+
+  'aa-multisend': MULTISEND_ABI,
+  'aa-walletFactory': AAFACTORY_ABI,
+  'aa-wallet': AAWALLET_ABI,
+}
 
 const loadAbi = (abiName: string, abi?: string): ethers.utils.Interface => {
-  const abiContent = abis[abiName];
+  const abiContent: string[] | string = abiNameMapping[abiName];
   let i;
 
   if (abiContent) {

@@ -8,7 +8,7 @@ import { decodeContractCall, decodeTransaction, encodeContractCall, encodeTransa
 describe('@choko-wallet/abi', function () {
   it('serde contract calls', () => {
     const callData = encodeContractCall(
-      'payable-example', 'lock', [10]
+      'erc20', 'transfer', ['0x520035E74101150BA05D8A5aac837E38ae5416e2', 10]
     );
 
     const unsignedTx: UnsignedTransaction = {
@@ -23,9 +23,9 @@ describe('@choko-wallet/abi', function () {
     const r = decodeTransaction(result);
 
     // const call =
-    decodeContractCall('payable-example', r);
+    decodeContractCall('erc20', r);
 
-    // console.log(r, call)
+    console.log(r)
   });
 
   it('serde transfer', () => {
