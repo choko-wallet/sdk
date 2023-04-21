@@ -1,30 +1,55 @@
-import { MatrixUser, MatrixRoom } from './index'
+import { loginWithUserPassword, createPrivateRoom, registerClientEventListener, removeEventListeners, startClient, sendMessage } from './index'
 import dotenv from 'dotenv';
+import { MatrixClient } from 'matrix-js-sdk';
+import { logger } from 'matrix-js-sdk/lib/logger';
 
+logger.disableAll();
 dotenv.config();
 
 const BASE_URL = 'https://matrix.org'
 
 describe('@choko-wallet/matrix', () => {
-    it('Check matrix package', async () => {
-        const bob = new MatrixUser()
-        await bob.connectWithUserPassword(BASE_URL, "michaelchilelli", "Kevin.Mitnick.45")
+    let bob: MatrixClient, alice: MatrixClient, charlie: MatrixClient
+    let aliceHandlers: any = {}
+    let charlieHandlers: any = {}
 
-        // const alice = new MatrixUser()
-        // await alice.connect({
-        //     baseUrl: "https://matrix.org",
-        //     accessToken: process.env.ACCESS_TOKEN_ALICE,
-        //     userId: process.env.USER_ID_BOB
-        // })
-
-        // const charlie = new MatrixUser()
-        // await charlie.connect({
-        //     baseUrl: "https://matrix.org",
-        //     accessToken: process.env.ACCESS_TOKEN_CHARLIE,
-        //     userId: process.env.USER_ID_BOB
-        // })
-
-        // const room = await bob.createPrivateRoom([ alice.getUserId() ])
-        // await alice.getAllPendingInviations()
+    let aliceMQ: string[] = []
+    beforeAll(async () => {
+        bob = await loginWithUserPassword(BASE_URL, process.env.USER_ID_BOB, process.env.PASSWORD_BOB)
+        alice = await loginWithUserPassword(BASE_URL, process.env.USER_ID_ALICE, process.env.PASSWORD_ALICE)
+        charlie = await loginWithUserPassword(BASE_URL, process.env.USER_ID_CHARLIE, process.env.PASSWORD_CHARLIE)
+        console.log(bob.getUserId())
+        console.log(alice.getUserId())
+        console.log(charlie.getUserId())
+        aliceHandlers = registerClientEventListener(alice, {
+            "invite": async ({ member }) => {
+                await alice.joinRoom(member.roomId)
+                console.log("Alice joined: ", member.roomId);
+            },
+            "msg": ({ roomId, content, toStartOfTimeline }) => {
+                console.log("QQQ", roomId, content, toStartOfTimeline)
+                aliceMQ.push(content.body)
+            },
+        })
+        await startClient(bob);
+        await startClient(alice);
+        await startClient(charlie);
     })
+    afterAll(async() => {
+        console.log("Destructuring ...")
+        removeEventListeners(alice, aliceHandlers)
+        removeEventListeners(charlie, charlieHandlers)
+        bob.stopClient()
+        alice.stopClient()
+        charlie.stopClient()
+    })
+
+    it('Check room creation and message send & receive', async () => {
+        const roomId = await createPrivateRoom(bob, "TestChat2", [ alice.getUserId(), charlie.getUserId() ])
+        console.log("Message is sending...")
+        await sendMessage(bob, roomId, "m.text", "Hello!")
+        console.log("Message sent")
+        await (() => new Promise((resolve, reject) => setTimeout(() => resolve({}), 1000)))()
+        expect(aliceMQ).toEqual(["Hello!"])
+    }, 10000)
 })

@@ -17,7 +17,8 @@
     "lint": "yarn build:abi && ORG_NAME=CHOKO_WALLET skyekiwi-dev-run-lint",
     "clean": "skyekiwi-dev-clean-build",
     "postinstall": "skyekiwi-dev-yarn-only",
-    "test": "yarn build:abi && skyekiwi-dev-run-test --coverage --runInBand"
+    "test": "yarn build:abi && skyekiwi-dev-run-test --coverage --runInBand",
+    "mat": "NODE_OPTIONS=--experimental-vm-modules npx jest matrix"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
@@ -25,6 +26,7 @@
     "@types/jest": "^27.0.1",
     "@types/node": "^16.11.11",
     "dotenv": "^10.0.0",
+    "jest-environment-jsdom-sixteen": "^2.0.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   },
