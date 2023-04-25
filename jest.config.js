@@ -13,7 +13,10 @@ module.exports = Object.assign({}, config, {
     '@choko-wallet/known-networks(.*)$': '<rootDir>/packages/known-networks/src/$1',
     '@choko-wallet/mpc(.*)$': '<rootDir>/packages/mpc/src/$1',
     '@choko-wallet/request-handler(.*)$': '<rootDir>/packages/request-handler/src/$1',
-    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1'
+    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1',
+    '@choko-wallet/matrix(.*)$': '<rootDir>/packages/matrix/src/$1',
+    '@choko-wallet/swing(.*)$': '<rootDir>/packages/swing/src/$1'
+
   },
   modulePathIgnorePatterns: [
     '<rootDir>/packages/abi/build',
@@ -24,7 +27,9 @@ module.exports = Object.assign({}, config, {
     '<rootDir>/packages/mpc/build',
     '<rootDir>/packages/request-handler/build',
     '<rootDir>/packages/sdk/build',
-    '<rootDir>/packages/auth-client/build'
+    '<rootDir>/packages/auth-client/build',
+    '<rootDir>/packages/matrix/build',
+    '<rootDir>/packages/swing/build'
   ],
   testTimeout: 3_000_000,
   transformIgnorePatterns: [

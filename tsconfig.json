@@ -26,6 +26,10 @@
       "@choko-wallet/sdk/*": [ "packages/sdk/src/*" ],
       "@choko-wallet/auth-client": [ "packages/auth-client/src" ],
       "@choko-wallet/auth-client/*": [ "packages/auth-client/src/*" ],
+      "@choko-wallet/matrix": [ "packages/matrix/src" ],
+      "@choko-wallet/matrix/*": [ "packages/matrix/src/*" ],
+      "@choko-wallet/swing": [ "packages/swing/src" ],
+      "@choko-wallet/swing/*": [ "packages/swing/src/*" ],
     },
     "skipLibCheck": true,
     "typeRoots": [
