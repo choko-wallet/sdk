@@ -29,5 +29,8 @@
     "typescript": "^4.5.4"
   },
   "version": "0.1.10-20",
-  "packageManager": "yarn@3.0.1"
+  "packageManager": "yarn@3.0.1",
+  "dependencies": {
+    "@swing.xyz/sdk": "^0.18.1"
+  }
 }
