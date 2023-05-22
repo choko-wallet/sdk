@@ -1,0 +1,29 @@
+{
+  "name": "@choko-wallet/bitcoin",
+  "version": "0.1.10-21",
+  "type": "module",
+  "description": "ens registar used by choko wallet",
+  "main": "index.js",
+  "sideEffects": [
+    "./detectPackage.js",
+    "./detectPackage.cjs"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "maintainers": [],
+  "contributors": [],
+  "author": "Choko Wallet <contact@choko.app>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/choko-wallet/sdk"
+  },
+  "dependencies": {
+    "bignumber.js": "^9.1.1",
+    "bitcoinjs-lib": "^6.1.0",
+    "bs58check": "^2.1.2",
+    "ecpair": "^2.1.0",
+    "tiny-secp256k1": "^2.2.1"
+  }
+}

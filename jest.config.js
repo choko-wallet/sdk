@@ -8,6 +8,7 @@ module.exports = Object.assign({}, config, {
     '@choko-wallet/abi(.*)$': '<rootDir>/packages/abi/src/$1',
     '@choko-wallet/account-abstraction(.*)$': '<rootDir>/packages/account-abstraction/src/$1',
     '@choko-wallet/auth-client(.*)$': '<rootDir>/packages/auth-client/src/$1',
+    '@choko-wallet/bitcoin(.*)$': '<rootDir>/packages/bitcoin/src/$1',
     '@choko-wallet/core(.*)$': '<rootDir>/packages/core/src/$1',
     '@choko-wallet/ens(.*)$': '<rootDir>/packages/ens/src/$1',
     '@choko-wallet/known-networks(.*)$': '<rootDir>/packages/known-networks/src/$1',
@@ -18,6 +19,7 @@ module.exports = Object.assign({}, config, {
   modulePathIgnorePatterns: [
     '<rootDir>/packages/abi/build',
     '<rootDir>/packages/account-abstraction/build',
+    '<rootDir>/packages/bitcoin/build',
     '<rootDir>/packages/core/build',
     '<rootDir>/packages/ens/build',
     '<rootDir>/packages/known-networks/build',
