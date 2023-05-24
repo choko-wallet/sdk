@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/known-networks",
-  "version": "0.1.10-20",
+  "version": "0.1.10-21",
   "type": "module",
   "description": "known network configruations",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "@choko-wallet/core": "0.1.10-20",
+    "@choko-wallet/core": "0.1.10-21",
     "@skyekiwi/util": "1.0.2-5"
   }
 }

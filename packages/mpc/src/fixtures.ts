@@ -1,28 +1,31 @@
-// Copyright 2021-2022 @choko-wallet/mpc authors & contributors
+// Copyright 2021-2022 @choko-wallet/app-utils authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Multiaddr, NodeInfo } from './interface';
+import superagent from 'superagent';
 
-const fullNode1: NodeInfo = [
-  '12D3KooWFAYpT3YAoREqXMK4v3ghPS2SjjuhHgBxkhco1xU15wFs',
-  '/ip4/10.0.0.3/tcp/2620/ws/p2p/12D3KooWFAYpT3YAoREqXMK4v3ghPS2SjjuhHgBxkhco1xU15wFs'
-];
+import { MpcNodeFixtures, PeerIds } from './types';
 
-const fullNode2: NodeInfo = [
-  '12D3KooWLrtYUi9CRjE9KqTtWtxtkUg7ys56zwJ6rTi5b9GXGRdd',
-  '/ip4/10.0.0.3/tcp/2621/ws/p2p/12D3KooWLrtYUi9CRjE9KqTtWtxtkUg7ys56zwJ6rTi5b9GXGRdd'
-];
+const fetchPeers = async (): Promise<MpcNodeFixtures> => {
+  const res = await superagent
+    // .get('https://auth.choko.app/info/peerid')
+    .get('http://0.0.0.0:8080/info/peerid')
+    .accept('json');
+  const peerIds = JSON.parse(res.text) as PeerIds;
 
-const lightNode: NodeInfo = [
-  '12D3KooWLYLcvqbj1TBvM8u83jotaCEuwMqVhuRENdA3CfEA3dHa',
-  '/ip4/10.0.0.3/tcp/2622/ws/p2p/12D3KooWLYLcvqbj1TBvM8u83jotaCEuwMqVhuRENdA3CfEA3dHa'
-];
+  return {
+    f1: [
+      peerIds.f1,
+      `/ip4/127.0.0.1/tcp/2620/ws/p2p/${peerIds.f1}`
+    ],
+    f2: [
+      peerIds.f2,
+      `/ip4/127.0.0.1/tcp/2621/ws/p2p/${peerIds.f2}`
+    ],
+    l: [
+      peerIds.l,
+      `/ip4/127.0.0.1/tcp/2622/ws/p2p/${peerIds.l}`
+    ]
+  };
+};
 
-const clientNode: NodeInfo = [
-  '12D3KooWDMdKQcMKbEc9giHEAcunLQoJCzxgmmTef6ZpVQkf56cu',
-  '/ip4/10.0.0.3/tcp/2619/ws/p2p/12D3KooWDMdKQcMKbEc9giHEAcunLQoJCzxgmmTef6ZpVQkf56cu'
-];
-
-const clientNodeRawAddr: Multiaddr = '/ip4/100.104.199.31/tcp/2619/ws';
-
-export { fullNode1, fullNode2, clientNode, clientNodeRawAddr, lightNode };
+export { fetchPeers };
