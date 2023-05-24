@@ -1,15 +1,18 @@
+// Copyright 2021-2022 @choko-wallet/taro authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 export interface TaroAssets {
-  asset_type: 'NORMAL' | 'COLLECTIBLE',
+  assetType: 'NORMAL' | 'COLLECTIBLE',
   name: string,
-  asset_meta?: string,
+  assetMeta?: string,
   amount: number,
-  group_key?: string,
-  group_anchor?: string,
+  groupKey?: string,
+  groupAnchor?: string,
 }
 
 export interface MintRequest {
   asset: TaroAssets,
-  enable_emission: boolean
+  enableEmission: boolean
 }
 
 export interface TaroConfig {

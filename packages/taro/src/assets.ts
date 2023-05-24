@@ -1,8 +1,11 @@
-import * as superagent from 'superagent';
+// Copyright 2021-2022 @choko-wallet/taro authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
 import * as fs from 'fs';
 import * as https from 'https';
+import * as superagent from 'superagent';
 
-import { TaroAssets, MintRequest, TaroConfig } from './types';
+import { MintRequest, TaroAssets, TaroConfig } from './types';
 
 export async function getAssetsList (config: TaroConfig): Promise<string> {
   const agent = new https.Agent({ rejectUnauthorized: false });
@@ -13,10 +16,10 @@ export async function getAssetsList (config: TaroConfig): Promise<string> {
     .type('application/json')
     .set('Grpc-Metadata-macaroon', fs.readFileSync(config.MACAROON_PATH).toString('hex'));
 
-    return res.text;
+  return res.text;
 }
 
-export async function mintAsset (config: TaroConfig, asset: TaroAssets, enable_emission: boolean): Promise<string> {
+export async function mintAsset (config: TaroConfig, asset: TaroAssets, enableEmission: boolean): Promise<string> {
   const agent = new https.Agent({ rejectUnauthorized: false });
 
   const res = await superagent
@@ -26,10 +29,10 @@ export async function mintAsset (config: TaroConfig, asset: TaroAssets, enable_e
     .set('Grpc-Metadata-macaroon', fs.readFileSync(config.MACAROON_PATH).toString('hex'))
     .send({
       asset,
-      enable_emission
+      enableEmission
     } as MintRequest);
 
-    return res.text;
+  return res.text;
 }
 
 export async function finalizeMintAsset (config: TaroConfig): Promise<string> {
@@ -42,10 +45,10 @@ export async function finalizeMintAsset (config: TaroConfig): Promise<string> {
     .set('Grpc-Metadata-macaroon', fs.readFileSync(config.MACAROON_PATH).toString('hex'))
     .send({});
 
-    return res.text;
+  return res.text;
 }
 
-export async function sendAsset (config: TaroConfig, tap_addrs: Array<string>): Promise<string> {
+export async function sendAsset (config: TaroConfig, tapAddrs: Array<string>): Promise<string> {
   const agent = new https.Agent({ rejectUnauthorized: false });
 
   const res = await superagent
@@ -53,7 +56,7 @@ export async function sendAsset (config: TaroConfig, tap_addrs: Array<string>): 
     .agent(agent)
     .type('application/json')
     .set('Grpc-Metadata-macaroon', fs.readFileSync(config.MACAROON_PATH).toString('hex'))
-    .send({tap_addrs});
+    .send({ tapAddrs });
 
-    return res.text;
+  return res.text;
 }
