@@ -1,97 +1,112 @@
-import * as matrix from "matrix-js-sdk";
-import { MatrixClient, ICreateClientOpts, Preset, RoomMemberEvent, Direction, EmittedEvents, RoomEvent, MatrixEvent, RoomMember, ClientEvent, Room } from "matrix-js-sdk";
-import { InviteEventParam, MessageEventParam, Listeners } from './types'
+// Copyright 2021-2022 @choko-wallet/matrix authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import * as matrix from 'matrix-js-sdk';
+import { ClientEvent, Direction, EmittedEvents, ICreateClientOpts, MatrixClient, MatrixEvent, Preset, Room, RoomEvent, RoomMember, RoomMemberEvent } from 'matrix-js-sdk';
+
+import { InviteEventParam, Listeners, MessageEventParam } from './types';
 
 const wrapOnInvite = (callback: (event: InviteEventParam) => void) => ({
   eventName: RoomMemberEvent.Membership,
   handler: (event: MatrixEvent, member: RoomMember, oldMembership?: string) => {
-    callback({ member, oldMembership })
+    callback({ member, oldMembership });
   }
-})
+});
 
 const wrapOnMessage = (callback: (event: MessageEventParam) => void) => ({
   eventName: RoomEvent.Timeline,
   handler: (event: MatrixEvent, room: Room, toStartOfTimeline: string) => {
-    if (event.getType() !== "m.room.message") {
+    if (event.getType() !== 'm.room.message') {
       return;
     }
-    callback({ roomId: room.roomId, content: event.event.content, toStartOfTimeline })
+
+    callback({ content: event.event.content, roomId: room.roomId, toStartOfTimeline });
   }
-})
+});
 
 const matrixEventWrapper = {
-  "invite": wrapOnInvite,
-  "msg": wrapOnMessage
-}
+  invite: wrapOnInvite,
+  msg: wrapOnMessage
+};
 
-export const login = async (opts: ICreateClientOpts) => {
-  const client = matrix.createClient(opts)
-  await client.startClient()
-  return client
-}
+export const login = async (opts: ICreateClientOpts): any => {
+  const client = matrix.createClient(opts);
 
-export const loginWithUserPassword = async (baseUrl: string, userid: string, password: string) => {
-  const client = matrix.createClient({ baseUrl })
-  await client.login("m.login.password", {"user": userid, "password": password})
+  await client.startClient();
+
+  return client;
+};
+
+export const loginWithUserPassword = async (baseUrl: string, userid: string, password: string): any => {
+  const client = matrix.createClient({ baseUrl });
+
+  await client.login('m.login.password', { user: userid, password: password });
+
   // await client.startClient()
-  return client
-}
+  return client;
+};
 
-export const startClient = async(client: MatrixClient) => {
+export const startClient = async (client: MatrixClient): void => {
   await client.startClient();
   await (() => new Promise((resolve, reject) => {
-    client.once(ClientEvent.Sync, async function (state, prevState, res) {
-      console.log("The client is ready.");
-      resolve({})
-    })
-  }))
-}
+    client.once(ClientEvent.Sync, async function () {
+      console.log('The client is ready.');
+      resolve({});
+    });
+  }));
+};
 
-export const invite = async (client: MatrixClient, roomId: string, userId: string, reason: string) => {
-  await client.invite(roomId, userId, reason)
-}
+export const invite = async (client: MatrixClient, roomId: string, userId: string, reason: string): void => {
+  await client.invite(roomId, userId, reason);
+};
 
 export const createPrivateRoom = async (client: MatrixClient, roomName?: string, initialUsers?: string[]) => {
   const { room_id } = await client.createRoom({
-    preset: Preset.PrivateChat,
-    name: roomName,
     invite: initialUsers
-  })
-  return room_id
-}
+    name: roomName,
+    preset: Preset.PrivateChat,
+  });
+
+  return room_id;
+};
 
 export const sendMessage = async (client: MatrixClient, roomId: string, msgtype: string, body: any) => {
   const content = {
     body,
     msgtype
   };
-  const response = await client.sendEvent(roomId, "m.room.message", content, "");
-  return response
-}
+  const response = await client.sendEvent(roomId, 'm.room.message', content, '');
 
-export const createMessagesRequest = async (client: MatrixClient, roomId: string, limit: number, dir: Direction/*, timelineFilter: Filter*/): Promise<any> => {
-  const response = await client.createMessagesRequest(roomId, null, limit, dir)
-  return response
-}
+  return response;
+};
+
+export const createMessagesRequest = async (client: MatrixClient, roomId: string, limit: number, dir: Direction/*, timelineFilter: Filter */): Promise<any> => {
+  const response = await client.createMessagesRequest(roomId, null, limit, dir);
+
+  return response;
+};
 
 export const registerClientEventListener = (client: MatrixClient, listeners: Listeners) => {
-  let key: keyof (typeof listeners)
-  let allHandlers: {
+  let key: keyof (typeof listeners);
+  const allHandlers: {
     [event: string]: (...args: any[]) => void
-  } = {}
+  } = {};
+
   for (key in listeners) {
-    const listener = listeners[key]
-    const t = matrixEventWrapper[key]
-    const { eventName, handler } = matrixEventWrapper[key](listener as any)
-    client.on(eventName as any, handler)
-    allHandlers[eventName] = handler
+    const listener = listeners[key];
+    const { eventName, handler } = matrixEventWrapper[key](listener as any);
+
+    client.on(eventName as any, handler);
+    allHandlers[eventName] = handler;
   }
-  return allHandlers
-}
+
+  return allHandlers;
+};
 
 export const removeEventListeners = (client: MatrixClient, listeners: Record<string, () => void>) => {
-  let eventName: keyof (typeof listeners)
+  let eventName: keyof (typeof listeners);
+
   for (eventName in listeners) {
-    client.off(eventName as EmittedEvents, listeners[eventName])
+    client.off(eventName as EmittedEvents, listeners[eventName]);
   }
-}
+};
