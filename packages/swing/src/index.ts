@@ -1,14 +1,16 @@
 // Copyright 2021-2022 @choko-wallet/swing authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import SwingSDK, { Components, Options, TransferParams, TransferRoute } from '@swing.xyz/sdk';
+import SwingSDK, { Components, Options, Transaction, TransferParams, TransferRoute, WalletProvider } from '@swing.xyz/sdk';
 import EventEmitter from 'events';
+
+import { QuoteType } from './types';
 
 export const initSwing = async (options?: Options): Promise<{
   sdk: SwingSDK
   eventEmitter: EventEmitter
 }> => {
-  const sdk = new SwingSDK(options);
+  const sdk: SwingSDK = new SwingSDK(options);
 
   await sdk.init();
   const eventEmitter = new EventEmitter();
@@ -22,12 +24,12 @@ export const initSwing = async (options?: Options): Promise<{
   };
 };
 
-export const connectWallet = async (sdk: SwingSDK, provider: any, chainSlug: Components.Schemas.ChainSlug): void => {
+export const connectWallet = async (sdk: SwingSDK, provider: WalletProvider, chainSlug: Components.Schemas.ChainSlug): void => {
   await sdk.wallet.connect(provider, chainSlug);
 };
 
-export const getQuote = async (sdk: SwingSDK, transferParams: TransferParams): any => {
-  const quote = await sdk.getQuote(transferParams);
+export const getQuote = async (sdk: SwingSDK, transferParams: TransferParams): QuoteType => {
+  const quote: QuoteType = await sdk.getQuote(transferParams);
 
   return quote;
 };
@@ -36,6 +38,6 @@ export const transfer = async (sdk: SwingSDK, transferParams: TransferParams, tr
   await sdk.transfer(transferRoute, transferParams);
 };
 
-export const getTransactionHistory = async (sdk: SwingSDK, address: string): any => {
+export const getTransactionHistory = async (sdk: SwingSDK, address: string): Promise<Transaction[]> => {
   return await sdk.wallet.getTransactions(address);
 };

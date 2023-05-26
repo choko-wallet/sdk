@@ -3,14 +3,14 @@
 
 import type { HexString, KeypairType, Version } from '@choko-wallet/core/types';
 
-import { cryptoWaitReady, mnemonicToMiniSecret } from '@polkadot/util-crypto';
-import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { AsymmetricEncryption } from '@skyekiwi/crypto';
-import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
-import { ethers } from 'ethers';
-
 import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, keypairTypeNumberToString, keypairTypeStringToNumber, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
+import { cryptoWaitReady, mnemonicToMiniSecret } from '@polkadot/util-crypto';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
+import { ethers } from 'ethers';
+
+import { AsymmetricEncryption } from '@skyekiwi/crypto';
+import { hexToU8a, padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 
 export const decryptMessageHash: HexString = u8aToHex(xxHash('decryptMessage'));
 

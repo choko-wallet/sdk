@@ -1,11 +1,11 @@
 // Copyright 2021-2022 @choko-wallet/app-utils authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { stringToU8a, u8aToString } from '@skyekiwi/util';
-import superagent from 'superagent';
-
 import { UserAccount } from '@choko-wallet/core';
 import { defaultMpcAccountOption } from '@choko-wallet/core/accountOption';
+import superagent from 'superagent';
+
+import { stringToU8a, u8aToString } from '@skyekiwi/util';
 
 import { fetchPeers } from './fixtures';
 import { extractPublicKey, MpcRequest, SerializedLocalKey, SerializedSignature } from './interface';

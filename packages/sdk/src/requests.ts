@@ -3,11 +3,11 @@
 
 import type { InMemoryStorage } from './type';
 
-import { u8aToHex } from '@skyekiwi/util';
-
 import { KeypairType, SignMessageType, SignTxType } from '@choko-wallet/core/types';
 import { compressParameters } from '@choko-wallet/core/util';
 import { ConnectDappRequest, ConnectDappRequestPayload, DecryptMessageRequest, DecryptMessageRequestPayload, SignMessageRequest, SignMessageRequestPayload, SignTxRequest, SignTxRequestPayload } from '@choko-wallet/request-handler';
+
+import { u8aToHex } from '@skyekiwi/util';
 
 import getWalletUrl from './walletUrl';
 import { getDappDescriptor, getUserAccount } from '.';

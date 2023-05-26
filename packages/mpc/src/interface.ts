@@ -1,8 +1,9 @@
 // Copyright 2021-2022 @choko-wallet/mpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 import { joinSignature } from 'ethers/lib/utils';
+
+import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 
 import { MpcNodeFixtures } from './types';
 
