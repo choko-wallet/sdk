@@ -1,4 +1,7 @@
-import { IContent, RoomMember } from "matrix-js-sdk";
+// Copyright 2021-2022 @choko-wallet/matrix authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import { IContent, RoomMember } from 'matrix-js-sdk';
 
 export type InviteEventParam = {
   member: RoomMember,
@@ -11,6 +14,6 @@ export type MessageEventParam = {
 }
 
 export type Listeners = {
-  "invite"?: (event: InviteEventParam) => void,
-  "msg"?: (event: MessageEventParam) => void
+  'invite'?: (event: InviteEventParam) => void,
+  'msg'?: (event: MessageEventParam) => void
 }

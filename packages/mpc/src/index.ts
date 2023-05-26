@@ -1,9 +1,9 @@
 // Copyright 2021-2022 @choko-wallet/mpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { secureGenerateRandomKey } from '@skyekiwi/crypto';
-
 import { defaultAccountOption, UserAccount } from '@choko-wallet/core';
+
+import { secureGenerateRandomKey } from '@skyekiwi/crypto';
 
 import { clientNode, clientNodeRawAddr } from './fixtures';
 import { extractPublicKey, MpcRequest, SerializedLocalKey, SerializedSignature } from './interface';

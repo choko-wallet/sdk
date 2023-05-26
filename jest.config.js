@@ -31,6 +31,6 @@ module.exports = Object.assign({}, config, {
     '/node_modules/(?!@polkadot|@skyekiwi|@adraffy|@babel/runtime/helpers/esm/)'
   ],
   globals: {
-    fetch: global.fetch,
+    fetch: global.fetch
   }
 });

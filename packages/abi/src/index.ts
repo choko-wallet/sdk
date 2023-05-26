@@ -1,8 +1,8 @@
 // Copyright 2021-2022 @choko-wallet/abi authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { UnsignedTransaction } from 'ethers';
 import type { HexString } from '@choko-wallet/core/types';
+import type { UnsignedTransaction } from 'ethers';
 
 import { ethers } from 'ethers';
 

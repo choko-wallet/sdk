@@ -14,7 +14,7 @@
     "build:release": "yarn build:abi && ORG_NAME=CHOKO_WALLET skyekiwi-ci-ghact-build",
     "build:rollup": "ORG_NAME=CHOKO_WALLET skyekiwi-exec-rollup --config",
     "build:abi": "node ./packages/abi/src/build.cjs",
-    "lint": "yarn build:abi && ORG_NAME=CHOKO_WALLET skyekiwi-dev-run-lint",
+    "lint": "yarn build:abi && skyekiwi-dev-run-lint",
     "clean": "skyekiwi-dev-clean-build",
     "postinstall": "skyekiwi-dev-yarn-only",
     "test": "yarn build:abi && skyekiwi-dev-run-test --coverage --runInBand",

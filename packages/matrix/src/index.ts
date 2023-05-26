@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as matrix from 'matrix-js-sdk';
-import { ClientEvent, Direction, EmittedEvents, ICreateClientOpts, MatrixClient, MatrixEvent, Preset, Room, RoomEvent, RoomMember, RoomMemberEvent } from 'matrix-js-sdk';
+import { ClientEvent, Direction, EmittedEvents, ICreateClientOpts, IMessagesResponse, ISendEventResponse, MatrixClient, MatrixEvent, Preset, Room, RoomEvent, RoomMember, RoomMemberEvent } from 'matrix-js-sdk';
 
 import { InviteEventParam, Listeners, MessageEventParam } from './types';
 
@@ -29,7 +29,7 @@ const matrixEventWrapper = {
   msg: wrapOnMessage
 };
 
-export const login = async (opts: ICreateClientOpts): any => {
+export const login = async (opts: ICreateClientOpts): MatrixClient => {
   const client = matrix.createClient(opts);
 
   await client.startClient();
@@ -37,10 +37,10 @@ export const login = async (opts: ICreateClientOpts): any => {
   return client;
 };
 
-export const loginWithUserPassword = async (baseUrl: string, userid: string, password: string): any => {
+export const loginWithUserPassword = async (baseUrl: string, userid: string, password: string): MatrixClient => {
   const client = matrix.createClient({ baseUrl });
 
-  await client.login('m.login.password', { user: userid, password: password });
+  await client.login('m.login.password', { password: password, user: userid });
 
   // await client.startClient()
   return client;
@@ -48,8 +48,8 @@ export const loginWithUserPassword = async (baseUrl: string, userid: string, pas
 
 export const startClient = async (client: MatrixClient): void => {
   await client.startClient();
-  await (() => new Promise((resolve, reject) => {
-    client.once(ClientEvent.Sync, async function () {
+  await (() => new Promise((resolve) => {
+    client.once(ClientEvent.Sync, function () {
       console.log('The client is ready.');
       resolve({});
     });
@@ -60,17 +60,17 @@ export const invite = async (client: MatrixClient, roomId: string, userId: strin
   await client.invite(roomId, userId, reason);
 };
 
-export const createPrivateRoom = async (client: MatrixClient, roomName?: string, initialUsers?: string[]) => {
+export const createPrivateRoom = async (client: MatrixClient, roomName?: string, initialUsers?: string[]): Room => {
   const { room_id } = await client.createRoom({
-    invite: initialUsers
+    invite: initialUsers,
     name: roomName,
-    preset: Preset.PrivateChat,
+    preset: Preset.PrivateChat
   });
 
   return room_id;
 };
 
-export const sendMessage = async (client: MatrixClient, roomId: string, msgtype: string, body: any) => {
+export const sendMessage = async (client: MatrixClient, roomId: string, msgtype: string, body: any): ISendEventResponse => {
   const content = {
     body,
     msgtype
@@ -80,7 +80,7 @@ export const sendMessage = async (client: MatrixClient, roomId: string, msgtype:
   return response;
 };
 
-export const createMessagesRequest = async (client: MatrixClient, roomId: string, limit: number, dir: Direction/*, timelineFilter: Filter */): Promise<any> => {
+export const createMessagesRequest = async (client: MatrixClient, roomId: string, limit: number, dir: Direction/*, timelineFilter: Filter */): Promise<IMessagesResponse> => {
   const response = await client.createMessagesRequest(roomId, null, limit, dir);
 
   return response;
@@ -103,7 +103,7 @@ export const registerClientEventListener = (client: MatrixClient, listeners: Lis
   return allHandlers;
 };
 
-export const removeEventListeners = (client: MatrixClient, listeners: Record<string, () => void>) => {
+export const removeEventListeners = (client: MatrixClient, listeners: Record<string, () => void>): void => {
   let eventName: keyof (typeof listeners);
 
   for (eventName in listeners) {
