@@ -3,10 +3,10 @@
 
 import type { HexString, NetworkType } from '@choko-wallet/core/types';
 
+import { hexToU8a, u8aToHex } from '@skyekiwi/util';
+
 import { INetwork } from '@choko-wallet/core';
 import { xxHash } from '@choko-wallet/core/util';
-
-import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 
 /* eslint-disable sort-keys */
 export class OptimismGoerliNetwork implements INetwork {

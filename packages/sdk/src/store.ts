@@ -3,11 +3,11 @@
 
 import type { InMemoryStorage } from './type';
 
+import { hexToU8a, u8aToHex } from '@skyekiwi/util';
+
 import { UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { compressParameters, decompressParameters } from '@choko-wallet/core/util';
-
-import { hexToU8a, u8aToHex } from '@skyekiwi/util';
 
 export const storeUserAccount = (store: InMemoryStorage, account: UserAccount): InMemoryStorage => {
   if (!account.isLocked) {

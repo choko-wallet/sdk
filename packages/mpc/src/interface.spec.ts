@@ -1,7 +1,11 @@
 // Copyright 2021-2022 @choko-wallet/mpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { extractPublicKey, extractSignature, MpcRequest } from './interface';
+import { extractPublicKey, extractSignature } from './interface';
+
+// import { hexToU8a } from '@skyekiwi/util';
+// import { randomBytes } from 'crypto';
+// import { mpcLocalKeyToAccount, runKeygenRequest, runKeyRefreshRequest, runSignRequest } from '.';
 
 describe('@choko-wallet/interface', () => {
   it('correctly parse mpc outputs - keygen', () => {
@@ -19,21 +23,36 @@ describe('@choko-wallet/interface', () => {
     console.log(sig);
   });
 
-  it('correctly serialize mpc request - keygen', () => {
-    const keygenRequst = MpcRequest.newKeyGenRequest(new Uint8Array(32));
+  // it('runs keygen request', async () => {
+  //   const authHeader = `xx`;
 
-    console.log('keygenRequst', keygenRequst);
-    console.log('keygenRequst', keygenRequst.serialize());
-  });
+  //   const localKey = await runKeygenRequest(randomBytes(32), authHeader);
+  //   console.log(localKey)
+  //   const sig = await runSignRequest(randomBytes(32), authHeader, localKey, new Uint8Array(32));
+  //   console.log(extractSignature(sig))
 
-  it('correctly serialize mpc request - sign', () => {
-    const signRequest = MpcRequest.newSignRequest(
-      new Uint8Array(32), // payloadId
-      new Uint8Array(32), // message
-      new Uint8Array(32) // keygenId
-    );
+  //   const newLocalKey = await runKeyRefreshRequest(randomBytes(32), authHeader);
+  //   console.log(newLocalKey)
 
-    console.log('signRequest', signRequest);
-    console.log('signRequest', signRequest.serialize());
-  });
+  //   const recoverdAddr = ethers.utils.recoverAddress(new Uint8Array(32), extractSignature(sig))
+  //   console.log(recoverdAddr, mpcLocalKeyToAccount(localKey).getAddress('ethereum'))
+  // });
+
+  // it('correctly serialize mpc request - keygen', () => {
+  //   const keygenRequst = MpcRequest.newKeyGenRequest();
+
+  //   console.log('keygenRequst', keygenRequst);
+  //   console.log('keygenRequst', keygenRequst.serialize());
+  // });
+
+  // it('correctly serialize mpc request - sign', () => {
+  //   const signRequest = MpcRequest.newSignRequest(
+  //     new Uint8Array(32), // payloadId
+  //     new Uint8Array(32), // message
+  //     new Uint8Array(32) // keygenId
+  //   );
+
+  //   console.log('signRequest', signRequest);
+  //   console.log('signRequest', signRequest.serialize());
+  // });
 });

@@ -3,12 +3,12 @@
 
 import type { InMemoryStorage } from './type';
 
-import { defaultAccountOption, UserAccount } from '@choko-wallet/core';
-import { SignMessageType, SignTxType } from '@choko-wallet/core/types';
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { hexToU8a } from '@skyekiwi/util';
 import { TextDecoder, TextEncoder } from 'util';
 
-import { hexToU8a } from '@skyekiwi/util';
+import { defaultAccountOption, UserAccount } from '@choko-wallet/core';
+import { SignMessageType, SignTxType } from '@choko-wallet/core/types';
 
 import { buildConnectDappUrl, buildSignMessageUrl, buildSignTxUrl, configSDK, loadStorage, storeUserAccount } from '.';
 

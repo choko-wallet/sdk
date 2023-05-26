@@ -3,13 +3,13 @@
 
 import type { KeypairType } from '@choko-wallet/core/types';
 
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { AsymmetricEncryption } from '@skyekiwi/crypto';
+import { randomBytes } from 'tweetnacl';
+
 import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { knownNetworks } from '@choko-wallet/known-networks';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { randomBytes } from 'tweetnacl';
-
-import { AsymmetricEncryption } from '@skyekiwi/crypto';
 
 import { DecryptMessageDescriptor, DecryptMessageRequest, DecryptMessageRequestPayload, DecryptMessageResponse, DecryptMessageResponsePayload } from '../decryptMessage';
 

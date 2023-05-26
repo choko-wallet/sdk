@@ -3,11 +3,11 @@
 
 import type { HexString, Version } from '@choko-wallet/core/types';
 
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { u8aToHex } from '@skyekiwi/util';
+
 import { DappDescriptor, deserializeRequestError, IDappDescriptor, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
 import { CURRENT_VERSION } from '@choko-wallet/core/types';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
-
-import { u8aToHex } from '@skyekiwi/util';
 
 export const connectDappHash: HexString = u8aToHex(xxHash('connectDapp'));
 

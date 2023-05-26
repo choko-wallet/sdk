@@ -3,9 +3,9 @@
 
 import type { Color, HexString, Image, NetworkType } from './types';
 
-import { knownNetworks } from '@choko-wallet/known-networks';
-
 import { u8aToHex } from '@skyekiwi/util';
+
+import { knownNetworks } from '@choko-wallet/known-networks';
 
 import * as Util from './util';
 

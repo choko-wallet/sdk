@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { blake2s } from '@noble/hashes/blake2s';
-import superagent from 'superagent';
-
 import { u8aToHex } from '@skyekiwi/util';
+import superagent from 'superagent';
 
 import { AUTH_SERVER_URL } from './config';
 import { Certificate, GAAuthValidateRequest, ICertificate } from './types';

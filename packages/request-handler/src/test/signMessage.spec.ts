@@ -1,16 +1,16 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import Keyring from '@polkadot/keyring';
+import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
+import { u8aToHex } from '@skyekiwi/util';
+import { ethers } from 'ethers';
+import { hashMessage } from 'ethers/lib/utils';
+
 import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { KeypairType, SignMessageType } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
-import Keyring from '@polkadot/keyring';
-import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { ethers } from 'ethers';
-import { hashMessage } from 'ethers/lib/utils';
-
-import { u8aToHex } from '@skyekiwi/util';
 
 import { SignMessageDescriptor, SignMessageRequest, SignMessageRequestPayload, SignMessageResponse, SignMessageResponsePayload } from '../signMessage';
 

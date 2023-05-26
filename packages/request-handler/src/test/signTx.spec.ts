@@ -1,13 +1,13 @@
 // Copyright 2021-2022 @choko-wallet/request-handler authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { ApiPromise, WsProvider } from '@polkadot/api';
+import { hexToU8a } from '@skyekiwi/util';
+
 import { defaultAccountOption, RequestError, UserAccount } from '@choko-wallet/core';
 import { DappDescriptor } from '@choko-wallet/core/dapp';
 import { SignTxType } from '@choko-wallet/core/types';
 import { knownNetworks } from '@choko-wallet/known-networks';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-
-import { hexToU8a } from '@skyekiwi/util';
 
 import { SignTxDescriptor, SignTxRequest, SignTxRequestPayload, SignTxResponse, SignTxResponsePayload } from '../signTx';
 

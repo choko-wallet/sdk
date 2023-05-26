@@ -1,10 +1,10 @@
 // Copyright 2021-2022 @choko-wallet/sdk authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { hexToU8a } from '@skyekiwi/util';
+
 import { decompressParameters } from '@choko-wallet/core/util';
 import { ConnectDappResponse, DecryptMessageResponse, SignMessageResponse, SignTxResponse } from '@choko-wallet/request-handler';
-
-import { hexToU8a } from '@skyekiwi/util';
 
 export const parseConnectDappResponse = (data: string): ConnectDappResponse => {
   const response = ConnectDappResponse.deserialize(

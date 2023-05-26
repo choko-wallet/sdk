@@ -1,9 +1,8 @@
 // Copyright 2021-2022 @choko-wallet/auth-client authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import superagent from 'superagent';
-
 import { u8aToHex } from '@skyekiwi/util';
+import superagent from 'superagent';
 
 import { AUTH_SERVER_URL } from './config';
 import { Certificate } from './types';

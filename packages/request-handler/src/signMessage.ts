@@ -3,12 +3,12 @@
 
 import type { HexString, Version } from '@choko-wallet/core/types';
 
+import { cryptoWaitReady } from '@polkadot/util-crypto';
+import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
+
 import { DappDescriptor, deserializeRequestError, IPayload, IRequest, IRequestHandlerDescriptor, IResponse, RequestError, RequestErrorSerializedLength, serializeRequestError, UserAccount, xxHash } from '@choko-wallet/core';
 import { Signer } from '@choko-wallet/core/signer';
 import { CURRENT_VERSION, SignMessageType } from '@choko-wallet/core/types';
-import { cryptoWaitReady } from '@polkadot/util-crypto';
-
-import { padSize, u8aToHex, unpadSize } from '@skyekiwi/util';
 
 export const signMessageHash: HexString = u8aToHex(xxHash('signMessage'));
 
