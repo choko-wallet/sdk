@@ -1,8 +1,8 @@
 {
-  "name": "@choko-wallet/account-abstraction",
+  "name": "@choko-wallet/rpc",
   "version": "0.1.10-21",
   "type": "module",
-  "description": "account abstraction utility used by Choko Wallet",
+  "description": "common abi used by choko wallet",
   "main": "index.js",
   "sideEffects": [
     "./detectPackage.js",
@@ -21,13 +21,6 @@
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.10-21",
-    "@skyekiwi/util": "^1.0.1",
-    "ethers": "^5.7.2",
-    "isomorphic-ws": "^5.0.0",
-    "messaging-sdk": "^0.0.3",
-    "superagent": "^8.0.4"
-  },
-  "devDependencies": {
-    "@types/superagent": "^4.1.16"
+    "viem": "^0.3.33"
   }
 }

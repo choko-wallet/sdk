@@ -1,5 +1,5 @@
 {
-  "name": "@choko-wallet/abi",
+  "name": "@choko-wallet/account",
   "version": "0.1.10-21",
   "type": "module",
   "description": "common abi used by choko wallet",
@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.10-21",
-    "abitype": "^0.8.4",
     "viem": "^0.3.33"
   }
 }

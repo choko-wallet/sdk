@@ -1,57 +1,39 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { KeypairType } from '@choko-wallet/core/types';
+
 import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
-import { ethereumEncode, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
+import { ethereumEncode, mnemonicToEntropy, mnemonicValidate, mnemonicGenerate } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { SymmetricEncryption } from '@skyekiwi/crypto';
 import { hexToU8a } from '@skyekiwi/util';
-import { ethers } from 'ethers';
 
-import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
+import { AccountOption } from './options';
+import { LocalAccount, mnemonicToAccount } from 'viem/accounts';
 
-import { chainIdToProvider } from './etherProviders';
-import { KeypairType } from './types';
-import { AccountOption } from '.';
-
-export interface IUserAccount {
-  // CORE FIELDS
+export class EoaAccount {
   entropy?: Uint8Array;
   encryptedEntropy?: Uint8Array;
 
-  mpcLocalKey?: string;
-
   option: AccountOption;
-
-  // DERIVED
-  isLocked: boolean;
-  publicKeys: Uint8Array[];
-
-  aaWalletAddress?: string;
-
-  serialize(): Uint8Array;
-}
-
-export class UserAccount implements IUserAccount {
-  entropy?: Uint8Array;
-  encryptedEntropy?: Uint8Array;
-
-  mpcLocalKey?: string;
-
-  option: AccountOption;
-
-  isLocked: boolean;
-
-  publicKeys: Uint8Array[];
+  isLocked: boolean = true;
+  publicKeys: Uint8Array[] = [];
 
   constructor (option: AccountOption) {
     if (!option.validate()) {
-      throw new Error('invalide option - UserAccount.constructor');
+      throw new Error('invalide option - EoaAccount.constructor');
     }
 
-    this.publicKeys = [];
     this.option = option;
-    this.isLocked = true;
+  }
+
+  /* Testing Only */
+  public random(): void {
+    const mnemonic = mnemonicGenerate();
+    console.log(mnemonic);
+    this.unlock(mnemonic);
+    this.init();
   }
 
   /**
@@ -77,7 +59,7 @@ export class UserAccount implements IUserAccount {
 
   /**
     * initialize user account. Generate the publicKey and address for the account
-    * @returns {Promise<void>} None.
+    * @returns {void} None.
   */
   public init (): void {
     if (this.isLocked) {
@@ -86,19 +68,13 @@ export class UserAccount implements IUserAccount {
 
     const seed = entropyToMnemonic(this.entropy);
 
-    // secp256k1 ethereum style public key
-    const ethersJsWallet = ethers.Wallet.fromMnemonic(seed);
-    const privateKey = hexToU8a(ethersJsWallet.privateKey.slice(2));
-    const ethereumKr = (new Keyring({ type: 'ethereum' })).addFromSeed(privateKey);
-
+    const act = mnemonicToAccount(seed);
+    const pubKey = hexToU8a(act.publicKey.slice(2));
+    
     // Edward curve publicKey
     const edKr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(seed);
 
-    this.publicKeys = [ethereumKr.publicKey, edKr.publicKey];
-  }
-
-  public noteMpcWallet (localKey: string): void {
-    this.mpcLocalKey = localKey;
+    this.publicKeys = [pubKey, edKr.publicKey];
   }
 
   public getPublicKey (keyType: KeypairType): Uint8Array {
@@ -192,10 +168,10 @@ export class UserAccount implements IUserAccount {
   */
   public serialize (): Uint8Array {
     if (this.publicKeys.length !== 2) {
-      throw new Error('account is not properly initialized - UserAccount.serialize');
+      throw new Error('account is not properly initialized - EoaAccount.serialize');
     }
 
-    const res = new Uint8Array(UserAccount.serializedLength());
+    const res = new Uint8Array(EoaAccount.serializedLength());
 
     res.set(this.publicKeys[0], 0); // ethereum
     res.set(this.publicKeys[1], 33); // ed25519
@@ -209,8 +185,8 @@ export class UserAccount implements IUserAccount {
     * @param {Uint8Array} data serialized user account
     * @returns {Uint8Array} deserialized user account
   */
-  public static deserialize (data: Uint8Array): UserAccount {
-    if (data.length !== UserAccount.serializedLength()) {
+  public static deserialize (data: Uint8Array): EoaAccount {
+    if (data.length !== EoaAccount.serializedLength()) {
       throw new Error('invalid data length - UserAccount.deserialize');
     }
 
@@ -220,7 +196,7 @@ export class UserAccount implements IUserAccount {
     ];
     const option = AccountOption.deserialize(data.slice(33 + 32, 33 + 32 + AccountOption.serializedLength()));
 
-    const userAccount = new UserAccount(option);
+    const userAccount = new EoaAccount(option);
 
     userAccount.publicKeys = publicKeys;
 
@@ -232,7 +208,7 @@ export class UserAccount implements IUserAccount {
     * @returns {number} size of the serializedLength plus the length of EncryptedKey
   */
   public static serializedLengthWithEncryptedKey (): number {
-    return UserAccount.serializedLength() + 16 + 16 + 24;
+    return EoaAccount.serializedLength() + 16 + 16 + 24;
   }
 
   // account serialize does not include CLEARTEXT private key info
@@ -245,10 +221,10 @@ export class UserAccount implements IUserAccount {
       throw new Error('invalid encryptedEntropy - UserAccount.serializeWithEncryptedKey');
     }
 
-    const res = new Uint8Array(UserAccount.serializedLengthWithEncryptedKey());
+    const res = new Uint8Array(EoaAccount.serializedLengthWithEncryptedKey());
 
     res.set(this.serialize(), 0);
-    res.set(this.encryptedEntropy, UserAccount.serializedLength());
+    res.set(this.encryptedEntropy, EoaAccount.serializedLength());
 
     return res;
   }
@@ -258,15 +234,34 @@ export class UserAccount implements IUserAccount {
    * @param {Uint8Array} data serialized user account with EncryptedKey
    * @returns {Uint8Array} deserialized user account with EncryptedKey
   */
-  public static deserializeWithEncryptedKey (data: Uint8Array): UserAccount {
-    if (data.length !== UserAccount.serializedLengthWithEncryptedKey()) {
+  public static deserializeWithEncryptedKey (data: Uint8Array): EoaAccount {
+    if (data.length !== EoaAccount.serializedLengthWithEncryptedKey()) {
       throw new Error('invalid data length - UserAccount.deserializeWithEncryptedKey');
     }
 
-    const userAccount = UserAccount.deserialize(data.slice(0, UserAccount.serializedLength()));
+    const userAccount = EoaAccount.deserialize(data.slice(0, EoaAccount.serializedLength()));
 
-    userAccount.encryptedEntropy = data.slice(UserAccount.serializedLength(), UserAccount.serializedLength() + 16 + 16 + 24);
+    userAccount.encryptedEntropy = data.slice(EoaAccount.serializedLength(), EoaAccount.serializedLength() + 16 + 16 + 24);
 
     return userAccount;
+  }
+
+  public toViemAccount(): LocalAccount {
+    if (this.isLocked) {
+      throw new Error('account is locked - UserAccount.toViemAccount');
+    }
+    const mnemonic = entropyToMnemonic(this.entropy);
+    const account = mnemonicToAccount(mnemonic);
+
+    return {
+      address: account.address,
+      publicKey: account.publicKey,
+      signMessage: account.signMessage,
+      signTransaction: account.signTransaction,
+      signTypedData: account.signTypedData,
+
+      source: 'custom',
+      type: 'local'
+    }
   }
 }

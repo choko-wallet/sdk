@@ -1,7 +1,9 @@
 // Copyright 2021-2023 @choko-wallet/abi authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-export const ERC721_ABI = [
+import { parseAbi } from "viem";
+
+export const ERC721_ABI = parseAbi([
   // basics
   'function name() public view returns (string memory)',
   'function symbol() public view returns (string memory)',
@@ -20,4 +22,4 @@ export const ERC721_ABI = [
   'function getApproved(uint256 tokenId) public view returns (address)',
   'function setApprovalForAll(address operator, bool approved) public',
   'function isApprovedForAll(address owner, address operator) public view returns (bool)',
-]
+])
