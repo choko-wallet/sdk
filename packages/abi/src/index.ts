@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Abi } from 'abitype'
-import { Hex, TransactionSerializable, decodeFunctionData, parseTransaction, serializeTransaction } from 'viem'
-import type { UnsignedTransaction } from 'ethers';
+import type { Hex, TransactionSerializable } from 'viem'
 
-import { encodeFunctionData } from 'viem';
+import { decodeFunctionData, parseTransaction, serializeTransaction, encodeFunctionData } from 'viem';
+
 import { ERC20_ABI } from './fixtures/erc20';
 import { ERC721_ABI } from './fixtures/erc721';
 import { ENS_ABI, RESOLVER_ABI } from './fixtures/ens';
-import { AAFACTORY_ABI, AAWALLET_ABI, MULTISEND_ABI } from './fixtures/aa';
+import { AAFACTORY_ABI, AAWALLET_ABI } from './fixtures/aa';
 
 const loadAbi = (abiName: string, abi?: Abi): Abi => {
   switch(abiName) {
@@ -17,7 +17,6 @@ const loadAbi = (abiName: string, abi?: Abi): Abi => {
     case 'erc721': return ERC721_ABI
     case 'ens': return ENS_ABI
     case 'ens-resolver': return RESOLVER_ABI
-    case 'aa-multisend': return MULTISEND_ABI
     case 'aa-walletFactory': return AAFACTORY_ABI
     case 'aa-wallet': return AAWALLET_ABI
     default: {
@@ -67,4 +66,3 @@ const decodeTransaction = (data: Hex): TransactionSerializable => {
 };
 
 export { encodeContractCall, decodeContractCall, decodeTransaction, encodeTransaction, loadAbi };
-export type { UnsignedTransaction };

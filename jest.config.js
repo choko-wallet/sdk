@@ -6,25 +6,30 @@ const config = require('@skyekiwi/dev/config/jest.cjs');
 module.exports = Object.assign({}, config, {
   moduleNameMapper: {
     '@choko-wallet/abi(.*)$': '<rootDir>/packages/abi/src/$1',
-    '@choko-wallet/account-abstraction(.*)$': '<rootDir>/packages/account-abstraction/src/$1',
+    '@choko-wallet/account(.*)$': '<rootDir>/packages/account/src/$1',
     '@choko-wallet/auth-client(.*)$': '<rootDir>/packages/auth-client/src/$1',
     '@choko-wallet/core(.*)$': '<rootDir>/packages/core/src/$1',
     '@choko-wallet/ens(.*)$': '<rootDir>/packages/ens/src/$1',
     '@choko-wallet/known-networks(.*)$': '<rootDir>/packages/known-networks/src/$1',
     '@choko-wallet/mpc(.*)$': '<rootDir>/packages/mpc/src/$1',
     '@choko-wallet/request-handler(.*)$': '<rootDir>/packages/request-handler/src/$1',
-    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1'
+    '@choko-wallet/rpc(.*)$': '<rootDir>/packages/rpc/src/$1',
+    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1',
+    '@choko-wallet/token-price(.*)$': '<rootDir>/packages/token-price/src/$1',
+
   },
   modulePathIgnorePatterns: [
     '<rootDir>/packages/abi/build',
-    '<rootDir>/packages/account-abstraction/build',
+    '<rootDir>/packages/account/build',
     '<rootDir>/packages/core/build',
     '<rootDir>/packages/ens/build',
     '<rootDir>/packages/known-networks/build',
     '<rootDir>/packages/mpc/build',
     '<rootDir>/packages/request-handler/build',
+    '<rootDir>/packages/rpc/build',
     '<rootDir>/packages/sdk/build',
-    '<rootDir>/packages/auth-client/build'
+    '<rootDir>/packages/auth-client/build',
+    '<rootDir>/packages/token-price/build'
   ],
   testTimeout: 3_000_000,
   transformIgnorePatterns: [

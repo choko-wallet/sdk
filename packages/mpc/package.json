@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.10-21",
-    "@skyekiwi/crypto": "1.0.2-5",
     "@skyekiwi/util": "1.0.2-5",
     "superagent": "^8.0.9"
   }

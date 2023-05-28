@@ -1,11 +1,15 @@
 
-import { Address, LocalAccount, hashMessage, hashTypedData, keccak256, serializeTransaction, toBytes, toHex } from "viem";
+import type { Address, LocalAccount } from "viem";
 import { ethereumEncode } from '@polkadot/util-crypto';
 
-import { extractPublicKey, extractSignature } from "@choko-wallet/mpc/interface";
+import {hashMessage, hashTypedData, keccak256, serializeTransaction, toBytes, toHex} from 'viem';
 import { toAccount } from "viem/accounts";
+
+import { extractPublicKey, extractSignature } from "@choko-wallet/mpc/interface";
 import { runSignRequest } from "@choko-wallet/mpc";
+
 import { secureGenerateRandomKey } from '@skyekiwi/crypto'
+
 export class MpcAccount {
   localKey: string;
   authHeader: string;

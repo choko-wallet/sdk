@@ -3,11 +3,11 @@
 
 import type { KeypairType } from '@choko-wallet/core/types';
 
+import { secp256k1 } from '@noble/curves/secp256k1'
 import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
 import { ethereumEncode, mnemonicToEntropy, mnemonicValidate, mnemonicGenerate } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { SymmetricEncryption } from '@skyekiwi/crypto';
-import { hexToU8a } from '@skyekiwi/util';
 
 import { AccountOption } from './options';
 import { LocalAccount, mnemonicToAccount } from 'viem/accounts';
@@ -69,7 +69,8 @@ export class EoaAccount {
     const seed = entropyToMnemonic(this.entropy);
 
     const act = mnemonicToAccount(seed);
-    const pubKey = hexToU8a(act.publicKey.slice(2));
+    const privateKey = act.getHdKey().privateKey;
+    const pubKey = secp256k1.getPublicKey(privateKey, true);
     
     // Edward curve publicKey
     const edKr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(seed);

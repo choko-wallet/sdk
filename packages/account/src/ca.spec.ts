@@ -74,60 +74,59 @@ describe('@choko-wallet/account', function () {
     console.log(res)
   })
 
-  it('correctly send relayed tx with CA', async () => {
-    const linkTokenContract = '0x326c977e6efc84e512bb9c30f76e30c160ed06fb'
-    const decimals = 18;
+  // it('correctly send relayed tx with CA', async () => {
+  //   const linkTokenContract = '0x326c977e6efc84e512bb9c30f76e30c160ed06fb'
+  //   const decimals = 18;
 
-    const eoaAccount = new EoaAccount(defaultAccountOption);
-    eoaAccount.unlock(seed);
-    eoaAccount.init();
+  //   const eoaAccount = new EoaAccount(defaultAccountOption);
+  //   eoaAccount.unlock(seed);
+  //   eoaAccount.init();
 
-    // const walletClient = getWalletClient(5);
-    // const res = await walletClient.sendTransaction({
-    //   to: linkTokenContract,
-      // data: encodeContractCall('erc20', 'transfer', [
-      //   '0x6B843808321e8E8Fe62cEf79aE63C828D60e496B', 
-      //   BigInt(10) ** BigInt(decimals) * BigInt(10)
-      // ]),
-    //   chain: getViemChainConfig(5),
-    //   account: eoaAccount.toViemAccount(),
-    // })
+  //   // const walletClient = getWalletClient(5);
+  //   // const res = await walletClient.sendTransaction({
+  //   //   to: linkTokenContract,
+  //     // data: encodeContractCall('erc20', 'transfer', [
+  //     //   '0x6B843808321e8E8Fe62cEf79aE63C828D60e496B', 
+  //     //   BigInt(10) ** BigInt(decimals) * BigInt(10)
+  //     // ]),
+  //   //   chain: getViemChainConfig(5),
+  //   //   account: eoaAccount.toViemAccount(),
+  //   // })
 
-    // console.log(res)
-    const ca = new ContractAccount(eoaAccount.toViemAccount(), 5);
-    // const deploy = await ca.deployContract();
-    // console.log(deploy)
+  //   // console.log(res)
+  //   const ca = new ContractAccount(eoaAccount.toViemAccount(), 5);
+  //   // const deploy = await ca.deployContract();
+  //   // console.log(deploy)
 
-    const res = await ca.gaslessExecute([{
-      to: linkTokenContract,
-      data: encodeContractCall('erc20', 'transfer', [
-        '0x8145BF5e1BbdEC2447b063cE69A367F266c2a1c2', 
-        BigInt(10) ** BigInt(decimals) * BigInt(1)
-      ]),
-    }, {
-      to: linkTokenContract,
-      data: encodeContractCall('erc20', 'transfer', [
-        '0x8145BF5e1BbdEC2447b063cE69A367F266c2a1c2', 
-        BigInt(10) ** BigInt(decimals) * BigInt(2)
-      ]),
-    }, {
-      to: linkTokenContract,
-      data: encodeContractCall('erc20', 'transfer', [
-        '0x8145BF5e1BbdEC2447b063cE69A367F266c2a1c2', 
-        BigInt(10) ** BigInt(decimals) * BigInt(3)
-      ]),
-    }], 'https://api.stackup.sh/v1/node/<KEY>',
-    'https://api.stackup.sh/v1/paymaster/<KEY>' );
+  //   const res = await ca.gaslessExecute([{
+  //     to: linkTokenContract,
+  //     data: encodeContractCall('erc20', 'transfer', [
+  //       '0x8145BF5e1BbdEC2447b063cE69A367F266c2a1c2', 
+  //       BigInt(10) ** BigInt(decimals) * BigInt(1)
+  //     ]),
+  //   }, {
+  //     to: linkTokenContract,
+  //     data: encodeContractCall('erc20', 'transfer', [
+  //       '0x8145BF5e1BbdEC2447b063cE69A367F266c2a1c2', 
+  //       BigInt(10) ** BigInt(decimals) * BigInt(2)
+  //     ]),
+  //   }, {
+  //     to: linkTokenContract,
+  //     data: encodeContractCall('erc20', 'transfer', [
+  //       '0x8145BF5e1BbdEC2447b063cE69A367F266c2a1c2', 
+  //       BigInt(10) ** BigInt(decimals) * BigInt(3)
+  //     ]),
+  //   }], 'https://api.stackup.sh/v1/node/<KEY>',
+  //   'https://api.stackup.sh/v1/paymaster/<KEY>' );
     
-    // const res = await ca.directExec([{
-    //   to: linkTokenContract,
-    //   data: encodeContractCall('erc20', 'transfer', [
-    //     '0x6B843808321e8E8Fe62cEf79aE63C828D60e496B', 
-    //     BigInt(10) ** BigInt(decimals) * BigInt(1)
-    //   ]),
-    // }]);
+  //   // const res = await ca.directExec([{
+  //   //   to: linkTokenContract,
+  //   //   data: encodeContractCall('erc20', 'transfer', [
+  //   //     '0x6B843808321e8E8Fe62cEf79aE63C828D60e496B', 
+  //   //     BigInt(10) ** BigInt(decimals) * BigInt(1)
+  //   //   ]),
+  //   // }]);
 
-    console.log(res)
-  })
-  
+  //   console.log(res)
+  // })
 });

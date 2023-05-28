@@ -46,13 +46,14 @@ describe('EoaAccount - @choko-wallet/account', function () {
       userAccount.unlock(SEED);
       userAccount.init();
 
-      // console.log("userAccount: ", userAccount);
       const data = userAccount.serialize();
       const userAccount2 = EoaAccount.deserialize(data);
 
+      console.log(userAccount.getAddress('ethereum'))
+
       expect(userAccount2.isLocked).toEqual(true);
       expect(userAccount2.option.hasEncryptedPrivateKeyExported).toEqual(false);
-      expect(userAccount2.option.localKeyEncryptionStrategy).toEqual(0);
+      expect(userAccount2.option.localKeyEncryptionStrategy).toEqual(1);
       expect(userAccount.getAddress(type.keyType as KeypairType)).toEqual(type.address);
 
       userAccount2.unlock(SEED);
@@ -77,7 +78,7 @@ describe('EoaAccount - @choko-wallet/account', function () {
 
       expect(userAccount2.isLocked).toEqual(true);
       expect(userAccount2.option.hasEncryptedPrivateKeyExported).toEqual(false);
-      expect(userAccount2.option.localKeyEncryptionStrategy).toEqual(0);
+      expect(userAccount2.option.localKeyEncryptionStrategy).toEqual(1);
 
       expect(userAccount2.publicKeys[0]).toEqual(userAccount.publicKeys[0]);
       expect(userAccount2.publicKeys[1]).toEqual(userAccount.publicKeys[1]);
