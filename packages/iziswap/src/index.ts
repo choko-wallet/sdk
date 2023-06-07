@@ -75,11 +75,12 @@ const SWAP_DESIRE_ABI = [
   }
 ];
 
+// Create a new liquidity
 async function mint (
   testAAddress: string,
   testBAddress: string,
-  privateKey: string,
-  rpc: string,
+  privateKey: string, // a string, which is your private key, and should be configured by your self
+  rpc: string, // the rpc url on the chain you specified
   liquidityManagerAddress: string,
   chainId: number
 ): Promise<ethers.TransactionResponse | string | void> {
@@ -132,53 +133,6 @@ async function mint (
 
   const gasPrice = '50000000';
 
-  // try {
-  //   // eslint-disable-next-line
-  //   const { mintCalling, options } = await getMintCall(
-  //     // eslint-disable-next-line
-  //     liquidityManagerContract,
-  //     wallet.address,
-  //     chain,
-  //     mintParams,
-  //     gasPrice
-  //   );
-
-  //   // eslint-disable-next-line
-  //   const gasLimit = await mintCalling.estimateGas(options);
-
-  //   console.log('gas limit: ', gasLimit);
-
-  //   // eslint-disable-next-line
-  //   await mintCalling.send({ ...options, gas: gasLimit });
-
-  //   // sign transaction
-  //   const signedTx = await wallet.signTransaction(
-  //     {
-  //       ...options,
-  //       // eslint-disable-next-line
-  //       to: liquidityManagerAddress,
-  //       // eslint-disable-next-line
-  //       data: mintCalling.encodeABI(),
-  //       // eslint-disable-next-line
-  //       gas: new BigNumber(gasLimit * 1.1).toFixed(0, 2)
-  //     },
-  //   );
-
-  //   if (signedTx) {
-  //     const tx = await wallet.sendTransaction({
-  //       to: liquidityManagerAddress,
-  //       value: gasLimit
-  //     });
-  //     return tx;
-  //   }
-  // // eslint-disable-next-line
-  // } catch (err: any) {
-  //   // eslint-disable-next-line
-  //   const errorMsg = err.info.error.message;
-  //   return `Something went wrong. ${errorMsg ? errorMsg : ''}`
-  // }
-
-  // const node = ethers.namehash('bsc');
   const abiInterface = new ethers.Interface(liquidityManagerAbi);
 
   const result = abiInterface.encodeFunctionData('mint', [
@@ -200,6 +154,7 @@ async function mint (
   return result;
 }
 
+// quoter and swap with exact input amount in iZiSwap.
 async function swapInput (
   testAAddress: string,
   testBAddress: string,
@@ -265,48 +220,6 @@ async function swapInput (
   // eslint-disable-next-line
   const tokenBBalanceBeforeSwap = await tokenBContract.balanceOf(wallet.address);
   
-  // try {
-  //   // eslint-disable-next-line
-  //   const { options, swapCalling } = getSwapChainWithExactInputCall(
-  //     swapContract,
-  //     wallet.address,
-  //     chain,
-  //     swapParams,
-  //     gasPrice
-  //   );
-
-  //   // eslint-disable-next-line
-  //   const gasLimit = await swapCalling.estimateGas(options);
-
-  //   console.log('gas limit: ', gasLimit);
-
-  //   // sign transaction
-  //   // options is returned from getSwapChainWithExactInputCall
-  //   const signedTx = await wallet.signTransaction(
-  //     {
-  //       ...options,
-  //       to: swapAddress,
-  //       // eslint-disable-next-line
-  //       data: swapCalling.encodeABI(),
-  //       gas: new BigNumber(gasLimit * 1.1).toFixed(0, 2)
-  //     },
-  //   );
-
-  //   if (signedTx) {
-  //     const tx = await wallet.sendTransaction({
-  //       to: swapAddress,
-  //       value: gasLimit
-  //     });
-  //     return tx;
-  //   }
-  // // eslint-disable-next-line
-  // } catch (err: any) {
-  //   // eslint-disable-next-line
-  //   const errorMsg = err.info.error.message;
-  //   return `Something went wrong. ${errorMsg ? errorMsg : ''}`
-  // }
-
-  // const node = ethers.namehash('bsc');
   const abiInterface = new ethers.Interface(swapAbi);
 
   const result = abiInterface.encodeFunctionData('swapAmount', [
@@ -322,6 +235,7 @@ async function swapInput (
   return result;
 }
 
+// quoter and swap with exact output amount in iZiSwap.
 async function swapOutput (
   testAAddress: string,
   testBAddress: string,
@@ -390,48 +304,6 @@ async function swapOutput (
   // eslint-disable-next-line
   const tokenBBalanceBeforeSwap = await tokenBContract.balanceOf(wallet.address);
   
-  // try {
-  //   // eslint-disable-next-line
-  //   const { options, swapCalling } = getSwapChainWithExactOutputCall(
-  //     swapContract,
-  //     wallet.address,
-  //     chain,
-  //     swapParams,
-  //     gasPrice
-  //   );
-
-  //   // eslint-disable-next-line
-  //   const gasLimit = await swapCalling.estimateGas(options);
-
-  //   console.log('gas limit: ', gasLimit);
-
-  //   // sign transaction
-  //   // options is returned from getSwapChainWithExactInputCall
-  //   const signedTx = await wallet.signTransaction(
-  //     {
-  //       ...options,
-  //       to: swapAddress,
-  //       // eslint-disable-next-line
-  //       data: swapCalling.encodeABI(),
-  //       gas: new BigNumber(gasLimit * 1.1).toFixed(0, 2)
-  //     },
-  //   );
-
-  //   if (signedTx) {
-  //     const tx = await wallet.sendTransaction({
-  //       to: swapAddress,
-  //       value: gasLimit
-  //     });
-  //     return tx;
-  //   }
-  // // eslint-disable-next-line
-  // } catch (err: any) {
-  //   // eslint-disable-next-line
-  //   const errorMsg = err.info.error.message;
-  //   return `Something went wrong. ${errorMsg ? errorMsg : ''}`
-  // }
-
-  // const node = ethers.namehash('bsc');
   const abiInterface = new ethers.Interface(SWAP_DESIRE_ABI);
 
   const result = abiInterface.encodeFunctionData('swapDesire', [

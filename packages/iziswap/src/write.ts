@@ -11,6 +11,7 @@ import { BaseChain, buildSendingParams } from 'iziswap-sdk/lib/base/types';
 import { MintParam } from 'iziswap-sdk/lib/liquidityManager';
 import { SwapChainWithExactInputParams, SwapChainWithExactOutputParams } from 'iziswap-sdk/src/swap/types';
 
+// get contract of mint function
 const getMintCall = async (
   // eslint-disable-next-line
   liquidityManagerContract: any,
@@ -105,6 +106,7 @@ const getMintCall = async (
   return { mintCalling: multicall, options: buildSendingParams(chain, options, gasPrice) };
 };
 
+// get contract of input swap function
 const getSwapChainWithExactInputCall = async (
   swapContract: ethers.Contract,
   account: string,
@@ -174,6 +176,7 @@ const getSwapChainWithExactInputCall = async (
   return { swapCalling: await swapContract.multicall(multicall), options: buildSendingParams(chain, options, gasPrice) };
 };
 
+// get contract of output swap function
 const getSwapChainWithExactOutputCall = async (
   swapContract: ethers.Contract,
   account: string,

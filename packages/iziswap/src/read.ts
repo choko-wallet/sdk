@@ -11,6 +11,7 @@ import { State as PoolState } from 'iziswap-sdk/src/pool';
 
 import Erc20ABI from './abi/erc20.json';
 
+// to get iZiSwap pool address of token pair (testA, testB, fee)
 const getPoolAddress = async (
   liquidityManagerContract: ethers.Contract,
   tokenA: TokenInfoFormatted,
@@ -26,6 +27,8 @@ const getPoolAddress = async (
   return poolAddress;
 };
 
+// get state of pool will be used
+// state is a State obj which extends from BaseState
 const getPoolState = async (
   poolContracct: ethers.Contract
 ): Promise<PoolState> => {
@@ -42,6 +45,7 @@ const getPoolState = async (
   };
 };
 
+// pointDelta is a number value queried from pool contract
 const getPointDelta = async (
   poolContracct: ethers.Contract
 ): Promise<number> => {
@@ -50,6 +54,7 @@ const getPointDelta = async (
   return pointDelta;
 };
 
+// get token info from token address.
 const fetchToken = async (tokenAddr: string, chainId: number, provider: ethers.Wallet): Promise<TokenInfoFormatted> => {
   const tokenContract = new ethers.Contract(tokenAddr, Erc20ABI, provider);
 
@@ -70,6 +75,7 @@ const fetchToken = async (tokenAddr: string, chainId: number, provider: ethers.W
   return tokenInfo;
 };
 
+// get token info from token address.
 const quoterSwapChainWithExactInput = async (
   quoterContract: ethers.Contract,
   params: QuoterSwapChainWithExactInputParams
