@@ -1,9 +1,9 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { u8aToHex } from '@skyekiwi/util';
-
 import { knownNetworks } from '@choko-wallet/known-networks';
+
+import { u8aToHex } from '@skyekiwi/util';
 
 import { DappDescriptor } from './dapp';
 

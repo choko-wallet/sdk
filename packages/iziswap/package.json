@@ -1,0 +1,27 @@
+{
+  "name": "@choko-wallet/iziswap",
+  "version": "0.1.10-21",
+  "description": "ens registar used by choko wallet",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "sideEffects": [
+    "./detectPackage.js",
+    "./detectPackage.cjs"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "maintainers": [],
+  "contributors": [],
+  "author": "Choko Wallet <contact@choko.app>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/choko-wallet/iziswap"
+  },
+  "dependencies": {
+    "bignumber.js": "^9.1.1",
+    "iziswap-sdk": "^1.2.2",
+    "web3": "^1.10.0"
+  }
+}

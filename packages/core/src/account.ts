@@ -1,14 +1,14 @@
 // Copyright 2021-2022 @choko-wallet/core authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
 import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
 import { ethereumEncode, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
-import { SymmetricEncryption } from '@skyekiwi/crypto';
-import { hexToU8a } from '@skyekiwi/util';
 import { ethers } from 'ethers';
 
-import { getSmartWalletAddress } from '@choko-wallet/account-abstraction';
+import { SymmetricEncryption } from '@skyekiwi/crypto';
+import { hexToU8a } from '@skyekiwi/util';
 
 import { chainIdToProvider } from './etherProviders';
 import { KeypairType } from './types';
