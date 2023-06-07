@@ -75,7 +75,7 @@ const fetchToken = async (tokenAddr: string, chainId: number, provider: ethers.W
   return tokenInfo;
 };
 
-// get token info from token address.
+// will return amount of token acquired.
 const quoterSwapChainWithExactInput = async (
   quoterContract: ethers.Contract,
   params: QuoterSwapChainWithExactInputParams
@@ -88,6 +88,7 @@ const quoterSwapChainWithExactInput = async (
   };
 };
 
+// return amount of input token needed to pay
 const quoterSwapChainWithExactOutput = async (
   quoterContract: ethers.Contract,
   params: QuoterSwapChainWithExactOutputParams
