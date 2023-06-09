@@ -6,10 +6,10 @@
 
 import * as ethers from 'ethers';
 import { getSwapTokenAddress, getTokenChainPath, getTokenChainPathReverse, TokenInfoFormatted } from 'iziswap-sdk/lib/base';
-import { QuoterSwapChainWithExactInputParams, QuoterSwapChainWithExactOutputParams } from 'iziswap-sdk/lib/quoter/types';
-import { State as PoolState } from 'iziswap-sdk/src/pool';
+import { QuoterSwapChainWithExactInputParams, QuoterSwapChainWithExactOutputParams } from './quoter/types';
+import { State as PoolState } from './pool';
 
-import Erc20ABI from './abi/erc20.json';
+import Erc20ABI from './base/token/erc20.json';
 
 // to get iZiSwap pool address of token pair (testA, testB, fee)
 const getPoolAddress = async (
@@ -79,12 +79,13 @@ const fetchToken = async (tokenAddr: string, chainId: number, provider: ethers.W
 const quoterSwapChainWithExactInput = async (
   quoterContract: ethers.Contract,
   params: QuoterSwapChainWithExactInputParams
-): Promise<{outputAmount: string}> => {
+): Promise<{outputAmount: string, path: string}> => {
   const path = getTokenChainPath(params.tokenChain, params.feeChain);
   const transaction = await quoterContract.swapAmount(params.inputAmount, path);
 
   return {
-    outputAmount: transaction.gasPrice.toString()
+    outputAmount: transaction.gasPrice.toString(),
+    path
   };
 };
 
@@ -92,12 +93,13 @@ const quoterSwapChainWithExactInput = async (
 const quoterSwapChainWithExactOutput = async (
   quoterContract: ethers.Contract,
   params: QuoterSwapChainWithExactOutputParams
-): Promise<{inputAmount: string}> => {
+): Promise<{inputAmount: string, path: string}> => {
   const path = getTokenChainPathReverse(params.tokenChain, params.feeChain);
   const transaction = await quoterContract.swapDesire(params.outputAmount, path);
 
   return {
-    inputAmount: transaction.gasPrice.toString()
+    inputAmount: transaction.gasPrice.toString(),
+    path
   };
 };
 

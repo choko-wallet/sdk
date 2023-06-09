@@ -6,18 +6,18 @@
 
 import BigNumber from 'bignumber.js';
 import * as ethers from 'ethers';
-import { pointDeltaRoundingDown, pointDeltaRoundingUp, priceDecimal2Point } from 'iziswap-sdk/lib/base/price';
-import { amount2Decimal } from 'iziswap-sdk/lib/base/token/token';
-import { initialChainTable, PriceRoundingType } from 'iziswap-sdk/lib/base/types';
-import liquidityManagerAbi from 'iziswap-sdk/lib/liquidityManager/abi.json';
-import { calciZiLiquidityAmountDesired } from 'iziswap-sdk/lib/liquidityManager/calc';
-import { QuoterSwapChainWithExactInputParams, QuoterSwapChainWithExactOutputParams } from 'iziswap-sdk/lib/quoter/types';
-import { SwapChainWithExactInputParams, SwapChainWithExactOutputParams } from 'iziswap-sdk/lib/swap/types';
-import poolAbi from 'iziswap-sdk/src/pool/poolAbi.json';
-import quoterAbi from 'iziswap-sdk/src/quoter/abi.json';
-import swapAbi from 'iziswap-sdk/src/swap/abi.json';
+import { pointDeltaRoundingDown, pointDeltaRoundingUp, priceDecimal2Point } from './base/price';
+import { amount2Decimal } from './base/token/token';
+import { initialChainTable, PriceRoundingType } from './base/types';
+import liquidityManagerAbi from './liquidityManager/abi.json';
+import { calciZiLiquidityAmountDesired } from './liquidityManager/calc';
+import { QuoterSwapChainWithExactInputParams, QuoterSwapChainWithExactOutputParams } from './quoter/types';
+import { SwapChainWithExactInputParams, SwapChainWithExactOutputParams } from './swap/types';
+import poolAbi from './pool/poolAbi.json';
+import quoterAbi from './quoter/abi.json';
+import swapAbi from './swap/abi.json';
 
-import Erc20ABI from './abi/erc20.json';
+import Erc20ABI from './base/token/erc20.json';
 import { fetchToken, getPointDelta, getPoolAddress, getPoolState, quoterSwapChainWithExactInput, quoterSwapChainWithExactOutput } from './read';
 import { getMintCall, getSwapChainWithExactInputCall, getSwapChainWithExactOutputCall } from './write';
 
@@ -82,7 +82,8 @@ async function mint (
   privateKey: string, // a string, which is your private key, and should be configured by your self
   rpc: string, // the rpc url on the chain you specified
   liquidityManagerAddress: string,
-  chainId: number
+  chainId: number,
+  deadline: string = '0xffffffff'
 ): Promise<ethers.TransactionResponse | string | void> {
   const chain = initialChainTable[chainId];
 
@@ -133,10 +134,10 @@ async function mint (
 
   const gasPrice = '50000000';
 
-  const abiInterface = new ethers.Interface(liquidityManagerAbi);
+  try {
+    const abiInterface = new ethers.Interface(liquidityManagerAbi);
 
-  const result = abiInterface.encodeFunctionData('mint', [
-    {
+    let finalParams = {
       miner: wallet.address,
       tokenX: testAAddress,
       tokenY: testBAddress,
@@ -147,11 +148,18 @@ async function mint (
       yLim: mintParams.maxAmountA,
       amountXMin: mintParams.minAmountB,
       amountYMin: mintParams.minAmountA,
-      deadline: '3139838819377368862098500000000000000000'
+      deadline
     }
-  ]);
 
-  return result;
+    const result = abiInterface.encodeFunctionData('swapDesire', [finalParams]);
+
+    return result;
+  } catch (err: any) {
+    // eslint-disable-next-line
+    const errorMsg = err?.info?.error?.message;
+    console.log(err)
+    return `Something went wrong. ${errorMsg ? errorMsg : ''}`
+  }
 }
 
 // quoter and swap with exact input amount in iZiSwap.
@@ -160,7 +168,8 @@ async function swapInput (
   testBAddress: string,
   privateKey: string,
   rpc: string,
-  chainId: number
+  chainId: number,
+  deadline: string = '0xffffffff'
 ): Promise<ethers.TransactionResponse | string | void> {
   const chain = initialChainTable[chainId];
 
@@ -186,7 +195,7 @@ async function swapInput (
     tokenChain: [testA, testB]
   } as QuoterSwapChainWithExactInputParams;
 
-  const { outputAmount } = await quoterSwapChainWithExactInput(quoterContract, params);
+  const { outputAmount, path } = await quoterSwapChainWithExactInput(quoterContract, params);
 
   const amountB = outputAmount;
   const amountBDecimal = amount2Decimal(new BigNumber(amountB), testB);
@@ -220,19 +229,26 @@ async function swapInput (
   // eslint-disable-next-line
   const tokenBBalanceBeforeSwap = await tokenBContract.balanceOf(wallet.address);
   
-  const abiInterface = new ethers.Interface(swapAbi);
+  try {
+    const abiInterface = new ethers.Interface(swapAbi);
 
-  const result = abiInterface.encodeFunctionData('swapAmount', [
-    {
-      path: '0xCFD8A067e1fa03474e79Be646c5f6b6A278473990007D0AD1F11FBB288Cd13819cCB9397E59FAAB4Cdc16F',
+    let finalParams = {
+      path,
       recipient: wallet.address,
       amount: swapParams.inputAmount,
       minAcquired: swapParams.minOutputAmount,
-      deadline: '3139838819377368862098500000000000000000'
-    }
-  ]);
+      deadline
+    };
 
-  return result;
+    const result = abiInterface.encodeFunctionData('swapDesire', [finalParams]);
+
+    return result;
+  } catch (err: any) {
+    // eslint-disable-next-line
+    const errorMsg = err?.info?.error?.message;
+    console.log(err)
+    return `Something went wrong. ${errorMsg ? errorMsg : ''}`
+  }
 }
 
 // quoter and swap with exact output amount in iZiSwap.
@@ -241,7 +257,8 @@ async function swapOutput (
   testBAddress: string,
   privateKey: string,
   rpc: string,
-  chainId: number
+  chainId: number,
+  deadline: string = '0xffffffff'
 ): Promise<ethers.TransactionResponse | string | void> {
   const chain = initialChainTable[chainId];
 
@@ -268,7 +285,7 @@ async function swapOutput (
   } as QuoterSwapChainWithExactOutputParams;
 
   // eslint-disable-next-line
-  const { inputAmount } = await quoterSwapChainWithExactOutput(quoterContract, params);
+  const { inputAmount, path } = await quoterSwapChainWithExactOutput(quoterContract, params);
 
   // eslint-disable-next-line
   const amountA = inputAmount;
@@ -304,19 +321,26 @@ async function swapOutput (
   // eslint-disable-next-line
   const tokenBBalanceBeforeSwap = await tokenBContract.balanceOf(wallet.address);
   
-  const abiInterface = new ethers.Interface(SWAP_DESIRE_ABI);
+  try {
+    const abiInterface = new ethers.Interface(SWAP_DESIRE_ABI);
 
-  const result = abiInterface.encodeFunctionData('swapDesire', [
-    {
-      path: '0xCFD8A067e1fa03474e79Be646c5f6b6A278473990007D0AD1F11FBB288Cd13819cCB9397E59FAAB4Cdc16F',
+    let finalParams = {
+      path,
       recipient: wallet.address,
       desire: swapParams.outputAmount,
       maxPayed: swapParams.maxInputAmount,
-      deadline: '3139838819377368862098500000000000000000'
-    }
-  ]);
+      deadline
+    };
 
-  return result;
+    const result = abiInterface.encodeFunctionData('swapDesire', [finalParams]);
+
+    return result;
+  } catch (err: any) {
+    // eslint-disable-next-line
+    const errorMsg = err?.info?.error?.message;
+    console.log(err)
+    return `Something went wrong. ${errorMsg ? errorMsg : ''}`
+  }
 }
 
 export { mint, swapInput, swapOutput };

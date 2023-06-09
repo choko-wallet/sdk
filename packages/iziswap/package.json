@@ -20,8 +20,6 @@
     "url": "https://github.com/choko-wallet/iziswap"
   },
   "dependencies": {
-    "bignumber.js": "^9.1.1",
-    "iziswap-sdk": "^1.2.2",
-    "web3": "^1.10.0"
+    "bignumber.js": "^9.1.1"
   }
 }

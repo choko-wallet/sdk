@@ -5,11 +5,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import * as ethers from 'ethers';
-import { getTokenChainPath, getTokenChainPathReverse } from 'iziswap-sdk/lib/base';
-import { getSwapTokenAddress, isGasOrWrappedGasToken, isGasToken } from 'iziswap-sdk/lib/base/token';
-import { BaseChain, buildSendingParams } from 'iziswap-sdk/lib/base/types';
-import { MintParam } from 'iziswap-sdk/lib/liquidityManager';
-import { SwapChainWithExactInputParams, SwapChainWithExactOutputParams } from 'iziswap-sdk/src/swap/types';
+import { getTokenChainPath, getTokenChainPathReverse } from './base';
+import { getSwapTokenAddress, isGasOrWrappedGasToken, isGasToken } from './base/token';
+import { BaseChain, buildSendingParams } from './base/types';
+import { MintParam } from './liquidityManager';
+import { SwapChainWithExactInputParams, SwapChainWithExactOutputParams } from './swap/types';
 
 // get contract of mint function
 const getMintCall = async (
