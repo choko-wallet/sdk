@@ -20,13 +20,16 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
+    "@choko-wallet/abi": "0.1.10-21",
     "@choko-wallet/core": "0.1.10-21",
     "@choko-wallet/rpc": "0.1.10-21",
-    "@choko-wallet/abi": "0.1.10-21",
-    "@polkadot/util-crypto": "^10.1.11",
-    "@polkadot/keyring": "^10.1.11",
-    "@skyekiw/crypto": "1.0.2-5",
     "@noble/curves": "1.0.0",
-    "viem": "^0.3.33"
+    "@polkadot/keyring": "^10.1.11",
+    "@polkadot/util-crypto": "^10.1.11",
+    "@skyekiwi/crypto": "1.0.2-6",
+    "viem": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/superagent": "^4.1.18"
   }
 }

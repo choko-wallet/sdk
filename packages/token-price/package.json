@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@choko-wallet/abi": "0.1.10-21",
-    "viem": "^0.3.33",
-    "superagent": "^8.0.9"
+    "superagent": "^8.0.9",
+    "viem": "^0.3.33"
   }
 }

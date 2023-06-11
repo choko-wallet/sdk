@@ -5,35 +5,14 @@ import type { Version } from './types';
 
 import { padSize, stringToU8a, u8aToString, unpadSize } from '@skyekiwi/util';
 
-import { INetwork, Network } from '.';
-
-export interface IDappDescriptor {
+export class DappDescriptor {
   displayName: string;
   infoName: string;
-
-  activeNetwork: INetwork;
-  defaultNetwork?: INetwork; // or encoded network?
-  avaliableNetworks?: INetwork[]; // or encoded networks?
-
-  version: Version;
-
-  serialize: () => Uint8Array;
-}
-
-export class DappDescriptor implements IDappDescriptor {
-  displayName: string;
-  infoName: string;
-  activeNetwork: INetwork;
-  defaultNetwork?: INetwork;
-  avaliableNetworks?: INetwork[];
   version: number;
 
   constructor (config: {
     displayName: string;
     infoName: string;
-    activeNetwork: INetwork;
-    defaultNetwork?: INetwork;
-    avaliableNetworks?: INetwork[];
     version: Version;
   }) {
     if (config.infoName.length > 32) {
@@ -46,10 +25,6 @@ export class DappDescriptor implements IDappDescriptor {
 
     this.displayName = config.displayName;
     this.infoName = config.infoName;
-
-    this.activeNetwork = config.activeNetwork;
-    this.defaultNetwork = config.defaultNetwork;
-    this.avaliableNetworks = config.avaliableNetworks;
     this.version = config.version;
   }
 
@@ -60,8 +35,7 @@ export class DappDescriptor implements IDappDescriptor {
   public static serializedLength (): number {
     return 68 + // displayName 4 bytes size + 64 bytes data
       68 + // infoName 4 bytes size + 64 bytes data
-      Network.serializedLength() + // network
-      2; // version ( pad(repeat) to 2 bytes )
+      1; // version ( pad(repeat) to 2 bytes )
   }
 
   /**
@@ -85,8 +59,7 @@ export class DappDescriptor implements IDappDescriptor {
 
     res.set(nameContainer, 0);
     res.set(displayNameContainer, 68);
-    res.set(this.activeNetwork.serialize(), 68 + 68);
-    res.set([this.version, this.version], 68 + 68 + Network.serializedLength());
+    res.set([this.version], 68 + 68);
 
     return res;
   }
@@ -108,12 +81,9 @@ export class DappDescriptor implements IDappDescriptor {
     const displayNameLength = unpadSize(data.slice(68, 72));
     const displayName = data.slice(4 + 68, 4 + 68 + displayNameLength);
     const displayNameStr = u8aToString(displayName);
-
-    const activeNetwork = data.slice(68 + 68, 68 + 68 + 8);
-    const version = data.slice(68 + 68 + 8, 68 + 68 + 8 + 1)[0];
+    const version = data.slice(68 + 68, 68 + 68 + 1)[0];
 
     const descriptor = new DappDescriptor({
-      activeNetwork: Network.deserialize(activeNetwork),
       displayName: displayNameStr,
       infoName: nameStr,
       version

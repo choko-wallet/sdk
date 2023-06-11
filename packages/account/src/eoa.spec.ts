@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { mnemonicToEntropy } from '@polkadot/util-crypto';
+
 import { KeypairType } from '@choko-wallet/core/types';
-import { defaultAccountOption } from './options';
+
 import { EoaAccount } from './eoa';
+import { defaultAccountOption } from './options';
 
 const SEED = 'leg satisfy enlist dizzy rib owner security live solution panther monitor replace';
 const Tests = [
@@ -49,7 +51,7 @@ describe('EoaAccount - @choko-wallet/account', function () {
       const data = userAccount.serialize();
       const userAccount2 = EoaAccount.deserialize(data);
 
-      console.log(userAccount.getAddress('ethereum'))
+      console.log(userAccount.getAddress('ethereum'));
 
       expect(userAccount2.isLocked).toEqual(true);
       expect(userAccount2.option.hasEncryptedPrivateKeyExported).toEqual(false);

@@ -3,34 +3,16 @@
 
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 
-import { IUserAccount, UserAccount } from './account';
-import { AccountOption, defaultAccountOption, IAccountOption } from './accountOption';
-import { DappDescriptor, IDappDescriptor } from './dapp';
+import { DappDescriptor } from './dapp';
 import { deserializeRequestError, mapRequestErrorToString, RequestError, RequestErrorSerializedLength, serializeRequestError } from './error';
-import { chainIdToProvider } from './etherProviders';
-import { INetwork, KnownNetworks, Network } from './network';
-import { IPayload, IRequest, IRequestHandlerDescriptor, IResponse } from './requestHandler';
-import { compressParameters, decompressParameters, keypairTypeNumberToString, keypairTypeStringToNumber, xxHash } from './util';
-
-export type {
-  IUserAccount, IAccountOption,
-  IDappDescriptor,
-  INetwork, KnownNetworks,
-  IPayload, IRequestHandlerDescriptor, IRequest, IResponse
-};
+import { compressParameters, decompressParameters, xxHash } from './util';
 
 export {
-  UserAccount, AccountOption, defaultAccountOption,
-
   DappDescriptor,
-
-  Network,
 
   RequestError, RequestErrorSerializedLength, mapRequestErrorToString, serializeRequestError, deserializeRequestError,
 
   entropyToMnemonic, // re-export
 
-  chainIdToProvider,
-
-  keypairTypeNumberToString, keypairTypeStringToNumber, xxHash, compressParameters, decompressParameters
+  xxHash, compressParameters, decompressParameters
 };

@@ -18,7 +18,7 @@ export interface IUserOperation {
 
   verificationGasLimit: bigint;
   preVerificationGas: bigint;
-  
+
   maxFeePerGas: bigint;
   maxPriorityFeePerGas: bigint;
 

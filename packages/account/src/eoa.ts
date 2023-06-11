@@ -3,21 +3,21 @@
 
 import type { KeypairType } from '@choko-wallet/core/types';
 
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1';
 import Keyring, { encodeAddress as polkadotEncodeAddress } from '@polkadot/keyring';
-import { ethereumEncode, mnemonicToEntropy, mnemonicValidate, mnemonicGenerate } from '@polkadot/util-crypto';
+import { ethereumEncode, mnemonicGenerate, mnemonicToEntropy, mnemonicValidate } from '@polkadot/util-crypto';
 import { entropyToMnemonic } from '@polkadot/util-crypto/mnemonic/bip39';
 import { SymmetricEncryption } from '@skyekiwi/crypto';
+import { LocalAccount, mnemonicToAccount } from 'viem/accounts';
 
 import { AccountOption } from './options';
-import { LocalAccount, mnemonicToAccount } from 'viem/accounts';
 
 export class EoaAccount {
   entropy?: Uint8Array;
   encryptedEntropy?: Uint8Array;
 
   option: AccountOption;
-  isLocked: boolean = true;
+  isLocked = true;
   publicKeys: Uint8Array[] = [];
 
   constructor (option: AccountOption) {
@@ -29,8 +29,9 @@ export class EoaAccount {
   }
 
   /* Testing Only */
-  public random(): void {
+  public random (): void {
     const mnemonic = mnemonicGenerate();
+
     console.log(mnemonic);
     this.unlock(mnemonic);
     this.init();
@@ -71,7 +72,7 @@ export class EoaAccount {
     const act = mnemonicToAccount(seed);
     const privateKey = act.getHdKey().privateKey;
     const pubKey = secp256k1.getPublicKey(privateKey, true);
-    
+
     // Edward curve publicKey
     const edKr = (new Keyring({ type: 'ed25519' })).addFromMnemonic(seed);
 
@@ -247,10 +248,11 @@ export class EoaAccount {
     return userAccount;
   }
 
-  public toViemAccount(): LocalAccount {
+  public toViemAccount (): LocalAccount {
     if (this.isLocked) {
       throw new Error('account is locked - UserAccount.toViemAccount');
     }
+
     const mnemonic = entropyToMnemonic(this.entropy);
     const account = mnemonicToAccount(mnemonic);
 
@@ -263,6 +265,6 @@ export class EoaAccount {
 
       source: 'custom',
       type: 'local'
-    }
+    };
   }
 }

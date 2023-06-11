@@ -1,30 +1,32 @@
 // Copyright 2021-2022 @choko-wallet/abi authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Abi } from 'abitype'
-import type { Hex, TransactionSerializable } from 'viem'
+import type { Abi } from 'abitype';
+import type { Hex, TransactionSerializable } from 'viem';
 
-import { decodeFunctionData, parseTransaction, serializeTransaction, encodeFunctionData } from 'viem';
+import { decodeFunctionData, encodeFunctionData, parseTransaction, serializeTransaction } from 'viem';
 
+import { AAFACTORY_ABI, AAWALLET_ABI } from './fixtures/aa';
+import { ENS_ABI, RESOLVER_ABI } from './fixtures/ens';
 import { ERC20_ABI } from './fixtures/erc20';
 import { ERC721_ABI } from './fixtures/erc721';
-import { ENS_ABI, RESOLVER_ABI } from './fixtures/ens';
-import { AAFACTORY_ABI, AAWALLET_ABI } from './fixtures/aa';
 
 const loadAbi = (abiName: string, abi?: Abi): Abi => {
-  switch(abiName) {
-    case 'erc20': return ERC20_ABI
-    case 'erc721': return ERC721_ABI
-    case 'ens': return ENS_ABI
-    case 'ens-resolver': return RESOLVER_ABI
-    case 'aa-walletFactory': return AAFACTORY_ABI
-    case 'aa-wallet': return AAWALLET_ABI
+  switch (abiName) {
+    case 'erc20': return ERC20_ABI;
+    case 'erc721': return ERC721_ABI;
+    case 'ens': return ENS_ABI;
+    case 'ens-resolver': return RESOLVER_ABI;
+    case 'aa-walletFactory': return AAFACTORY_ABI;
+    case 'aa-wallet': return AAWALLET_ABI;
+
     default: {
       if (abi) {
         return abi;
       }
-      throw new Error(`Unknown abi: ${abiName}`)
-    };
+
+      throw new Error(`Unknown abi: ${abiName}`);
+    }
   }
 };
 
@@ -35,10 +37,11 @@ const encodeContractCall = (
   abi?: Abi// LinkTokenABI
 ): Hex => {
   const encoded = encodeFunctionData({
-    abi: loadAbi(abiName, abi), 
-    functionName, args,
+    abi: loadAbi(abiName, abi),
+    functionName,
+    args
   });
-  
+
   return encoded;// .slice(2);
 };
 
@@ -50,11 +53,10 @@ const decodeContractCall = (
   args: readonly unknown[];
   functionName: string;
 } => {
-
   return decodeFunctionData({
     abi: loadAbi(abiName, abi),
-    data,
-  })
+    data
+  });
 };
 
 const encodeTransaction = (tx: TransactionSerializable): Hex => {

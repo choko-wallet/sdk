@@ -1,7 +1,7 @@
 // Copyright 2021-2023 @choko-wallet/abi authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { parseAbi } from "viem";
+import { parseAbi } from 'viem';
 
 export const ERC20_ABI = parseAbi([
   // basics
@@ -17,6 +17,5 @@ export const ERC20_ABI = parseAbi([
   'function approve(address spender, uint256 amount) public returns (bool)',
   'function transferFrom(address from, address to, uint256 amount) public returns (bool)',
   'function increaseAllowance(address spender, uint256 addedValue) public returns (bool)',
-  'function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool)',
+  'function decreaseAllowance(address spender, uint256 subtractedValue) public returns (bool)'
 ]);
-

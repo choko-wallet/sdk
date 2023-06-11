@@ -1,34 +1,64 @@
 
-import type { Address, LocalAccount } from "viem";
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+// [object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+//[object Object]
+// SPDX-License-Identifier: Apache-2.0
+
+import type { Address, LocalAccount } from 'viem';
 import { ethereumEncode } from '@polkadot/util-crypto';
 
-import {hashMessage, hashTypedData, keccak256, serializeTransaction, toBytes, toHex} from 'viem';
-import { toAccount } from "viem/accounts";
+import { hashMessage, hashTypedData, keccak256, serializeTransaction, toBytes, toHex } from 'viem';
+import { toAccount } from 'viem/accounts';
 
-import { extractPublicKey, extractSignature } from "@choko-wallet/mpc/interface";
-import { runSignRequest } from "@choko-wallet/mpc";
+import { extractPublicKey, extractSignature } from '@choko-wallet/mpc/interface';
+import { runSignRequest } from '@choko-wallet/mpc';
 
-import { secureGenerateRandomKey } from '@skyekiwi/crypto'
+import { secureGenerateRandomKey } from '@skyekiwi/crypto';
 
 export class MpcAccount {
   localKey: string;
   authHeader: string;
   publicKey: Uint8Array = new Uint8Array(33);
 
-  constructor(localKey?: string, authHeader?: string) {
+  constructor (localKey?: string, authHeader?: string) {
     this.localKey = localKey;
     this.authHeader = authHeader;
 
     if (localKey && authHeader) {
-      this.publicKey = extractPublicKey(localKey)
+      this.publicKey = extractPublicKey(localKey);
     }
   }
 
-  public getAddress(): Address {
-    return ethereumEncode(this.publicKey)
+  public getAddress (): Address {
+    return ethereumEncode(this.publicKey);
   }
 
-  private async signMessageWithMpc(hashedMessage: Uint8Array): Promise<Uint8Array> {
+  private async signMessageWithMpc (hashedMessage: Uint8Array): Promise<Uint8Array> {
     // message is hashed!
     const payloadId = secureGenerateRandomKey();
     const rawSig = await runSignRequest(
@@ -36,29 +66,34 @@ export class MpcAccount {
       this.authHeader,
       this.localKey,
       hashedMessage);
+
     return extractSignature(rawSig);
   }
 
-  public toViemAccount(): LocalAccount {
+  public toViemAccount (): LocalAccount {
     const ctx = this;
+
     if (this.localKey && this.localKey.length !== 0) {
       return toAccount({
         address: this.getAddress(),
-        async signMessage({ message }) {
+        async signMessage ({ message }) {
           const hashedMessage = toBytes(hashMessage(message));
+
           return toHex(await ctx.signMessageWithMpc(hashedMessage));
         },
-        async signTransaction(transaction) {
+        async signTransaction (transaction) {
           const hashedTransaction = toBytes(keccak256(serializeTransaction(transaction)));
+
           return toHex(await ctx.signMessageWithMpc(hashedTransaction));
         },
-        async signTypedData(typedData) {
+        async signTypedData (typedData) {
           const hashedData = toBytes(hashTypedData(typedData));
+
           return toHex(await ctx.signMessageWithMpc(hashedData));
         }
-      })
+      });
     } else {
-      throw new Error("MpcAccount not initialized");
+      throw new Error('MpcAccount not initialized');
     }
   }
 }
