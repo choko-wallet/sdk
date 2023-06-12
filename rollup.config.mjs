@@ -6,10 +6,11 @@ import path from 'path';
 
 const pkgs = [
   '@choko-wallet/abi',
+  '@choko-wallet/account',
+  '@choko-wallet/auth-client',
   '@choko-wallet/core',
-  '@choko-wallet/known-networks',
-  '@choko-wallet/request-handler',
-  '@choko-wallet/sdk'
+  '@choko-wallet/ens',
+  '@choko-wallet/mpc'
 ];
 
 const external = [
