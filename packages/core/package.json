@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/core",
-  "version": "0.1.10-21",
+  "version": "0.1.10-22",
   "type": "module",
   "description": "core wallet sdk used by choko-wallet",
   "main": "index.js",

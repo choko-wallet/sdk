@@ -1632,7 +1632,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@choko-wallet/abi@0.1.10-21, @choko-wallet/abi@workspace:packages/abi":
+"@choko-wallet/abi@0.1.10-22, @choko-wallet/abi@workspace:packages/abi":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/abi@workspace:packages/abi"
   dependencies:
@@ -1640,13 +1640,13 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/account@0.1.10-21, @choko-wallet/account@workspace:packages/account":
+"@choko-wallet/account@0.1.10-22, @choko-wallet/account@workspace:packages/account":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/account@workspace:packages/account"
   dependencies:
-    "@choko-wallet/abi": 0.1.10-21
-    "@choko-wallet/core": 0.1.10-21
-    "@choko-wallet/rpc": 0.1.10-21
+    "@choko-wallet/abi": 0.1.10-22
+    "@choko-wallet/core": 0.1.10-22
+    "@choko-wallet/rpc": 0.1.10-22
     "@noble/curves": 1.0.0
     "@polkadot/keyring": ^10.1.11
     "@polkadot/util-crypto": ^10.1.11
@@ -1666,7 +1666,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/core@0.1.10-21, @choko-wallet/core@workspace:packages/core":
+"@choko-wallet/core@0.1.10-22, @choko-wallet/core@workspace:packages/core":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/core@workspace:packages/core"
   dependencies:
@@ -1679,8 +1679,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/ens@workspace:packages/ens"
   dependencies:
-    "@choko-wallet/account": 0.1.10-21
-    "@choko-wallet/rpc": 0.1.10-21
+    "@choko-wallet/account": 0.1.10-22
+    "@choko-wallet/rpc": 0.1.10-22
     viem: ^1.0.5
   languageName: unknown
   linkType: soft
@@ -1689,17 +1689,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/mpc@workspace:packages/mpc"
   dependencies:
-    "@choko-wallet/core": 0.1.10-21
+    "@choko-wallet/core": 0.1.10-22
     "@skyekiwi/util": 1.0.2-6
     superagent: ^8.0.9
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/rpc@0.1.10-21, @choko-wallet/rpc@workspace:packages/rpc":
+"@choko-wallet/rpc@0.1.10-22, @choko-wallet/rpc@workspace:packages/rpc":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/rpc@workspace:packages/rpc"
   dependencies:
-    "@choko-wallet/core": 0.1.10-21
+    "@choko-wallet/core": 0.1.10-22
     viem: ^1.0.5
   languageName: unknown
   linkType: soft
@@ -1708,7 +1708,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@choko-wallet/token-price@workspace:packages/token-price"
   dependencies:
-    "@choko-wallet/abi": 0.1.10-21
+    "@choko-wallet/abi": 0.1.10-22
     superagent: ^8.0.9
     viem: ^1.0.5
   languageName: unknown

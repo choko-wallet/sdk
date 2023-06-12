@@ -1,6 +1,6 @@
 {
   "name": "@choko-wallet/ens",
-  "version": "0.1.10-21",
+  "version": "0.1.10-22",
   "type": "module",
   "description": "ens registar used by choko wallet",
   "main": "index.js",
@@ -20,8 +20,8 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "@choko-wallet/account": "0.1.10-21",
-    "@choko-wallet/rpc": "0.1.10-21",
+    "@choko-wallet/account": "0.1.10-22",
+    "@choko-wallet/rpc": "0.1.10-22",
     "viem": "^1.0.5"
   }
 }
