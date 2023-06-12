@@ -4,40 +4,6 @@
 import { xxhashAsU8a } from '@polkadot/util-crypto';
 import pako from 'pako';
 
-import { KeypairType } from './types';
-
-/**
-  * convert KeypairType from number -> KeypairType (string)
-  * @param {number} keyType the number from 0 - 1 of the KeypairType
-  * @returns {KeypairType} the string format of KeypairType
-*/
-export const keypairTypeNumberToString = (keyType: number): KeypairType => {
-  switch (keyType) {
-    case 0:
-      return 'ethereum';
-    case 1:
-      return 'ed25519';
-    default:
-      throw new Error('unknown key type - Util.mapKeyTypeToString');
-  }
-};
-
-/**
-  * convert KeypairType from KeypairType(string) -> number
-  * @param {KeypairType} keyType the string format of KeypairType
-  * @returns {number} keyType the number from 0 - 1 of the KeypairType
-*/
-export const keypairTypeStringToNumber = (keyType: KeypairType): number => {
-  switch (keyType) {
-    case 'ethereum':
-      return 0;
-    case 'ed25519':
-      return 1;
-    default:
-      throw new Error('unknown key type - Util.mapKeypairTypeToNumber');
-  }
-};
-
 export const xxHash = (data: string | Uint8Array): Uint8Array => {
   return xxhashAsU8a(data);
 };

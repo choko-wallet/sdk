@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { hexToU8a, u8aToHex } from '@skyekiwi/util';
-import { joinSignature } from 'ethers/lib/utils';
 
 import { MpcNodeFixtures } from './types';
 
@@ -133,13 +132,8 @@ export const extractSignature = (sig: SerializedSignature): Uint8Array => {
     const s = hexToU8a( obj.s.scalar );
     const recid = obj.recid;
 
-    const sigLike = {
-      r: `0x${u8aToHex(r)}`, 
-      s: `0x${u8aToHex(s)}`, 
-      recoveryParam: recid
-    }
-
-    return hexToU8a( joinSignature(sigLike).substring(2) );
+    const signature = `${u8aToHex(r)}${u8aToHex(s)}${(recid + 27).toString(16)}`
+    return hexToU8a(signature)
   } else {
     throw new Error('invalid signature');
   }

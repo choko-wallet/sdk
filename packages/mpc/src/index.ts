@@ -4,11 +4,8 @@
 import { stringToU8a, u8aToString } from '@skyekiwi/util';
 import superagent from 'superagent';
 
-import { UserAccount } from '@choko-wallet/core';
-import { defaultMpcAccountOption } from '@choko-wallet/core/accountOption';
-
 import { fetchPeers } from './fixtures';
-import { extractPublicKey, MpcRequest, SerializedLocalKey, SerializedSignature } from './interface';
+import { MpcRequest, SerializedLocalKey, SerializedSignature } from './interface';
 
 const MPC_SERVICE_URL = 'http://0.0.0.0:2619';
 
@@ -92,18 +89,4 @@ const runKeyRefreshRequest = async (
   }
 };
 
-const mpcLocalKeyToAccount = (localKey: SerializedLocalKey): UserAccount => {
-  const publicKey = extractPublicKey(localKey);
-  const userAccount = new UserAccount(defaultMpcAccountOption);
-
-  userAccount.publicKeys = [
-    publicKey,
-    new Uint8Array(32)
-  ];
-
-  userAccount.noteMpcWallet(localKey);
-
-  return userAccount;
-};
-
-export { runKeygenRequest, runSignRequest, runKeyRefreshRequest, mpcLocalKeyToAccount };
+export { runKeygenRequest, runSignRequest, runKeyRefreshRequest };

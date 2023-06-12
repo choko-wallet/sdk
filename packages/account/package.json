@@ -1,8 +1,8 @@
 {
-  "name": "@choko-wallet/ens",
+  "name": "@choko-wallet/account",
   "version": "0.1.10-21",
   "type": "module",
-  "description": "ens registar used by choko wallet",
+  "description": "common abi used by choko wallet",
   "main": "index.js",
   "sideEffects": [
     "./detectPackage.js",
@@ -20,8 +20,16 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "@choko-wallet/account": "0.1.10-21",
+    "@choko-wallet/abi": "0.1.10-21",
+    "@choko-wallet/core": "0.1.10-21",
     "@choko-wallet/rpc": "0.1.10-21",
+    "@noble/curves": "1.0.0",
+    "@polkadot/keyring": "^10.1.11",
+    "@polkadot/util-crypto": "^10.1.11",
+    "@skyekiwi/crypto": "1.0.2-6",
     "viem": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/superagent": "^4.1.18"
   }
 }
