@@ -20,6 +20,8 @@
     "url": "https://github.com/choko-wallet/sdk"
   },
   "dependencies": {
-    "ethers": "^5.7.2"
+    "@choko-wallet/account": "0.1.10-21",
+    "@choko-wallet/rpc": "0.1.10-21",
+    "viem": "^1.0.5"
   }
 }

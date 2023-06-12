@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "@choko-wallet/core": "0.1.10-21",
-    "viem": "^1.0.2"
+    "viem": "^1.0.5"
   }
 }

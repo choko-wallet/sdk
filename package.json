@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@skyekiwi/dev": "^0.4.6",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.11.11",

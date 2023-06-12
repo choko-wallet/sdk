@@ -118,7 +118,7 @@ export const fetchBalanceInfoByAddress = async (publicClient: PublicClient, addr
   return res;
 };
 
-export const getTotalBalanceInUSD = (balanceInfo: BalanceInfo) => {
+export const getTotalBalanceInUSD = (balanceInfo: BalanceInfo): number => {
   let total = 0;
 
   for (const id in balanceInfo.fungibleTokens) {

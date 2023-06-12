@@ -4,5 +4,6 @@
 import { ContractAccount } from './ca/biconomy';
 import { EoaAccount } from './eoa';
 import { MpcAccount } from './mpc';
+import { AccountOption, defaultAccountOption } from './options';
 
-export { EoaAccount, ContractAccount, MpcAccount };
+export { EoaAccount, ContractAccount, MpcAccount, defaultAccountOption, AccountOption };

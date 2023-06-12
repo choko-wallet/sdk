@@ -22,4 +22,4 @@ export const ERC721_ABI = parseAbi([
   'function getApproved(uint256 tokenId) public view returns (address)',
   'function setApprovalForAll(address operator, bool approved) public',
   'function isApprovedForAll(address owner, address operator) public view returns (bool)'
-]);
+] as const);

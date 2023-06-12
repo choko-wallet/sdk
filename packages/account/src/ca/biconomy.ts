@@ -9,25 +9,25 @@ import { Address, encodeFunctionData, encodePacked, Hex, LocalAccount, parseAbi,
 import { getPublicClient, getViemChainConfig, getWalletClient } from '@choko-wallet/rpc';
 
 export const AAFACTORY_ABI = parseAbi([
-  'function deployCounterFactualWallet(address _owner, address _entryPoint, address _handler, uint _index) public returns (address proxy)',
-  'function getAddressForCounterfactualWallet(address _owner, uint _index) external view returns (address _wallet)'
-]);
+  'function deployCounterFactualWallet(address _owner, address _entryPoint, address _handler, uint _index) public returns (address)',
+  'function getAddressForCounterfactualWallet(address _owner, uint _index) external view returns (address)'
+] as const);
 
 export const AAWALLET_ABI = parseAbi([
   'function getNonce(uint256 batchId) public view returns (uint256)',
   'function exec(address dest, uint value, bytes calldata func) external',
   'function execBatch(address[] calldata dest, bytes[] calldata func) external',
   'function execFromEntryPoint(address dest, uint value, bytes calldata func, uint8 operation, uint256 gasLimit) external returns (bool success)'
-]);
+] as const);
 
 export const MULTISEND_ABI = parseAbi([
   'function multiSend(bytes memory transactions) public payable'
-]);
+] as const);
 
 export const ENTRYPOINT_ABI = parseAbi([
   'struct UserOperation {address sender; uint256 nonce; bytes initCode; bytes callData; uint256 callGasLimit; uint256 verificationGasLimit; uint256 preVerificationGas; uint256 maxFeePerGas; uint256 maxPriorityFeePerGas; bytes paymasterAndData; bytes signature;}',
   'function getRequestId(UserOperation calldata userOp) public view returns (bytes32)'
-]);
+] as const);
 
 // Biconomy Impl
 export const fixtures: {[key: string]: Address} = {
@@ -115,6 +115,7 @@ export class ContractAccount {
       return this.caAddress;
     }
 
+    console.log(this.caAddress);
     const addr = await this.publicClient.readContract({
       abi: AAFACTORY_ABI,
       address: fixtures.accountFactory,

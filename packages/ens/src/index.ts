@@ -1,52 +1,73 @@
 // Copyright 2021-2023 @choko-wallet/ens authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { JsonRpcProvider } from '@ethersproject/providers';
-import * as ethers from 'ethers';
+import type { Address, Hex, PublicClient } from 'viem';
+
+import { keccak256, toBytes } from 'viem';
+import { namehash, normalize } from 'viem/ens';
+
+import { encodeContractCall } from '@choko-wallet/abi';
+import { ContractAccount } from '@choko-wallet/account';
 
 // We assume that the you have the ownership of this ENS name
-const ENS_REGISTRY_ADDRESS = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
-const ENS_ABI = [
-  'function setSubnodeOwner(bytes32 node, bytes32 label, address owner)',
-  'function owner(bytes32 node) external view returns (address)',
-  'function setOwner(bytes32 node, address owner)',
-  'function setResolver(bytes32 node, address resolver)'
-];
+export const ENS_REGISTRY_ADDRESS: Address = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e';
+export const GOERLI_PUBLIC_RESOLVER: Address = '0xd7a4f6473f32ac2af804b3686ae8f1932bc35750';
 
-const GOERLI_PUBLIC_RESOLVER = '0xd7a4f6473f32ac2af804b3686ae8f1932bc35750';
-const RESOLVER_ABI = [
-  'function setAddr(bytes32 node, address a)'
-];
-
-const encodeRegisterSubdomain = (subDomain: string, rootDomain: string, subDomainOwner: string): string => {
-  const subNode = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(subDomain));
-  const abiInterface = new ethers.utils.Interface(ENS_ABI);
-
-  return abiInterface.encodeFunctionData('setSubnodeOwner', [
-    ethers.utils.namehash(rootDomain), subNode, subDomainOwner
+export const encodeRegisterSubdomain = (subDomain: string, rootDomain: string, subDomainOwner: string): Hex => {
+  return encodeContractCall('ens', 'setSubnodeOwner', [
+    namehash(normalize(rootDomain)),
+    keccak256(toBytes(normalize(subDomain))),
+    subDomainOwner
   ]);
 };
 
-const encodeSetResolve = (wholeName: string, resolver: string): string => {
-  const node = ethers.utils.namehash(wholeName);
-  const abiInterface = new ethers.utils.Interface(ENS_ABI);
-
-  return abiInterface.encodeFunctionData('setResolver', [
-    node, resolver
+export const encodeSetResolve = (wholeName: string, resolver: Address): Hex => {
+  return encodeContractCall('ens', 'setResolver', [
+    namehash(normalize(wholeName)),
+    resolver
   ]);
 };
 
-const encodeSetEthAddr = (wholeName: string, addr: string): string => {
-  const node = ethers.utils.namehash(wholeName);
-  const abiInterface = new ethers.utils.Interface(RESOLVER_ABI);
-
-  return abiInterface.encodeFunctionData('setAddr', [
-    node, addr
+export const encodeSetEthAddr = (wholeName: string, addr: Address): Hex => {
+  return encodeContractCall('ens-resolver', 'setAddr', [
+    namehash(normalize(wholeName)),
+    addr
   ]);
 };
 
-const resolveENSAddress = async (provider: JsonRpcProvider, ensName: string): Promise<string> => {
-  return await provider.resolveName(ensName);
+export const gaslessRegisterEns = async (rootDomainOwner: ContractAccount, subDomain: string, rootDomain: string, subDomainOwner: Address): Promise<void> => {
+  const rootOwner = await rootDomainOwner.getAddress();
+  const wholeName = `${subDomain}.${rootDomain}`;
+
+  const register = {
+    data: encodeRegisterSubdomain(subDomain, rootDomain, rootOwner),
+    to: ENS_REGISTRY_ADDRESS
+  };
+
+  const setResolver = {
+    data: encodeSetResolve(wholeName, GOERLI_PUBLIC_RESOLVER),
+    to: ENS_REGISTRY_ADDRESS
+  };
+
+  const resolverRecord = {
+    data: encodeSetEthAddr(wholeName, subDomainOwner),
+    to: GOERLI_PUBLIC_RESOLVER
+  };
+
+  const transferToUser = {
+    data: encodeRegisterSubdomain(subDomain, rootDomain, subDomainOwner),
+    to: ENS_REGISTRY_ADDRESS
+  };
+
+  await rootDomainOwner.gaslessExecute([register, setResolver, resolverRecord, transferToUser]);
 };
 
-export { encodeRegisterSubdomain, resolveENSAddress, ENS_REGISTRY_ADDRESS, encodeSetResolve, encodeSetEthAddr, GOERLI_PUBLIC_RESOLVER };
+export const resolveEnsAddress = async (publicClient: PublicClient, name: string): Promise<Address> => {
+  return await publicClient.getEnsAddress({
+    name: normalize(name)
+  });
+};
+
+export const resolveEnsName = async (publicClient: PublicClient, address: Address): Promise<string> => {
+  return await publicClient.getEnsName({ address });
+};

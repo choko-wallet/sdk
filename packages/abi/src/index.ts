@@ -1,8 +1,7 @@
 // Copyright 2021-2022 @choko-wallet/abi authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Abi } from 'abitype';
-import type { Hex, TransactionSerializable } from 'viem';
+import type { Abi, Hex, TransactionSerializable } from 'viem';
 
 import { decodeFunctionData, encodeFunctionData, parseTransaction, serializeTransaction } from 'viem';
 

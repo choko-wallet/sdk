@@ -27,7 +27,7 @@
     "@polkadot/keyring": "^10.1.11",
     "@polkadot/util-crypto": "^10.1.11",
     "@skyekiwi/crypto": "1.0.2-6",
-    "viem": "^1.0.2"
+    "viem": "^1.0.5"
   },
   "devDependencies": {
     "@types/superagent": "^4.1.18"

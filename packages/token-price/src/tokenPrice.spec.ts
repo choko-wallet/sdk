@@ -13,10 +13,7 @@ describe('@choko-wallet/account', function () {
     const start = Date.now();
 
     const res = await fetchBalanceInfoByAddress(
-      /* eslint-disable */
-      // @ts-ignore
       getPublicClient(1),
-      /* eslint-enable */
       '0x21a31Ee1afC51d94C2eFcCAa2092aD1028285549',
       1
     );
