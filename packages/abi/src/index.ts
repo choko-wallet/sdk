@@ -38,8 +38,8 @@ const encodeContractCall = (
 ): Hex => {
   const encoded = encodeFunctionData({
     abi: loadAbi(abiName, abi),
-    functionName,
-    args
+    args,
+    functionName
   });
 
   return encoded;// .slice(2);
@@ -54,8 +54,7 @@ const decodeContractCall = (
   functionName: string;
 } => {
   return decodeFunctionData({
-    abi: loadAbi(abiName, abi),
-    data
+    abi: loadAbi(abiName, abi), data
   });
 };
 

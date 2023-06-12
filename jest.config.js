@@ -12,7 +12,6 @@ module.exports = Object.assign({}, config, {
     '@choko-wallet/ens(.*)$': '<rootDir>/packages/ens/src/$1',
     '@choko-wallet/mpc(.*)$': '<rootDir>/packages/mpc/src/$1',
     '@choko-wallet/rpc(.*)$': '<rootDir>/packages/rpc/src/$1',
-    '@choko-wallet/sdk(.*)$': '<rootDir>/packages/sdk/src/$1',
     '@choko-wallet/token-price(.*)$': '<rootDir>/packages/token-price/src/$1'
 
   },
@@ -23,7 +22,6 @@ module.exports = Object.assign({}, config, {
     '<rootDir>/packages/ens/build',
     '<rootDir>/packages/mpc/build',
     '<rootDir>/packages/rpc/build',
-    '<rootDir>/packages/sdk/build',
     '<rootDir>/packages/auth-client/build',
     '<rootDir>/packages/token-price/build'
   ],

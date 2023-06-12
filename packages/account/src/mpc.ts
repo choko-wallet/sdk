@@ -1,44 +1,15 @@
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-// [object Object]
-// SPDX-License-Identifier: Apache-2.0
-
-//[object Object]
+// Copyright 2021-2022 @choko-wallet/account authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, LocalAccount } from 'viem';
-import { ethereumEncode } from '@polkadot/util-crypto';
 
+import { ethereumEncode } from '@polkadot/util-crypto';
+import { secureGenerateRandomKey } from '@skyekiwi/crypto';
 import { hashMessage, hashTypedData, keccak256, serializeTransaction, toBytes, toHex } from 'viem';
 import { toAccount } from 'viem/accounts';
 
+import { runKeygenRequest, runKeyRefreshRequest, runSignRequest } from '@choko-wallet/mpc';
 import { extractPublicKey, extractSignature } from '@choko-wallet/mpc/interface';
-import { runSignRequest } from '@choko-wallet/mpc';
-
-import { secureGenerateRandomKey } from '@skyekiwi/crypto';
 
 export class MpcAccount {
   localKey: string;
@@ -52,6 +23,20 @@ export class MpcAccount {
     if (localKey && authHeader) {
       this.publicKey = extractPublicKey(localKey);
     }
+  }
+
+  public static async newAccount (authHeader: string): Promise<MpcAccount> {
+    const payloadId = secureGenerateRandomKey();
+    const localKey = await runKeygenRequest(payloadId, authHeader);
+
+    return new MpcAccount(localKey, authHeader);
+  }
+
+  public static async refreshLocalKey (authHeader: string): Promise<MpcAccount> {
+    const payloadId = secureGenerateRandomKey();
+    const localKey = await runKeyRefreshRequest(payloadId, authHeader);
+
+    return new MpcAccount(localKey, authHeader);
   }
 
   public getAddress (): Address {
@@ -71,6 +56,7 @@ export class MpcAccount {
   }
 
   public toViemAccount (): LocalAccount {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const ctx = this;
 
     if (this.localKey && this.localKey.length !== 0) {

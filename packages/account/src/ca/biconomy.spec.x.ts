@@ -1,4 +1,4 @@
-// Copyright 2021-2022 @choko-wallet/abi authors & contributors
+// Copyright 2021-2022 @choko-wallet/account authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
 import { encodeContractCall } from '@choko-wallet/abi';
@@ -7,7 +7,7 @@ import { defaultAccountOption } from '../options';
 import { EoaAccount } from '..';
 import { ContractAccount } from './biconomy';
 
-// import { encodeContractCall } from '@choko-wallet/abi';
+// eslint-disable-next-line
 globalThis.fetch = require('isomorphic-fetch');
 
 const seed = 'humor cook snap sunny ticket distance leaf unusual join business obey below';
@@ -84,23 +84,23 @@ describe('@choko-wallet/account', function () {
     const ca = new ContractAccount(eoaAccount.toViemAccount(), 5);
 
     await ca.gaslessExecute([{
-      to: daiTokenContract,
       data: encodeContractCall('erc20', 'transfer', [
         '0x635DA47d95a2Ac4F30d6619B42D587d41fca1368',
         BigInt(10) ** BigInt(decimals) * BigInt(1)
-      ])
+      ]),
+      to: daiTokenContract
     }, {
-      to: daiTokenContract,
       data: encodeContractCall('erc20', 'transfer', [
         '0x635DA47d95a2Ac4F30d6619B42D587d41fca1368',
         BigInt(10) ** BigInt(decimals) * BigInt(2)
-      ])
+      ]),
+      to: daiTokenContract
     }, {
-      to: daiTokenContract,
       data: encodeContractCall('erc20', 'transfer', [
         '0x635DA47d95a2Ac4F30d6619B42D587d41fca1368',
         BigInt(10) ** BigInt(decimals) * BigInt(3)
-      ])
+      ]),
+      to: daiTokenContract
     }]);
   });
 });

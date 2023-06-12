@@ -25,10 +25,10 @@ describe('@choko-wallet/abi', function () {
 
   it('serde transfer', () => {
     const unsignedTx: TransactionSerializable = {
-      type: 'eip1559',
       chainId: 1,
       gas: BigInt(2000000),
       to: '0x520035E74101150BA05D8A5aac837E38ae5416e2',
+      type: 'eip1559',
       value: parseEther('0.1')
     };
 
@@ -40,15 +40,15 @@ describe('@choko-wallet/abi', function () {
 
   it('serde erc20 transfer', () => {
     const unsignedTx: TransactionSerializable = {
-      type: 'eip1559',
       chainId: 1,
-      gas: BigInt(2000000),
-      to: '0x520035E74101150BA05D8A5aac837E38ae5416e2',
-      value: parseEther('0.1'),
       data: encodeContractCall('erc20', 'transfer', [
         '0x520035E74101150BA05D8A5aac837E38ae5416e2',
         BigInt(10000)
-      ])
+      ]),
+      gas: BigInt(2000000),
+      to: '0x520035E74101150BA05D8A5aac837E38ae5416e2',
+      type: 'eip1559',
+      value: parseEther('0.1')
     };
 
     const result = encodeTransaction(unsignedTx);

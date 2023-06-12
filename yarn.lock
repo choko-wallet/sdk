@@ -1557,14 +1557,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@choko-wallet/sdk@workspace:packages/sdk":
-  version: 0.0.0-use.local
-  resolution: "@choko-wallet/sdk@workspace:packages/sdk"
-  dependencies:
-    "@choko-wallet/core": 0.1.10-21
-  languageName: unknown
-  linkType: soft
-
 "@choko-wallet/token-price@workspace:packages/token-price":
   version: 0.0.0-use.local
   resolution: "@choko-wallet/token-price@workspace:packages/token-price"

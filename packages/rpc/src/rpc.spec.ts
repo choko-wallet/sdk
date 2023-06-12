@@ -3,6 +3,7 @@
 
 import { getPublicClient } from '.';
 
+// eslint-disable-next-line
 globalThis.fetch = require('isomorphic-fetch');
 
 describe('@choko-wallet/rpc', function () {
@@ -14,5 +15,7 @@ describe('@choko-wallet/rpc', function () {
       console.log(await client.getBlockNumber());
       expect(chainId).toBe(remoteChainId);
     });
+
+    return null;
   });
 });

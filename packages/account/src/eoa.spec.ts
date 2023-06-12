@@ -42,7 +42,7 @@ describe('EoaAccount - @choko-wallet/account', function () {
       expect(userAccount.entropy).toBeUndefined();
     });
 
-    it(`EoaAccount - serde - ${type.keyType}`, async () => {
+    it(`EoaAccount - serde - ${type.keyType}`, () => {
       const userAccount = new EoaAccount(defaultAccountOption);
 
       userAccount.unlock(SEED);
@@ -67,7 +67,7 @@ describe('EoaAccount - @choko-wallet/account', function () {
       expect(userAccount2.publicKeys[1]).toEqual(userAccount.publicKeys[1]);
     });
 
-    it(`EoaAccount - serdeWithEncryptedKey - ${type.keyType}`, async () => {
+    it(`EoaAccount - serdeWithEncryptedKey - ${type.keyType}`, () => {
       const userAccount = new EoaAccount(defaultAccountOption);
 
       userAccount.unlock(SEED);

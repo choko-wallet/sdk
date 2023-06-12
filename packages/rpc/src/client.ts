@@ -1,11 +1,12 @@
 // Copyright 2021-2022 @choko-wallet/rpc authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Account, Chain, createPublicClient, createWalletClient, http, PublicClient, WalletClient } from 'viem';
+import { Chain, createPublicClient, createWalletClient, http, PublicClient, WalletClient } from 'viem';
 import { bsc, goerli, mainnet, polygon, polygonMumbai } from 'viem/chains';
 
 import { apiKeys } from './env';
 
+/* eslint-disable sort-keys */
 const blockPiAPIKeys: {[key: number]: [string, string, Chain]} = {
   1: ['ethereum', apiKeys[1], mainnet],
   5: ['goerli', apiKeys[5], goerli],
@@ -15,6 +16,7 @@ const blockPiAPIKeys: {[key: number]: [string, string, Chain]} = {
 
   56: ['bsc', apiKeys[56], bsc]
 };
+/* eslint-enable sort-keys */
 
 const blockPiRpc = (chainId: number): string => {
   if (Object.hasOwn(blockPiAPIKeys, chainId)) {
@@ -38,10 +40,8 @@ export const getPublicClient = (chainId: number): PublicClient => {
   const rpcEndpoint = blockPiRpc(chainId);
 
   return createPublicClient({
+    batch: { multicall: true },
     chain: getViemChainConfig(chainId),
-    batch: {
-      multicall: true
-    },
     transport: http(rpcEndpoint)
   });
 };
